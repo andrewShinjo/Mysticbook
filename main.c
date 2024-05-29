@@ -1,3 +1,5 @@
+// Author: Andrew Shinjo
+
 #include <gtk/gtk.h>
 
 static void
