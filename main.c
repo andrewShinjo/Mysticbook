@@ -3,17 +3,33 @@
 
 #include <gtk/gtk.h>
 
+gboolean
+key_pressed (
+  GtkEventControllerKey* self,
+  guint keyval,
+  guint keycode,
+  GdkModifierType state,
+  gpointer user_data
+)
+{
+    g_print("key_pressed event\n");
+    return GDK_EVENT_STOP;
+}
+
 static void
 activate(
     GtkApplication *app,
     gpointer user_data
 )
 {
+    GtkTextBuffer *textBuffer;
     GtkWidget *expander;
     GtkWidget *hbox;
     GtkWidget *vbox;
     GtkWidget *window;
     GtkWidget *textview;
+
+    GtkEventController *keyEventController;
 
     // Instantiate widgets
     {
@@ -22,10 +38,14 @@ activate(
         vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
         textview = gtk_text_view_new();
         window = gtk_application_window_new(app);
+        textBuffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview));
+
+        keyEventController = gtk_event_controller_key_new();
     }
 
     {
 
+        gtk_widget_add_controller(textview, keyEventController);
         gtk_widget_set_hexpand(textview, true);
         gtk_widget_set_valign(expander, GTK_ALIGN_START);
 
@@ -37,6 +57,16 @@ activate(
         gtk_window_set_child(GTK_WINDOW(window), vbox);
         gtk_window_set_default_size(GTK_WINDOW(window), 900, 600);
         gtk_window_present(GTK_WINDOW(window));
+    }
+
+    // Signal
+    {
+        g_signal_connect(
+            keyEventController, 
+            "key-pressed",
+            G_CALLBACK(key_pressed), 
+            NULL
+        );
     }
 }
 
