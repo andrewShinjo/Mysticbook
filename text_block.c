@@ -45,18 +45,13 @@ text_block_init(TextBlock *self)
     self->text_view = gtk_text_view_new();
     self->key_event_controller = gtk_event_controller_key_new();
 
-    gtk_widget_add_controller(
-        self->text_view,
-        self->key_event_controller
-    );
-    gtk_widget_set_hexpand(
-        self->text_view, 
-        true
-    );
-    gtk_widget_set_parent(
-        self->text_view, 
-        widget
-    );
+    gtk_text_view_set_bottom_margin(GTK_TEXT_VIEW(self->text_view), 10);
+    gtk_text_view_set_left_margin(GTK_TEXT_VIEW(self->text_view), 10);
+    gtk_text_view_set_right_margin(GTK_TEXT_VIEW(self->text_view), 10);
+    gtk_text_view_set_top_margin(GTK_TEXT_VIEW(self->text_view), 10);
+    gtk_widget_add_controller(self->text_view,self->key_event_controller);
+    gtk_widget_set_hexpand(self->text_view, true);
+    gtk_widget_set_parent(self->text_view, widget);
 
     g_signal_connect(self->key_event_controller, "key-pressed", G_CALLBACK(key_pressed), self->text_view);
 }
