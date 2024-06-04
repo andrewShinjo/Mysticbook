@@ -9,16 +9,23 @@ key_pressed (
   gpointer user_data
 )
 {
-    GtkTextIter iter;
+    GtkTextIter start, end;
     GtkWidget *text_view = (GtkWidget*) user_data;
     GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text_view));
     GtkTextMark *mark = gtk_text_buffer_get_insert(buffer);
-    gtk_text_buffer_get_iter_at_mark(buffer, &iter, mark);
-    int line_number = gtk_text_iter_get_line(&iter);
-    gtk_text_iter_set_line(&iter, line_number);
-    // Got iterator to start of current line
-    // TODO(andy): Put another iterator at the end of the current line
 
+    gtk_text_buffer_get_iter_at_mark(buffer, &start, mark);
+    int line_number = gtk_text_iter_get_line(&start);
+    gtk_text_iter_set_line(&start, line_number);
+    end = start;
+    gtk_text_iter_forward_to_line_end(&end);
+    char* text = gtk_text_buffer_get_text(
+        buffer,
+        &start,
+        &end,
+        false
+    );
+    g_print("Line: %s\n", text);
     return GDK_EVENT_PROPAGATE;
 }
 
