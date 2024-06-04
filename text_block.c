@@ -1,4 +1,62 @@
+#include <string.h>
 #include "text_block.h"
+
+static char*
+editor_get_current_line(GtkTextView *text_view) 
+{
+    GtkTextIter start, end;
+    GtkTextBuffer *buffer;
+    GtkTextMark *mark;
+    int line_number;
+    
+    buffer = gtk_text_view_get_buffer(text_view);
+    mark = gtk_text_buffer_get_insert(buffer);
+    
+    gtk_text_buffer_get_iter_at_mark(buffer, &start, mark);
+
+    line_number = gtk_text_iter_get_line(&start);
+    gtk_text_iter_set_line(&start, line_number);
+    end = start;
+    gtk_text_iter_forward_to_line_end(&end);
+
+    char* text = gtk_text_buffer_get_text(
+        buffer,
+        &start,
+        &end,
+        false
+    );
+
+    return text;
+}
+
+static gboolean
+editor_is_current_line_heading(const char* line)
+{
+    size_t length = strlen(line);
+
+    if(length < 2 || line[0] != '*')
+    {
+        return false;
+    }
+
+    for(int i = 1; i < length; i++)
+    {
+        char c = line[i];
+
+        if(c == '*')
+        {
+            continue;
+        }
+        else if(c == ' ')
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+}
 
 gboolean
 key_pressed (
@@ -9,24 +67,24 @@ key_pressed (
   gpointer user_data
 )
 {
-    GtkTextIter start, end;
     GtkWidget *text_view = (GtkWidget*) user_data;
-    GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text_view));
-    GtkTextMark *mark = gtk_text_buffer_get_insert(buffer);
-
-    gtk_text_buffer_get_iter_at_mark(buffer, &start, mark);
-    int line_number = gtk_text_iter_get_line(&start);
-    gtk_text_iter_set_line(&start, line_number);
-    end = start;
-    gtk_text_iter_forward_to_line_end(&end);
-    char* text = gtk_text_buffer_get_text(
-        buffer,
-        &start,
-        &end,
-        false
-    );
-    g_print("Line: %s\n", text);
+    char* text = editor_get_current_line(GTK_TEXT_VIEW(text_view));
     return GDK_EVENT_PROPAGATE;
+}
+
+void
+key_released (
+  GtkEventControllerKey* self,
+  guint keyval,
+  guint keycode,
+  GdkModifierType state,
+  gpointer user_data
+)
+{
+    GtkWidget *text_view = (GtkWidget*) user_data;
+    char* text = editor_get_current_line(GTK_TEXT_VIEW(text_view));
+    gboolean is_editor = editor_is_current_line_heading(text);
+    g_print("Line: %s, is_heading: %s\n", text, is_editor ? "TRUE":"FALSE");
 }
 
 static void text_block_dispose(GObject *object);
@@ -60,7 +118,19 @@ text_block_init(TextBlock *self)
     gtk_widget_set_hexpand(self->text_view, true);
     gtk_widget_set_parent(self->text_view, widget);
 
-    g_signal_connect(self->key_event_controller, "key-pressed", G_CALLBACK(key_pressed), self->text_view);
+    g_signal_connect(
+        self->key_event_controller, 
+        "key-pressed", 
+        G_CALLBACK(key_pressed), 
+        self->text_view
+    );
+
+    g_signal_connect(
+        self->key_event_controller,
+        "key-released",
+        G_CALLBACK(key_released),
+        self->text_view
+    );
 }
 
 static void
