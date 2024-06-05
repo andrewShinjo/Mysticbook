@@ -1,7 +1,9 @@
 #include <string.h>
 #include "text_block.h"
 
-static char*
+/* Editor private functions */
+
+static const char*
 editor_get_current_line(GtkTextView *text_view) 
 {
     GtkTextIter start, end;
@@ -13,10 +15,8 @@ editor_get_current_line(GtkTextView *text_view)
     mark = gtk_text_buffer_get_insert(buffer);
     
     gtk_text_buffer_get_iter_at_mark(buffer, &start, mark);
-
-    line_number = gtk_text_iter_get_line(&start);
-    gtk_text_iter_set_line(&start, line_number);
-    end = start;
+    gtk_text_buffer_get_iter_at_mark(buffer, &end, mark);
+    gtk_text_iter_set_line_offset(&start, 0);
     gtk_text_iter_forward_to_line_end(&end);
 
     char* text = gtk_text_buffer_get_text(
@@ -30,7 +30,7 @@ editor_get_current_line(GtkTextView *text_view)
 }
 
 static gboolean
-editor_is_current_line_heading(const char* line)
+editor_is_line_a_heading(const char* line)
 {
     size_t length = strlen(line);
 
@@ -58,18 +58,70 @@ editor_is_current_line_heading(const char* line)
     }
 }
 
+static void
+editor_hide_content_under_current_heading(GtkTextView *text_view)
+{
+    GtkTextIter start, end;
+    GtkTextBuffer *buffer;
+    GtkTextMark *mark;
+    int line_number;
+
+    buffer = gtk_text_view_get_buffer(text_view);
+    mark = gtk_text_buffer_get_insert(buffer);
+
+    gtk_text_buffer_get_iter_at_mark(buffer, &start, mark);
+    // gtk_text_buffer_get_iter_at_mark(buffer, &end, mark);
+    // gtk_text_iter_set_line_offset(&start, 0);
+    // gtk_text_iter_forward_to_line_end(&end);
+
+    while(!gtk_text_iter_is_end(&start))
+    {
+        // gtk_text_iter_assign(&start, &end);
+        // gtk_text_iter_forward_to_line_end(&end);
+        // gchar *text = gtk_text_iter_get_text(&start, &end);
+        // g_print("Text: %s\n", text);
+        // g_free(text);
+        gtk_text_iter_forward_line(&start);
+        // TODO(andy): print text from buffer line-by-line under the current heading.
+    }
+}
+
 gboolean
 key_pressed (
-  GtkEventControllerKey* self,
-  guint keyval,
-  guint keycode,
-  GdkModifierType state,
-  gpointer user_data
+    GtkEventControllerKey* self,
+    guint keyval,
+    guint keycode,
+    GdkModifierType state,
+    gpointer user_data
 )
 {
     GtkWidget *text_view = (GtkWidget*) user_data;
-    char* text = editor_get_current_line(GTK_TEXT_VIEW(text_view));
-    return GDK_EVENT_PROPAGATE;
+
+    switch(keyval)
+    {
+        case GDK_KEY_Tab:
+        {
+            // Is current line a heading?
+            const char *current_line = editor_get_current_line(GTK_TEXT_VIEW(text_view));
+            gboolean is_heading = editor_is_line_a_heading(current_line);
+            if(is_heading)
+            {
+                editor_hide_content_under_current_heading(GTK_TEXT_VIEW(text_view));
+            }
+            else {
+                // Do nothing.
+            }
+            return GDK_EVENT_STOP;
+        } break;
+
+        default:
+        {
+            return GDK_EVENT_PROPAGATE;
+        } break;
+    }
+    
+    // GtkWidget *text_view = (GtkWidget*) user_data;
+    // char* text = editor_get_current_line(GTK_TEXT_VIEW(text_view));
 }
 
 void
@@ -81,10 +133,10 @@ key_released (
   gpointer user_data
 )
 {
-    GtkWidget *text_view = (GtkWidget*) user_data;
-    char* text = editor_get_current_line(GTK_TEXT_VIEW(text_view));
-    gboolean is_editor = editor_is_current_line_heading(text);
-    g_print("Line: %s, is_heading: %s\n", text, is_editor ? "TRUE":"FALSE");
+    // GtkWidget *text_view = (GtkWidget*) user_data;
+    // const char* text = editor_get_current_line(GTK_TEXT_VIEW(text_view));
+    // gboolean is_editor = editor_is_line_a_heading(text);
+    // g_print("Line: %s, is_heading: %s\n", text, is_editor ? "TRUE":"FALSE");
 }
 
 static void text_block_dispose(GObject *object);

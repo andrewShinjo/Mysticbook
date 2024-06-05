@@ -1,0 +1,1 @@
+- [ ] Hide text under heading -- 06/05/2024
