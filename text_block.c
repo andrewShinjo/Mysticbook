@@ -3,6 +3,17 @@
 
 /* Editor private functions */
 
+static int
+editor_get_heading_level(const char *heading)
+{
+    int level = 0;
+    while(heading[level] == '*') 
+    {
+        level++;
+    }
+    return level;
+}
+
 static const char*
 editor_get_current_line(GtkTextView *text_view) 
 {
@@ -61,29 +72,98 @@ editor_is_line_a_heading(const char* line)
 static void
 editor_hide_content_under_current_heading(GtkTextView *text_view)
 {
-    GtkTextIter start, end;
-    GtkTextBuffer *buffer;
-    GtkTextMark *mark;
-    int line_number;
+    // This function assumes the text cursor is on a heading line.
 
-    buffer = gtk_text_view_get_buffer(text_view);
-    mark = gtk_text_buffer_get_insert(buffer);
+    GtkTextBuffer *buffer = gtk_text_view_get_buffer(text_view);
+    GtkTextMark *text_cursor = gtk_text_buffer_get_insert(buffer);
+    GtkTextIter start_iter, end_iter;
+    GtkTextIter content_start, content_end;
+    int heading_level2 = 0;
 
-    gtk_text_buffer_get_iter_at_mark(buffer, &start, mark);
-    // gtk_text_buffer_get_iter_at_mark(buffer, &end, mark);
-    // gtk_text_iter_set_line_offset(&start, 0);
-    // gtk_text_iter_forward_to_line_end(&end);
+    gtk_text_buffer_get_iter_at_mark(
+        buffer,
+        &start_iter,
+        text_cursor
+    );
 
-    while(!gtk_text_iter_is_end(&start))
+    end_iter = start_iter;
+    gtk_text_iter_set_line_offset(&start_iter, 0);
+    gtk_text_iter_forward_to_line_end(&end_iter);
+    gchar *line = gtk_text_iter_get_text(&start_iter, &end_iter);
+    int heading_level = editor_get_heading_level(line);
+    g_free(line);
+
+    gtk_text_iter_forward_line(&start_iter);
+
+    if(gtk_text_iter_is_end(&start_iter))
     {
-        // gtk_text_iter_assign(&start, &end);
-        // gtk_text_iter_forward_to_line_end(&end);
-        // gchar *text = gtk_text_iter_get_text(&start, &end);
-        // g_print("Text: %s\n", text);
-        // g_free(text);
-        gtk_text_iter_forward_line(&start);
-        // TODO(andy): print text from buffer line-by-line under the current heading.
+        return;
     }
+
+    // check if same level heading
+    if(!gtk_text_iter_ends_line(&start_iter))
+    {
+        end_iter = start_iter;
+        gtk_text_iter_set_line_offset(&start_iter, 0);
+        gtk_text_iter_forward_to_line_end(&end_iter);
+        gchar *line = gtk_text_iter_get_text(&start_iter, &end_iter);
+        int heading_level2 = editor_get_heading_level(line);
+        g_free(line);
+
+        if(heading_level == heading_level2)
+        {
+            return;
+        }
+    }
+
+    content_start = start_iter;
+    content_end = start_iter;
+
+    while(true)
+    {
+        
+        // case 1: only end of buffer
+        if(gtk_text_iter_is_end(&start_iter))
+        {
+            break;
+        }
+        // case 2: only \n
+        else if(gtk_text_iter_ends_line(&start_iter))
+        {
+            content_end = start_iter;
+        }
+        // case 3: text
+        else {
+            end_iter = start_iter;
+            gtk_text_iter_set_line_offset(&start_iter, 0);
+            gtk_text_iter_forward_to_line_end(&end_iter);
+            gchar *line = gtk_text_iter_get_text(&start_iter, &end_iter);
+
+            if(editor_is_line_a_heading(line)) 
+            {
+                int heading_level2 = editor_get_heading_level(line);
+                if(heading_level >= heading_level2)
+                {
+                    gtk_text_iter_backward_line(&end_iter);
+                    if(gtk_text_iter_ends_line(&end_iter))
+                    {
+                        content_end = end_iter;
+                        break;
+                    }
+                    else {
+                        gtk_text_iter_forward_to_line_end(&end_iter);
+                        content_end = end_iter;
+                        break;
+                    }
+                }
+            }
+        }
+        gtk_text_iter_forward_line(&start_iter);
+    }
+
+    gchar *text = gtk_text_iter_get_text(&content_start, &content_end);
+    g_print("Text:\n%s\n", text);
+    g_free(text);
 }
 
 gboolean
