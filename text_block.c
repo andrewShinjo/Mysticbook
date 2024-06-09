@@ -70,7 +70,7 @@ editor_is_line_a_heading(const char* line)
 }
 
 static void
-editor_hide_content_under_current_heading(GtkTextView *text_view)
+editor_fold_heading(GtkTextView *text_view)
 {
     // This function assumes the text cursor is on a heading line.
 
@@ -94,9 +94,6 @@ editor_hide_content_under_current_heading(GtkTextView *text_view)
 
     gtk_text_iter_forward_line(&start_iter);
 
-    // Blocks
-    // * Heading 1
-    // * Heading 1\n
     if(gtk_text_iter_is_end(&start_iter))
     {
         return;
@@ -155,70 +152,15 @@ editor_hide_content_under_current_heading(GtkTextView *text_view)
     g_print("Line:\n%s\n", line);
     g_free(line);
 
-    // // check if same level heading
-    // if(!gtk_text_iter_ends_line(&start_iter))
-    // {
-    //     end_iter = start_iter;
-    //     gtk_text_iter_set_line_offset(&start_iter, 0);
-    //     gtk_text_iter_forward_to_line_end(&end_iter);
-    //     gchar *line = gtk_text_iter_get_text(&start_iter, &end_iter);
-    //     int heading_level2 = editor_get_heading_level(line);
-    //     g_free(line);
+    GtkTextTag *invisible_tag = gtk_text_buffer_create_tag(
+        buffer, 
+        "invisible_tag", 
+        "invisible", 
+        true, 
+        NULL
+    );
+    gtk_text_buffer_apply_tag(buffer, invisible_tag, &start_iter, &end_iter);
 
-    //     if(heading_level == heading_level2)
-    //     {
-    //         return;
-    //     }
-    // }
-
-    // content_start = start_iter;
-    // content_end = start_iter;
-
-    // while(true)
-    // {
-        
-    //     // case 1: only end of buffer
-    //     if(gtk_text_iter_is_end(&start_iter))
-    //     {
-    //         break;
-    //     }
-    //     // case 2: only \n
-    //     else if(gtk_text_iter_ends_line(&start_iter))
-    //     {
-    //         content_end = start_iter;
-    //     }
-    //     // case 3: text
-    //     else {
-    //         end_iter = start_iter;
-    //         gtk_text_iter_set_line_offset(&start_iter, 0);
-    //         gtk_text_iter_forward_to_line_end(&end_iter);
-    //         gchar *line = gtk_text_iter_get_text(&start_iter, &end_iter);
-
-    //         if(editor_is_line_a_heading(line)) 
-    //         {
-    //             int heading_level2 = editor_get_heading_level(line);
-    //             if(heading_level >= heading_level2)
-    //             {
-    //                 gtk_text_iter_backward_line(&end_iter);
-    //                 if(gtk_text_iter_ends_line(&end_iter))
-    //                 {
-    //                     content_end = end_iter;
-    //                     break;
-    //                 }
-    //                 else {
-    //                     gtk_text_iter_forward_to_line_end(&end_iter);
-    //                     content_end = end_iter;
-    //                     break;
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     gtk_text_iter_forward_line(&start_iter);
-    // }
-
-    // gchar *text = gtk_text_iter_get_text(&content_start, &content_end);
-    // g_print("Text:\n%s\n", text);
-    // g_free(text);
 }
 
 gboolean
@@ -241,7 +183,7 @@ key_pressed (
             gboolean is_heading = editor_is_line_a_heading(current_line);
             if(is_heading)
             {
-                editor_hide_content_under_current_heading(GTK_TEXT_VIEW(text_view));
+                editor_fold_heading(GTK_TEXT_VIEW(text_view));
             }
             else {
                 // Do nothing.
