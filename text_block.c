@@ -67,6 +67,8 @@ editor_is_line_a_heading(const char* line)
             return false;
         }
     }
+
+    return false;
 }
 
 static void
@@ -76,6 +78,7 @@ editor_fold_heading(GtkTextView *text_view)
 
     GtkTextBuffer *buffer = gtk_text_view_get_buffer(text_view);
     GtkTextMark *text_cursor = gtk_text_buffer_get_insert(buffer);
+    GtkTextTagTable *tag_table = gtk_text_buffer_get_tag_table(buffer);
     GtkTextIter start_iter, end_iter;
     GtkTextIter content_start, content_end;
 
@@ -152,14 +155,17 @@ editor_fold_heading(GtkTextView *text_view)
     g_print("Line:\n%s\n", line);
     g_free(line);
 
-    GtkTextTag *invisible_tag = gtk_text_buffer_create_tag(
-        buffer, 
-        "invisible_tag", 
-        "invisible", 
-        true, 
-        NULL
+    GtkTextTag *fold_tag = gtk_text_tag_table_lookup(
+        tag_table,
+        "fold"
     );
-    gtk_text_buffer_apply_tag(buffer, invisible_tag, &start_iter, &end_iter);
+
+    gtk_text_buffer_apply_tag(
+        buffer, 
+        fold_tag, 
+        &content_start, 
+        &content_end
+    );
 
 }
 
@@ -172,33 +178,36 @@ key_pressed (
     gpointer user_data
 )
 {
-    GtkWidget *text_view = (GtkWidget*) user_data;
+    GtkWidget *widget = (GtkWidget*) user_data;
+    GtkTextView *text_view = GTK_TEXT_VIEW(widget);
+    GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(text_view);
+    GtkTextTagTable *tag_table = gtk_text_buffer_get_tag_table(text_buffer);
 
-    switch(keyval)
+     gunichar input = gdk_keyval_to_unicode(keyval);
+
+    if(g_unichar_isprint(input))
     {
-        case GDK_KEY_Tab:
+        GtkTextMark *insert_mark = gtk_text_buffer_get_insert(text_buffer);  
+        GtkTextIter insert_iter;
+        gtk_text_buffer_get_iter_at_mark(text_buffer, &insert_iter, insert_mark);
+        GtkTextIter start_iter = insert_iter;
+        GtkTextIter end_iter = insert_iter;
+        gtk_text_iter_set_line_offset(&start_iter, 0);
+        gtk_text_iter_forward_to_line_end(&end_iter);
+        gchar *line = gtk_text_iter_get_text(&start_iter, &end_iter);
+        GtkTextTag *h1_tag = gtk_text_tag_table_lookup(tag_table, "h1");
+        if(editor_is_line_a_heading(line))
         {
-            // Is current line a heading?
-            const char *current_line = editor_get_current_line(GTK_TEXT_VIEW(text_view));
-            gboolean is_heading = editor_is_line_a_heading(current_line);
-            if(is_heading)
-            {
-                editor_fold_heading(GTK_TEXT_VIEW(text_view));
-            }
-            else {
-                // Do nothing.
-            }
-            return GDK_EVENT_STOP;
-        } break;
-
-        default:
+            gtk_text_buffer_insert_with_tags(text_buffer, &insert_iter, (char*) &input, 1, h1_tag, NULL);
+        }
+        else
         {
-            return GDK_EVENT_PROPAGATE;
-        } break;
+            gtk_text_buffer_insert(text_buffer, &insert_iter, (char*) &input, 1);
+        }
+        return GDK_EVENT_STOP;
     }
-    
-    // GtkWidget *text_view = (GtkWidget*) user_data;
-    // char* text = editor_get_current_line(GTK_TEXT_VIEW(text_view));
+
+    return GDK_EVENT_PROPAGATE;
 }
 
 void
@@ -210,10 +219,33 @@ key_released (
   gpointer user_data
 )
 {
-    // GtkWidget *text_view = (GtkWidget*) user_data;
-    // const char* text = editor_get_current_line(GTK_TEXT_VIEW(text_view));
-    // gboolean is_editor = editor_is_line_a_heading(text);
-    // g_print("Line: %s, is_heading: %s\n", text, is_editor ? "TRUE":"FALSE");
+    GtkWidget *widget = (GtkWidget*) user_data;
+    GtkTextView *text_view = GTK_TEXT_VIEW(widget);
+    GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(text_view);
+    GtkTextTagTable *tag_table = gtk_text_buffer_get_tag_table(text_buffer);
+    
+
+    // Check if current line is a heading or not after modification.
+    {
+        GtkTextMark *insert_mark = gtk_text_buffer_get_insert(text_buffer);
+        GtkTextIter insert_iter;
+        gtk_text_buffer_get_iter_at_mark(text_buffer, &insert_iter, insert_mark);
+        GtkTextIter start_iter = insert_iter;
+        GtkTextIter end_iter = insert_iter;
+        gtk_text_iter_set_line_offset(&start_iter, 0);
+        gtk_text_iter_forward_to_line_end(&end_iter);
+        gchar *line = gtk_text_iter_get_text(&start_iter, &end_iter);
+        GtkTextTag *h1_tag = gtk_text_tag_table_lookup(tag_table, "h1");
+        if(editor_is_line_a_heading(line))
+        {
+            gtk_text_buffer_apply_tag(text_buffer, h1_tag, &start_iter, &end_iter);
+        }
+        else
+        {
+            gtk_text_buffer_remove_tag(text_buffer, h1_tag, &start_iter, &end_iter);
+        }
+        g_free(line);
+    }
 }
 
 static void text_block_dispose(GObject *object);
@@ -239,27 +271,56 @@ text_block_init(TextBlock *self)
     self->text_view = gtk_text_view_new();
     self->key_event_controller = gtk_event_controller_key_new();
 
-    gtk_text_view_set_bottom_margin(GTK_TEXT_VIEW(self->text_view), 10);
-    gtk_text_view_set_left_margin(GTK_TEXT_VIEW(self->text_view), 10);
-    gtk_text_view_set_right_margin(GTK_TEXT_VIEW(self->text_view), 10);
-    gtk_text_view_set_top_margin(GTK_TEXT_VIEW(self->text_view), 10);
-    gtk_widget_add_controller(self->text_view,self->key_event_controller);
+    GtkTextView *text_view = GTK_TEXT_VIEW(self->text_view);
+
+    gtk_text_view_set_bottom_margin(text_view, 10);
+    gtk_text_view_set_left_margin(text_view, 10);
+    gtk_text_view_set_right_margin(text_view, 10);
+    gtk_text_view_set_top_margin(text_view, 10);
+    gtk_widget_add_controller(self->text_view, self->key_event_controller);
     gtk_widget_set_hexpand(self->text_view, true);
     gtk_widget_set_parent(self->text_view, widget);
 
-    g_signal_connect(
-        self->key_event_controller, 
-        "key-pressed", 
-        G_CALLBACK(key_pressed), 
-        self->text_view
-    );
+    // Initialize tag table.
+    {
+        GtkTextBuffer *buffer = gtk_text_view_get_buffer(text_view);
+        GtkTextTagTable *tag_table = gtk_text_buffer_get_tag_table(buffer);
 
-    g_signal_connect(
-        self->key_event_controller,
-        "key-released",
-        G_CALLBACK(key_released),
-        self->text_view
-    );
+        GtkTextTag *fold_tag = gtk_text_buffer_create_tag(
+            buffer, 
+            "fold", 
+            "invisible", 
+            true, 
+            NULL
+        );
+
+        GtkTextTag *h1_tag = gtk_text_buffer_create_tag(
+            buffer,
+            "h1",
+            "foreground",
+            "purple",
+            NULL
+        );
+
+    }
+
+    // Initialize signals
+    {
+        g_signal_connect(
+            self->key_event_controller, 
+            "key-pressed", 
+            G_CALLBACK(key_pressed), 
+            self->text_view
+        );
+
+        g_signal_connect(
+            self->key_event_controller,
+            "key-released",
+            G_CALLBACK(key_released),
+            self->text_view
+        );
+    }
+    
 }
 
 static void
