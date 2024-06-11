@@ -20,7 +20,7 @@ activate(
 
     // Configure initial settings
     {
-        g_object_set(settings, "gtk-font-name", "Ubuntu 24", NULL);
+        g_object_set(settings, "gtk-font-name", "Ubuntu 12", NULL);
     }
 
     // Instantiate widgets
