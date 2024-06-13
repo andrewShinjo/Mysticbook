@@ -3,7 +3,7 @@
 #include "util.h"
 
 /* Editor private data */
-guint last_keyval = 0;
+int buffer_size_before_change = 1;
 
 /* Editor private functions */
 
@@ -63,10 +63,12 @@ changed (
   gpointer user_data
 )
 {
+    int buffer_size_after_change = editor_get_line_count(self);
+    int lines_added = buffer_size_after_change - buffer_size_before_change;
     int line_number = editor_get_cursor_position_line_number(self);
     GtkTextTagTable *tag_table = gtk_text_buffer_get_tag_table(self);
     GtkTextTag *heading_tag = gtk_text_tag_table_lookup(tag_table, "heading");
-    
+
     gchar *text = editor_get_text_at_line(self, line_number);
 
     if(editor_is_line_heading(text))
@@ -81,19 +83,25 @@ changed (
 
     g_free(text);
 
-    text = editor_get_text_at_line(self, line_number-1);
-
-    if(editor_is_line_heading(text))
+    for(int i = 1; i <= lines_added; i++)
     {
-        editor_remove_tag_from_line(self, heading_tag, line_number-1);
-        editor_apply_tag_to_line(self, heading_tag, line_number-1);
-    }
-    else
-    {
-        editor_remove_tag_from_line(self, heading_tag, line_number-1);
+        text = editor_get_text_at_line(self, line_number - i);
+
+        if(editor_is_line_heading(text))
+        {
+            editor_apply_tag_to_line(self, heading_tag, line_number - i);
+        }
+        else
+        {
+            editor_remove_tag_from_line(self, heading_tag, line_number - i);
+        }
+
+        g_free(text);
     }
 
-    g_free(text);
+    
+
+    buffer_size_before_change = buffer_size_after_change;
 
 }
 
@@ -106,7 +114,6 @@ key_pressed (
     gpointer user_data
 )
 {
-    last_keyval = keyval;
     return GDK_EVENT_PROPAGATE;
 }
 
