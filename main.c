@@ -15,6 +15,7 @@ activate(
 
     GtkWidget *window;
     GtkWidget *text_block;
+    GtkWidget *scrolled_window;
 
     GtkEventController *keyEventController;
 
@@ -26,21 +27,17 @@ activate(
     // Instantiate widgets
     {
         text_block = text_block_new();
+        scrolled_window = gtk_scrolled_window_new();
         window = gtk_application_window_new(app);
     }
 
     {
+        gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), text_block);
+        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 
-        gtk_window_set_title(
-            GTK_WINDOW(window), 
-            "Mysticbook"
-        );
-        gtk_window_set_child(GTK_WINDOW(window), text_block);
-        gtk_window_set_default_size(
-            GTK_WINDOW(window),
-            900, 
-            600
-        );
+        gtk_window_set_title(GTK_WINDOW(window), "Mysticbook");
+        gtk_window_set_child(GTK_WINDOW(window), scrolled_window);
+        gtk_window_set_default_size(GTK_WINDOW(window), 900, 600);
         gtk_window_present(GTK_WINDOW(window));
     }
 }
