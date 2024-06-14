@@ -4,11 +4,7 @@
 #include <gtk/gtk.h>
 #include "text_block.h"
 
-static void
-activate(
-    GtkApplication *app,
-    gpointer user_data
-)
+static void activate(GtkApplication *app, gpointer user_data)
 {
 
     GtkSettings *settings = gtk_settings_get_default();
@@ -42,31 +38,39 @@ activate(
     }
 }
 
-
-static void on_startup(GtkApplication *app, gpointer user_data) {
-    g_print("on_startup\n");
-    GSimpleAction *act_quit = g_simple_action_new ("quit", NULL);
-    g_action_map_add_action (G_ACTION_MAP (app), G_ACTION (act_quit));
-
-    GMenu *menubar = g_menu_new ();
-    GMenuItem *menu_item_menu = g_menu_item_new ("Menu", NULL);
-    GMenu *menu = g_menu_new ();
-    GMenuItem *menu_item_quit = g_menu_item_new ("Quit", "app.quit");
-    g_menu_append_item (menu, menu_item_quit);
-    g_object_unref (menu_item_quit);
-    g_menu_item_set_submenu (menu_item_menu, G_MENU_MODEL (menu));
-    g_object_unref (menu);
-    g_menu_append_item (menubar, menu_item_menu);
-    g_object_unref (menu_item_menu);
-
-    gtk_application_set_menubar (GTK_APPLICATION (app), G_MENU_MODEL (menubar));
+static void file_open_activated(GSimpleAction *action, GVariant *parameter, gpointer app)
+{
+    g_print("File Open");
 }
 
-int
-main(
-    int argc,
-    char **argv)
-{
+static void on_startup(GtkApplication *app, gpointer user_data) {
+
+    // Initialize menu bar.
+    {
+        GSimpleAction *file_open_simple_action = g_simple_action_new ("file_open", NULL);
+        g_action_map_add_action(G_ACTION_MAP(app), G_ACTION(file_open_simple_action));
+        g_signal_connect(file_open_simple_action, "activate", G_CALLBACK (file_open_activated), app);
+
+        GMenu *file_menu = g_menu_new ();
+        GMenu *menubar = g_menu_new ();
+
+        GMenuItem *file_menu_item = g_menu_item_new ("File", NULL);
+        GMenuItem *file_open_menu_item = g_menu_item_new ("Open", "app.file_open");
+
+        g_menu_item_set_submenu(file_menu_item, G_MENU_MODEL (file_menu));
+
+        g_menu_append_item(file_menu, file_open_menu_item);
+        g_menu_append_item(menubar, file_menu_item);
+
+        g_object_unref(file_open_menu_item);
+        g_object_unref(file_menu);
+        g_object_unref(file_menu_item);
+
+        gtk_application_set_menubar (GTK_APPLICATION(app), G_MENU_MODEL(menubar));
+    }
+}
+
+int main(int argc, char **argv) {
     GtkApplication *app;
     int status;
 
