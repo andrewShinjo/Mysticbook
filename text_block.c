@@ -5,45 +5,6 @@
 /* Editor private data */
 int buffer_size_before_change = 1;
 
-/* Editor private functions */
-
-static int
-heading_level(const char *heading)
-{
-    int level = 0;
-    while(heading[level] == '*') 
-    {
-        level++;
-    }
-    return level;
-}
-
-static const char*
-editor_get_current_line(GtkTextView *text_view) 
-{
-    GtkTextIter start, end;
-    GtkTextBuffer *buffer;
-    GtkTextMark *mark;
-    int line_number;
-    
-    buffer = gtk_text_view_get_buffer(text_view);
-    mark = gtk_text_buffer_get_insert(buffer);
-    
-    gtk_text_buffer_get_iter_at_mark(buffer, &start, mark);
-    gtk_text_buffer_get_iter_at_mark(buffer, &end, mark);
-    gtk_text_iter_set_line_offset(&start, 0);
-    gtk_text_iter_forward_to_line_end(&end);
-
-    char* text = gtk_text_buffer_get_text(
-        buffer,
-        &start,
-        &end,
-        false
-    );
-
-    return text;
-}
-
 /* Signal callbacks */
 
 void
@@ -67,18 +28,44 @@ changed (
     int lines_added = buffer_size_after_change - buffer_size_before_change;
     int line_number = editor_get_cursor_position_line_number(self);
     GtkTextTagTable *tag_table = gtk_text_buffer_get_tag_table(self);
-    GtkTextTag *heading_tag = gtk_text_tag_table_lookup(tag_table, "heading");
 
     gchar *text = editor_get_text_at_line(self, line_number);
 
     if(editor_is_line_heading(text))
     {
-        editor_remove_tag_from_line(self, heading_tag, line_number);
+        int heading_level = editor_get_heading_level(text);
+        GtkTextTag *heading_tag;
+
+        switch(heading_level % 5)
+        {
+            case 0:
+            {
+                heading_tag = gtk_text_tag_table_lookup(tag_table, "h5");
+            } break;
+            case 1:
+            {
+                heading_tag = gtk_text_tag_table_lookup(tag_table, "h1");
+            } break;
+            case 2:
+            {
+                heading_tag = gtk_text_tag_table_lookup(tag_table, "h2");
+            } break;
+            case 3:
+            {
+                heading_tag = gtk_text_tag_table_lookup(tag_table, "h3");
+            } break;
+            case 4:
+            {
+                heading_tag = gtk_text_tag_table_lookup(tag_table, "h4");
+            } break;
+        }
+
+        editor_remove_all_tags_from_line(self, line_number);
         editor_apply_tag_to_line(self, heading_tag, line_number);
     }
     else
     {
-        editor_remove_tag_from_line(self, heading_tag, line_number);
+        editor_remove_all_tags_from_line(self, line_number);
     }
 
     g_free(text);
@@ -89,11 +76,39 @@ changed (
 
         if(editor_is_line_heading(text))
         {
-            editor_apply_tag_to_line(self, heading_tag, line_number - i);
+            int heading_level = editor_get_heading_level(text);
+            GtkTextTag *heading_tag;
+
+            switch(heading_level % 5)
+            {
+                case 0:
+                {
+                    heading_tag = gtk_text_tag_table_lookup(tag_table, "h5");
+                } break;
+                case 1:
+                {
+                    heading_tag = gtk_text_tag_table_lookup(tag_table, "h1");
+                } break;
+                case 2:
+                {
+                    heading_tag = gtk_text_tag_table_lookup(tag_table, "h2");
+                } break;
+                case 3:
+                {
+                    heading_tag = gtk_text_tag_table_lookup(tag_table, "h3");
+                } break;
+                case 4:
+                {
+                    heading_tag = gtk_text_tag_table_lookup(tag_table, "h4");
+                } break;
+            }
+
+            editor_remove_all_tags_from_line(self, line_number - 1);
+            editor_apply_tag_to_line(self, heading_tag, line_number - 1);
         }
         else
         {
-            editor_remove_tag_from_line(self, heading_tag, line_number - i);
+            editor_remove_all_tags_from_line(self, line_number - i);
         }
 
         g_free(text);
@@ -166,21 +181,13 @@ text_block_init(TextBlock *self)
     // Initialize tag table.
     {
 
-        GtkTextTag *fold_tag = gtk_text_buffer_create_tag(
-            buffer, 
-            "fold", 
-            "invisible", 
-            true, 
-            NULL
-        );
-
-        GtkTextTag *heading_tag = gtk_text_buffer_create_tag(
-            buffer,
-            "heading",
-            "foreground",
-            "purple",
-            NULL
-        );
+        // GtkTextTag *fold_tag = gtk_text_buffer_create_tag(buffer, "fold", "invisible", true, NULL);
+        GtkTextTag *heading_tag = gtk_text_buffer_create_tag(buffer, "heading", "foreground", "#00FFFF", NULL);
+        GtkTextTag *h1_tag = gtk_text_buffer_create_tag(buffer, "h1", "foreground", "#00FFFF", NULL);
+        GtkTextTag *h2_tag = gtk_text_buffer_create_tag(buffer, "h2", "foreground", "#32CD32", NULL);
+        GtkTextTag *h3_tag = gtk_text_buffer_create_tag(buffer, "h3", "foreground", "#FF7F50", NULL);
+        GtkTextTag *h4_tag = gtk_text_buffer_create_tag(buffer, "h4", "foreground", "#FF1493", NULL);
+        GtkTextTag *h5_tag = gtk_text_buffer_create_tag(buffer, "h5", "foreground", "#DAA520", NULL);
     }
 
     // Initialize signals

@@ -18,6 +18,22 @@ void editor_apply_tag_to_line(GtkTextBuffer *buffer, GtkTextTag *tag, int line_n
     gtk_text_buffer_apply_tag(buffer, tag, &start, &end);
 }
 
+void editor_remove_all_tags_from_line(GtkTextBuffer *buffer, int line_number)
+{
+    GtkTextIter start, end;
+    gtk_text_buffer_get_start_iter(buffer, &start);
+    gtk_text_iter_set_line(&start, line_number);
+    end = start;
+
+    if(!gtk_text_iter_ends_line(&end))
+    {
+        gtk_text_iter_forward_to_line_end(&end);
+        gtk_text_iter_forward_char(&end);
+    }
+
+    gtk_text_buffer_remove_all_tags(buffer, &start, &end);
+}
+
 void editor_remove_tag_from_line(GtkTextBuffer *buffer, GtkTextTag *tag, int line_number)
 {
     GtkTextIter start, end;
@@ -39,6 +55,16 @@ int editor_get_cursor_position_line_number(GtkTextBuffer *buffer)
     GtkTextIter iter;
     gtk_text_buffer_get_iter_at_mark(buffer, &iter, gtk_text_buffer_get_insert(buffer));
     return gtk_text_iter_get_line(&iter);
+}
+
+int editor_get_heading_level(const gchar *heading)
+{
+    int level = 0;
+    while(heading[level] == '*') 
+    {
+        level++;
+    }
+    return level;
 }
 
 int editor_get_line_count(GtkTextBuffer *buffer)
