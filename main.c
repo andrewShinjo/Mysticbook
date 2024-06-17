@@ -37,10 +37,27 @@ static void activate(GtkApplication *app, gpointer user_data)
     }
 }
 
+static void file_open_callback(GObject* source_object, GAsyncResult* res, gpointer data) 
+{
+	g_print("file_open_callback\n");
+	GtkFileDialog *file_dialog = GTK_FILE_DIALOG(source_object);
+	GError *err = NULL;
+	GFile *file = gtk_file_dialog_open_finish(file_dialog, res, &err);
+
+	if(file != NULL)
+	{
+		char *contents;
+		gsize length;
+		g_file_load_contents(file, NULL, &contents, &length, NULL, &err);
+		g_print("contents: %s\n", contents);
+	}
+}
+
 static void file_open_activated(GSimpleAction *action, GVariant *parameter, gpointer app)
 {
+	g_print("file_open_activated\n");
     GtkFileDialog *file_dialog = gtk_file_dialog_new();
-    gtk_file_dialog_open(file_dialog, NULL, NULL, NULL, NULL);
+    gtk_file_dialog_open(file_dialog, NULL, NULL, file_open_callback, NULL);
 }
 
 static void on_startup(GtkApplication *app, gpointer user_data) {
