@@ -8,7 +8,6 @@ static void activate(GtkApplication *app, gpointer user_data)
 {
 
     GtkSettings *settings = gtk_settings_get_default();
-
     GtkWidget *scrolled_window;
     GtkWidget *text_block;
     GtkWidget *window;
@@ -40,7 +39,8 @@ static void activate(GtkApplication *app, gpointer user_data)
 
 static void file_open_activated(GSimpleAction *action, GVariant *parameter, gpointer app)
 {
-    g_print("File Open");
+    GtkFileDialog *file_dialog = gtk_file_dialog_new();
+    gtk_file_dialog_open(file_dialog, NULL, NULL, NULL, NULL);
 }
 
 static void on_startup(GtkApplication *app, gpointer user_data) {
@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
     GtkApplication *app;
     int status;
 
-    app = gtk_application_new("org.mysticbook.app", G_APPLICATION_FLAGS_NONE);
+    app = gtk_application_new("org.mysticbook.app", G_APPLICATION_DEFAULT_FLAGS);
 
     g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
     g_signal_connect(app, "startup", G_CALLBACK(on_startup), NULL);
