@@ -2,14 +2,16 @@
 // Date: 05-29-2024
 
 #include <gtk/gtk.h>
-#include "text_block.h"
+#include "mystic_text_view.h"
+// #include "text_block.h"
 
 static void activate(GtkApplication *app, gpointer user_data)
 {
 
     GtkSettings *settings = gtk_settings_get_default();
     GtkWidget *scrolled_window;
-    GtkWidget *text_block;
+	GtkWidget *mystic_text_view;
+    // GtkWidget *text_block;
     GtkWidget *window;
     
     GtkEventController *keyEventController;
@@ -22,13 +24,15 @@ static void activate(GtkApplication *app, gpointer user_data)
     // Instantiate widgets
     {
         scrolled_window = gtk_scrolled_window_new();
-        text_block = text_block_new();
+		mystic_text_view = mystic_text_view_new();
+        // text_block = text_block_new();
         window = gtk_application_window_new(app);
     }
 
     {
         gtk_application_window_set_show_menubar (GTK_APPLICATION_WINDOW (window), TRUE);
-        gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), text_block);
+		gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), mystic_text_view);
+        // gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), text_block);
         gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
         gtk_window_set_title(GTK_WINDOW(window), "Mysticbook");
         gtk_window_set_child(GTK_WINDOW(window), scrolled_window);
