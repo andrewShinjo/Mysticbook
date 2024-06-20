@@ -2,9 +2,11 @@
 // Date: 05-29-2024
 
 #include <gtk/gtk.h>
-#include "mystic_text_view.h"
-// #include "text_block.h"
+#include "mystic_book_application.h"
 
+#define APPLICATION_ID "org.mysticbook.app"
+
+/*
 static void 
 activate(
 	GtkApplication *app, 
@@ -34,13 +36,13 @@ activate(
     {
         scrolled_window = gtk_scrolled_window_new();
 		mystic_text_view = mystic_text_view_new();
-        // text_block = text_block_new();
         window = gtk_application_window_new(app);
     }
 
     {
         gtk_application_window_set_show_menubar(
-			GTK_APPLICATION_WINDOW(window), TRUE
+			GTK_APPLICATION_WINDOW(window),
+			TRUE
 		);
 
 		gtk_scrolled_window_set_child(
@@ -121,6 +123,7 @@ file_open_activated(
 	);
 }
 
+// "startup" signal is called only once in the primary app instance
 static void on_startup(GtkApplication *app, gpointer user_data) {
 
     // Initialize menu bar.
@@ -173,21 +176,22 @@ static void on_startup(GtkApplication *app, gpointer user_data) {
 		);
     }
 }
+*/
+
 
 int 
 main(int argc, char **argv) 
 {
-    GtkApplication *app;
+	MysticBookApplication *app;
     int status;
 
-    app = gtk_application_new(
-		"org.mysticbook.app", 
+    app = mystic_book_application_new(
+		APPLICATION_ID, 
 		G_APPLICATION_DEFAULT_FLAGS
 	);
 
-    g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
-    g_signal_connect(app, "startup", G_CALLBACK(on_startup), NULL);
-    status = g_application_run(G_APPLICATION(app), argc, argv);
+	status = g_application_run(G_APPLICATION(app), argc, argv);
+
     g_object_unref(app);
     return status;
 }

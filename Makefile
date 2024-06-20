@@ -1,6 +1,21 @@
-CC = gcc
-CFLAGS = $(shell pkg-config --cflags gtk4)
-LDFLAGS = $(shell pkg-config --libs gtk4)
+CC := gcc
+CFLAGS := $(shell pkg-config --cflags gtk4)
+LDFLAGS := $(shell pkg-config --libs gtk4)
+BUILDDIR := build/
+SRCDIR := src/
+SRCS := $(wildcard $(SRCDIR)*.c)
+EXEC := main
 
-main: main.c mystic_text_view.c text_block.c util.c
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+all: run
+
+$(EXEC): $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $(BUILDDIR)$(EXEC) $(SRCS) $(LDFLAGS)
+
+$(BUILDDIR):
+	mkdir -p $(BUILDDIR)
+
+run: $(EXEC)
+	./$(BUILDDIR)$(EXEC)
+
+clean:
+	rm -rf $(BUILDDIR) $(EXEC)
