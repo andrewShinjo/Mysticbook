@@ -17,8 +17,8 @@ mystic_book_editor_new()
 
 /* Private */
 
-static void mystic_text_view_dispose(GObject *object);
-static void mystic_text_view_finalize(GObject *object);
+static void mystic_book_editor_dispose(GObject *object);
+static void mystic_book_editor_finalize(GObject *object);
 
 G_DEFINE_TYPE(MysticBookEditor, mystic_book_editor, GTK_TYPE_WIDGET)
 
