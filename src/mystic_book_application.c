@@ -39,8 +39,9 @@ activate(GtkApplication *gtk_app, gpointer user_data)
 
 /* Signal callbacks end */
 
+/* Called everytime an instance of the class is created. */
 static void
-mystic_book_application_init(MysticBookApplication *app) /* Called everytime an instance of the class is created. */
+mystic_book_application_init(MysticBookApplication *app) 
 {
 	GtkApplication* gtk_app = GTK_APPLICATION(app);
 

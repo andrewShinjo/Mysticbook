@@ -14,3 +14,6 @@ G_DECLARE_FINAL_TYPE(
 
 GtkWidget *
 mystic_book_app_window_new(GtkApplication *gtk_app);
+
+void 
+mystic_book_app_window_show(MysticBookAppWindow *w);
