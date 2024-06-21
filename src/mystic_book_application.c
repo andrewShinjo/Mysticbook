@@ -1,9 +1,10 @@
 #include "mystic_book_application.h"
+#include "mystic_book_app_window.h"
 
 struct _MysticBookApplication
 {
 	GtkApplication parent;
-	GtkWidget *window;
+	GtkWidget *app_window;
 	GSettings *settings;
 };
 
@@ -32,8 +33,8 @@ static void
 activate(GtkApplication *gtk_app, gpointer user_data)
 {
 	MysticBookApplication *self = MYSTIC_BOOK_APPLICATION(gtk_app);
-	self->window = gtk_application_window_new(gtk_app);
-	gtk_window_present(GTK_WINDOW(self->window));
+	self->app_window = mystic_book_app_window_new(gtk_app);
+	gtk_window_present(GTK_WINDOW(self->app_window));
 }
 
 /* Signal callbacks end */
