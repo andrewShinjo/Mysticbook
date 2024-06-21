@@ -1,5 +1,5 @@
 #include "mystic_book_app_window.h"
-#include "mystic_text_view.h"
+#include "mystic_book_editor.h"
 
 struct _MysticBookAppWindow
 {
@@ -54,12 +54,7 @@ mystic_book_app_window_init(MysticBookAppWindow *self)
 	self->paned = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
 
 	self->left = gtk_button_new_with_label("Left");
-	self->right = gtk_scrolled_window_new();
-
-	gtk_scrolled_window_set_child(
-		GTK_SCROLLED_WINDOW(self->right),
-		gtk_text_view_new()
-	);
+	self->right = mystic_book_editor_new();
 
 	gtk_paned_set_start_child(GTK_PANED(self->paned), self->left);
 	gtk_paned_set_end_child(GTK_PANED(self->paned), self->right);
