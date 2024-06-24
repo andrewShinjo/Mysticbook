@@ -31,6 +31,7 @@ mystic_book_doc_list_init(MysticBookDocList *self)
 
 	gtk_box_append(GTK_BOX(self->vbox), self->label);
 	gtk_box_append(GTK_BOX(self->vbox), self->file_list);
+	gtk_widget_set_hexpand(self->vbox, true);
 	gtk_widget_set_parent(self->vbox, GTK_WIDGET(self));
 }
 

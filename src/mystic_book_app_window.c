@@ -60,7 +60,7 @@ mystic_book_app_window_init(MysticBookAppWindow *self)
 
 	gtk_paned_set_start_child(GTK_PANED(self->paned), self->left_pane);
 	gtk_paned_set_end_child(GTK_PANED(self->paned), self->right_pane);
-	gtk_paned_set_position(GTK_PANED(self->paned), 200);
+	//gtk_paned_set_position(GTK_PANED(self->paned), 200);
 
 	gtk_window_set_child(window, self->paned);
 	

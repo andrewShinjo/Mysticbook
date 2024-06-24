@@ -23,6 +23,7 @@ G_DEFINE_TYPE(
 	GTK_TYPE_WIDGET
 )
 
+// Emitted to setup a GtkListItem object.
 static void
 setup(
 	GtkSignalListItemFactory *self, 
@@ -34,6 +35,7 @@ setup(
 	gtk_list_item_set_child(list_item, label);
 }
 
+// Emitted to bind an item in the list model to the widget.
 static void
 bind(
 	GtkSignalListItemFactory *self, 
@@ -70,6 +72,7 @@ mystic_book_file_list_view_init(MysticBookFileListView *self)
 	g_list_store_append (store, strobj1);
 	g_list_store_append (store, strobj2);
 
+	gtk_widget_set_hexpand(self->list_view, true);
 	gtk_widget_set_parent(self->list_view, GTK_WIDGET(self));
 
 }
