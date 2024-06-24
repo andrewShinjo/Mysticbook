@@ -30,11 +30,18 @@ G_DEFINE_FINAL_TYPE(
  */
 
 static void
+startup(GtkApplication *gtk_app, gpointer user_data)
+{}
+
+static void
 activate(GtkApplication *gtk_app, gpointer user_data)
 {
 	MysticBookApplication *self = MYSTIC_BOOK_APPLICATION(gtk_app);
 	self->app_window = mystic_book_app_window_new(gtk_app);
-	gtk_window_present(GTK_WINDOW(self->app_window));
+
+	mystic_book_app_window_show(
+		MYSTIC_BOOK_APP_WINDOW(self->app_window)
+	);
 }
 
 /* Signal callbacks end */

@@ -1,10 +1,13 @@
 #include "mystic_book_doc_list.h"
+#include "mystic_book_file_list_view.h"
 
 struct _MysticBookDocList
 {
 	GtkWidget parent;
+	GtkWidget *vbox;
+	GtkWidget *label;
 	GtkWidget *scrolled_window;
-	GtkWidget *list_box;
+	GtkWidget *file_list;
 };
 
 GtkWidget *
@@ -21,15 +24,14 @@ G_DEFINE_TYPE(MysticBookDocList, mystic_book_doc_list, GTK_TYPE_WIDGET)
 static void
 mystic_book_doc_list_init(MysticBookDocList *self)
 {
+	self->vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
 	self->scrolled_window = gtk_scrolled_window_new();
-	self->list_box = gtk_list_box_new();
+	self->label = gtk_label_new("Document List");
+	self->file_list = mystic_book_file_list_view_new();
 
-	gtk_widget_set_hexpand(self->scrolled_window, true);
-
-	gtk_scrolled_window_set_child(
-		GTK_SCROLLED_WINDOW(self->scrolled_window),
-		self->list_box
-	);
+	gtk_box_append(GTK_BOX(self->vbox), self->label);
+	gtk_box_append(GTK_BOX(self->vbox), self->file_list);
+	gtk_widget_set_parent(self->vbox, GTK_WIDGET(self));
 }
 
 static void

@@ -1,12 +1,13 @@
 #include "mystic_book_app_window.h"
+#include "mystic_book_doc_list.h"
 #include "mystic_book_editor.h"
 
 struct _MysticBookAppWindow
 {
 	GtkApplicationWindow parent;
 	GtkWidget *paned;
-	GtkWidget *left;
-	GtkWidget *right;
+	GtkWidget *left_pane;
+	GtkWidget *right_pane;
 };
 
 /* Public start */
@@ -50,36 +51,19 @@ static void
 mystic_book_app_window_init(MysticBookAppWindow *self) 
 {
 	GtkWindow *window = GTK_WINDOW(self);
-
-	self->paned = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
-
-	self->left = gtk_list_box_new();
-	self->right = mystic_book_editor_new();
-
-	gtk_list_box_set_selection_mode(
-		GTK_LIST_BOX(self->left), 
-		GTK_SELECTION_NONE
-	);
-
-	GtkWidget *row1 = gtk_list_box_row_new();
-    GtkWidget *label1 = gtk_label_new("Row 1");
-    gtk_widget_set_hexpand(label1, TRUE);
-	gtk_list_box_row_set_child(GTK_LIST_BOX_ROW(row1), label1);
-	gtk_list_box_insert(GTK_LIST_BOX(self->left), row1, -1);
-
-	GtkWidget *row2 = gtk_list_box_row_new();
-    GtkWidget *label2 = gtk_label_new("Row 2");
-    gtk_widget_set_hexpand(label2, TRUE);
-	gtk_list_box_row_set_child(GTK_LIST_BOX_ROW(row2), label2);
-	gtk_list_box_insert(GTK_LIST_BOX(self->left), row2, -1);
-
-
-	gtk_paned_set_start_child(GTK_PANED(self->paned), self->left);
-	gtk_paned_set_end_child(GTK_PANED(self->paned), self->right);
-
-	gtk_window_set_child(window, self->paned);
 	gtk_window_set_default_size(window, 900, 600);
 	gtk_window_set_title(window, "Mysticbook");
+
+	self->paned = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
+	self->left_pane = mystic_book_doc_list_new();
+	self->right_pane = mystic_book_editor_new();
+
+	gtk_paned_set_start_child(GTK_PANED(self->paned), self->left_pane);
+	gtk_paned_set_end_child(GTK_PANED(self->paned), self->right_pane);
+	gtk_paned_set_position(GTK_PANED(self->paned), 200);
+
+	gtk_window_set_child(window, self->paned);
+	
 }
 
 static void

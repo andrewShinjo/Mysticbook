@@ -27,7 +27,7 @@ static void mystic_book_editor_init(MysticBookEditor *self)
 	self->scrolled_window = gtk_scrolled_window_new();
 	self->text_view = gtk_text_view_new();
 
-	gtk_widget_set_hexpand(self->scrolled_window, true);
+	gtk_widget_set_hexpand(self->text_view, true);
 	
 	gtk_scrolled_window_set_child(
 		GTK_SCROLLED_WINDOW(self->scrolled_window),
