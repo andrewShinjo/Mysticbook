@@ -1,1 +1,4 @@
-- [ ] Get a list of files from a directory.
+- [x] Get a list of files from a directory.
+- [ ] Create a FileExplorer struct.
+- [ ] Connect FileExplorer struct to GtkListView.
+- [ ] Research handling memory leaks.
