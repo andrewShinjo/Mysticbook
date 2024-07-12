@@ -4,6 +4,7 @@
 int
 main()
 {
+	FileExplorer fe;
 	const char *directory = "../sample_data";
 	int file_count;
 
