@@ -5,6 +5,7 @@ BUILDDIR := build/
 SRCDIR := src/
 SRCS := $(wildcard $(SRCDIR)*.c)
 EXEC := main
+TEST := test
 
 all: run
 
