@@ -1,5 +1,32 @@
 #include <gtk/gtk.h>
 
+static void on_open_file_complete(GObject *source, GAsyncResult *result, gpointer data)
+{
+	g_print("on_open_file_complete\n");
+	GtkFileDialog *file_dialog = GTK_FILE_DIALOG(source);
+	GtkTextView *textview = GTK_TEXT_VIEW(data);
+	GtkTextBuffer *textbuffer = gtk_text_view_get_buffer(textview);
+	GFile *opened_file = gtk_file_dialog_open_finish(file_dialog, result, NULL);
+
+	if(opened_file)
+	{
+		char *contents;
+		gsize length;
+		GError *err = NULL;
+
+		if(g_file_load_contents(opened_file, NULL, &contents, &length, NULL, &err))
+		{
+			g_print("File contents: %s\n", contents);
+			gtk_text_buffer_set_text(textbuffer, contents, -1);
+		}
+		g_object_unref(opened_file);
+	}
+	else
+	{
+		g_print("No file selected or operation cancelled.\n");
+	}
+}
+
 static void on_new_file_activate(GSimpleAction *action, GVariant *parameter, GApplication *app)
 {
 	g_print("on_new_file_activate\n");
@@ -7,7 +34,12 @@ static void on_new_file_activate(GSimpleAction *action, GVariant *parameter, GAp
 
 static void on_open_file_activate(GSimpleAction *action, GVariant *parameter, GApplication *app)
 {
-	g_print("on_open_file_activate\n");
+	GtkApplication *gtk_app = GTK_APPLICATION(app);
+	GtkWindow *active_window = gtk_application_get_active_window(gtk_app);
+	GtkWidget *scrolled_window = gtk_window_get_child(active_window);
+	GtkWidget *textview = gtk_scrolled_window_get_child(GTK_SCROLLED_WINDOW(scrolled_window));
+	GtkFileDialog *file_dialog = gtk_file_dialog_new();
+	gtk_file_dialog_open(file_dialog, active_window, NULL, on_open_file_complete, textview);
 }
 
 static void on_save_file_activate(GSimpleAction *action, GVariant *parameter, GApplication *app)
@@ -22,7 +54,7 @@ static void on_quit_activate(GSimpleAction *action, GVariant *parameter, GApplic
 
 static void app_startup(GApplication *application) 
 {
-	GtkApplication *app = GTK_APPLICATION (application);
+	GtkApplication *app = GTK_APPLICATION(application);
 
 	// Define actions.
 	GSimpleAction *act_new_file =  g_simple_action_new("new-file",  NULL);
@@ -49,10 +81,10 @@ static void app_startup(GApplication *application)
 	g_object_unref(file_menu_item);
 
 	// Add menu items to "File"
-	GMenuItem *file_menu_item_new_file = g_menu_item_new("New File", "app.new-file");
+	GMenuItem *file_menu_item_new_file =  g_menu_item_new("New File", "app.new-file");
 	GMenuItem *file_menu_item_open_file = g_menu_item_new("Open File", "app.open-file");
 	GMenuItem *file_menu_item_save_file = g_menu_item_new("Save File", "app.save-file");
-	GMenuItem *file_menu_item_quit = g_menu_item_new("Quit", "app.quit");
+	GMenuItem *file_menu_item_quit =      g_menu_item_new("Quit", "app.quit");
 	g_menu_append_item(file_menu, file_menu_item_new_file);
 	g_menu_append_item(file_menu, file_menu_item_open_file);
 	g_menu_append_item(file_menu, file_menu_item_save_file);
