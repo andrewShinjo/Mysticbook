@@ -1,5 +1,0 @@
-- [x] Get a list of files from a directory.
-- [x] Create a FileExplorer struct.
-- [ ] Refactor function for getting filenames and file count to use struct.
-- [ ] Connect FileExplorer struct to GtkListView.
-- [ ] Research handling memory leaks.

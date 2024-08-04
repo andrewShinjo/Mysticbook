@@ -2,7 +2,7 @@
 
 // PUBLIC
 
-int Create_File(const char *Filepath)
+int CreateFile(const char *Filepath)
 {
     FILE *File = fopen(Filepath, "w");
 
@@ -16,7 +16,7 @@ int Create_File(const char *Filepath)
     return 0;
 }
 
-int Read_File (const char *Filepath, char *Buffer, size_t *Buffer_Size)
+int ReadFile (const char *Filepath, char *Buffer, size_t *BufferSize)
 {
     FILE *File = fopen(Filepath, "r");
 
@@ -27,10 +27,10 @@ int Read_File (const char *Filepath, char *Buffer, size_t *Buffer_Size)
     }
 
     fseek (File, 0, SEEK_END);
-    *Buffer_Size = ftell(File);
+    *BufferSize = ftell(File);
     fseek (File, 0, SEEK_SET);
 
-    Buffer = (char *) malloc(*Buffer_Size + 1);
+    Buffer = (char *) malloc(*BufferSize + 1);
 
     if (!Buffer)
     {
@@ -39,9 +39,9 @@ int Read_File (const char *Filepath, char *Buffer, size_t *Buffer_Size)
         return 1;
     }
 
-    size_t Read_Size = fread (Buffer, 1, *Buffer_Size, File);
+    size_t Read_Size = fread (Buffer, 1, *BufferSize, File);
 
-    if (Read_Size != *Buffer_Size)
+    if (Read_Size != *BufferSize)
     {
         perror("Read_File: error reading file.");
         free (Buffer);
@@ -49,15 +49,13 @@ int Read_File (const char *Filepath, char *Buffer, size_t *Buffer_Size)
         return 1;
     }
 
-    Buffer[*Buffer_Size] = '\0';
-
+    Buffer[*BufferSize] = '\0';
     fclose (File);
-
     return 0;
 
 }
 
-int Update_File (const char *Filepath, const char *Buffer, size_t Buffer_Size)
+int UpdateFile (const char *Filepath, const char *Buffer, size_t BufferSize)
 {
     FILE *File = fopen(Filepath, "r");
 
@@ -67,9 +65,9 @@ int Update_File (const char *Filepath, const char *Buffer, size_t Buffer_Size)
         return 1;
     } 
 
-    size_t Write_Size = fwrite (Buffer, 1, Buffer_Size, File);
+    size_t Write_Size = fwrite (Buffer, 1, BufferSize, File);
 
-    if (Write_Size != Buffer_Size)
+    if (Write_Size != BufferSize)
     {
         perror ("Update_File: error writing to file.");
         fclose (File);
@@ -77,11 +75,10 @@ int Update_File (const char *Filepath, const char *Buffer, size_t Buffer_Size)
     }
 
     fclose (File);
-
     return 0;
 }
 
-int Delete_File (const char *Filepath)
+int DeleteFile (const char *Filepath)
 {
     if (remove(Filepath) == 0)
     {

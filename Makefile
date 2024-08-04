@@ -2,7 +2,7 @@ CC := gcc
 CFLAGS := $(shell pkg-config --cflags gtk4)
 LDFLAGS := $(shell pkg-config --libs gtk4)
 BUILDDIR := build/
-SRCDIR := src/
+SRCDIR := src/frontend/
 SRCS := $(wildcard $(SRCDIR)*.c)
 EXEC := main
 
