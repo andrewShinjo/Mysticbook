@@ -1,30 +1,19 @@
 #include <gtk/gtk.h>
+#include "components/mystic_text_view.h"
 
 static void on_open_file_complete(GObject *source, GAsyncResult *result, gpointer data)
 {
 	g_print("on_open_file_complete\n");
+	
 	GtkFileDialog *file_dialog = GTK_FILE_DIALOG(source);
-	GtkTextView *textview = GTK_TEXT_VIEW(data);
-	GtkTextBuffer *textbuffer = gtk_text_view_get_buffer(textview);
-	GFile *opened_file = gtk_file_dialog_open_finish(file_dialog, result, NULL);
+	MysticTextView *mtv = MYSTIC_TEXT_VIEW(data);
 
-	if(opened_file)
-	{
-		char *contents;
-		gsize length;
-		GError *err = NULL;
+	mystic_text_view_set_file(
+		mtv,
+		gtk_file_dialog_open_finish(file_dialog, result, NULL)
+	);
 
-		if(g_file_load_contents(opened_file, NULL, &contents, &length, NULL, &err))
-		{
-			g_print("File contents: %s\n", contents);
-			gtk_text_buffer_set_text(textbuffer, contents, -1);
-		}
-		g_object_unref(opened_file);
-	}
-	else
-	{
-		g_print("No file selected or operation cancelled.\n");
-	}
+	mystic_text_view_open_file(mtv);
 }
 
 static void on_new_file_activate(GSimpleAction *action, GVariant *parameter, GApplication *app)
@@ -99,15 +88,12 @@ static void app_startup(GApplication *application)
 
 static void app_activate(GApplication *app, gpointer *user_data)
 {
+
 	GtkWidget *scrolled_window;
 	GtkWidget *textview;
-	GtkTextBuffer *textbuffer;
 	GtkWidget *window;
 
-	textview = gtk_text_view_new();
-	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(textview), GTK_WRAP_WORD_CHAR);
-
-	textbuffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview));
+	textview = mystic_text_view_new();
 
 	scrolled_window = gtk_scrolled_window_new();
 	gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), textview);
