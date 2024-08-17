@@ -13,4 +13,6 @@ G_DECLARE_FINAL_TYPE(
     GtkWidget
 )
 
+GtkWidget * mysticbook_document_list_new();
+
 G_END_DECLS

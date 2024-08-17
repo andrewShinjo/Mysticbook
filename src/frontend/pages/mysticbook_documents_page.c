@@ -1,4 +1,5 @@
 #include "mysticbook_documents_page.h"
+#include "../components/mysticbook_document_list.h"
 
 static void mysticbook_documents_page_dispose(GObject *object);
 static void mysticbook_documents_page_finalize(GObject *object);
@@ -10,8 +11,7 @@ struct _MysticbookDocumentsPage
 
 	GtkWidget *document_label;
 
-	GtkWidget *scrolled_window;
-	GtkWidget *list_box;
+	GtkWidget *document_list;
 
 	GtkWidget *new_document_button;
 };
@@ -28,8 +28,6 @@ static void
 new_document_button_clicked(GtkButton *self, gpointer user_data)
 {
 	g_print("New document button clicked.\n");
-	GtkListBox *list_box = GTK_LIST_BOX(user_data);
-	gtk_list_box_append(list_box, gtk_label_new("New Document"));
 }
 
 /* Signal end */
@@ -39,11 +37,9 @@ mysticbook_documents_page_init(MysticbookDocumentsPage *self)
 {
 	self->new_document_button = gtk_button_new_with_label("New Document");
 
-	self->scrolled_window = gtk_scrolled_window_new();
-	self->list_box = gtk_list_box_new();
-	gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(self->scrolled_window), self->list_box);
-	gtk_widget_set_hexpand(self->scrolled_window, TRUE);
-	gtk_widget_set_vexpand(self->scrolled_window, TRUE);
+	self->document_list = mysticbook_document_list_new();
+	gtk_widget_set_hexpand(self->document_list, TRUE);
+	gtk_widget_set_vexpand(self->document_list, TRUE);
 
 	self->document_label = gtk_label_new("Documents");
 	gtk_widget_set_halign(self->document_label, GTK_ALIGN_START);
@@ -52,10 +48,10 @@ mysticbook_documents_page_init(MysticbookDocumentsPage *self)
 	gtk_widget_set_hexpand(self->vertical_box, TRUE);
 	gtk_widget_set_vexpand(self->vertical_box, TRUE);
 	gtk_box_append(GTK_BOX(self->vertical_box), self->document_label);
-	gtk_box_append(GTK_BOX(self->vertical_box), self->scrolled_window);
+	gtk_box_append(GTK_BOX(self->vertical_box), self->document_list);
 	gtk_box_append(GTK_BOX(self->vertical_box), self->new_document_button);
 
-	g_signal_connect(self->new_document_button, "clicked", G_CALLBACK(new_document_button_clicked), self->list_box);
+	g_signal_connect(self->new_document_button, "clicked", G_CALLBACK(new_document_button_clicked), NULL);
 
 	gtk_widget_set_parent(self->vertical_box, GTK_WIDGET(self));
 }
