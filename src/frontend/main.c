@@ -7,12 +7,11 @@ static void
 activate (GtkApplication *app, gpointer user_data)
 {
   GtkWidget *mysticbook_application_window = 
-		mysticbook_application_window_new(app);
-
-  GtkWindow *window = GTK_WINDOW(mysticbook_application_window);
-  gtk_window_set_title(window, "Mysticbook");
-  gtk_window_maximize(window);
-  gtk_window_present(window);
+		mysticbook_application_window_new (app);
+  GtkWindow *window = GTK_WINDOW (mysticbook_application_window);
+  gtk_window_set_title (window, "Mysticbook");
+  gtk_window_maximize (window);
+  gtk_window_present (window);
 }
 
 int
@@ -34,7 +33,7 @@ main (int argc, char *argv[])
 // Initialize GTK application GUI.
 // *********************************************************************
 
-	GtkApplication *app = gtk_application_new(
+	GtkApplication *app = gtk_application_new (
 		"org.gtk.example", 
 		G_APPLICATION_DEFAULT_FLAGS
 	);
