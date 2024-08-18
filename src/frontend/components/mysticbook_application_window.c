@@ -3,14 +3,14 @@
 
 struct _MysticbookApplicationWindow
 {
-    GtkApplicationWindow parent;
-    GtkWidget *documents_page;
+  GtkApplicationWindow parent;
+  GtkWidget *documents_page;
 };
 
 G_DEFINE_TYPE(
-    MysticbookApplicationWindow,
-    mysticbook_application_window,
-    GTK_TYPE_APPLICATION_WINDOW
+	MysticbookApplicationWindow,
+	mysticbook_application_window,
+	GTK_TYPE_APPLICATION_WINDOW
 )
 
 static void
@@ -22,16 +22,18 @@ mysticbook_application_window_init(MysticbookApplicationWindow *self)
 }
 
 static void
-mysticbook_application_window_class_init(MysticbookApplicationWindowClass *klass)
-{}
+mysticbook_application_window_class_init(
+	MysticbookApplicationWindowClass *klass
+) {}
 
 GtkWidget *
 mysticbook_application_window_new(GtkApplication *application)
 {
-    return GTK_WIDGET(g_object_new(
-        MYSTICBOOK_TYPE_APPLICATION_WINDOW, 
-        "application", 
-        application, 
-        NULL
-    ));
+	return GTK_WIDGET(
+		g_object_new(
+			MYSTICBOOK_TYPE_APPLICATION_WINDOW, 
+			"application", application, 
+			NULL
+		)
+	);
 }

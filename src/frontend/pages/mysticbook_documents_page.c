@@ -6,7 +6,7 @@ static void mysticbook_documents_page_finalize(GObject *object);
 
 struct _MysticbookDocumentsPage
 {
-    GtkWidget parent;
+  GtkWidget parent;
 	GtkWidget *vertical_box;
 
 	GtkWidget *document_label;
@@ -27,7 +27,11 @@ G_DEFINE_TYPE(
 static void 
 new_document_button_clicked(GtkButton *self, gpointer user_data)
 {
-	g_print("New document button clicked.\n");
+	MysticbookDocumentList *document_list = MYSTICBOOK_DOCUMENT_LIST(
+		user_data
+	);
+
+	mysticbook_document_list_add_row(document_list);
 }
 
 /* Signal end */
@@ -51,7 +55,12 @@ mysticbook_documents_page_init(MysticbookDocumentsPage *self)
 	gtk_box_append(GTK_BOX(self->vertical_box), self->document_list);
 	gtk_box_append(GTK_BOX(self->vertical_box), self->new_document_button);
 
-	g_signal_connect(self->new_document_button, "clicked", G_CALLBACK(new_document_button_clicked), NULL);
+	g_signal_connect(
+		self->new_document_button, 
+		"clicked", 
+		G_CALLBACK(new_document_button_clicked), 
+		self->document_list
+	);
 
 	gtk_widget_set_parent(self->vertical_box, GTK_WIDGET(self));
 }
