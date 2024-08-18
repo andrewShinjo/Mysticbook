@@ -4,7 +4,7 @@
 sqlite3 *database;
 
 int
-open_database (const char *database_path)
+database_open (const char *database_path)
 {
 	if (database != NULL)
 	{
@@ -15,7 +15,7 @@ open_database (const char *database_path)
 }
 
 int
-close_database ()
+database_close ()
 {
 	if (database == NULL)
 	{
@@ -25,3 +25,10 @@ close_database ()
 	database = NULL;
 	return 0;
 }
+
+sqlite3 *
+database_get ()
+{
+	return database;
+}
+

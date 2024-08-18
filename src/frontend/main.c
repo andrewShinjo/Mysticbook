@@ -19,34 +19,34 @@ int
 main (int argc, char *argv[])
 {
 
-// **********************************************************************
+// *********************************************************************
 // Open SQLite3 database.
-// **********************************************************************
+// *********************************************************************
 
-	int return_code =	open_database("test.db");
+	int return_code =	database_open ("test.db");
 	if (return_code != 0)
 	{
 		fprintf (stderr, "Failed to open database.");
 		return return_code;
 	}
 
-// **********************************************************************
+// *********************************************************************
 // Initialize GTK application GUI.
-// **********************************************************************
+// *********************************************************************
 
 	GtkApplication *app = gtk_application_new(
 		"org.gtk.example", 
 		G_APPLICATION_DEFAULT_FLAGS
 	);
 
-	g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
-	int status = g_application_run(G_APPLICATION(app), argc, argv);
-	g_object_unref(app);
+	g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
+	int status = g_application_run (G_APPLICATION (app), argc, argv);
+	g_object_unref (app);
 
-// **********************************************************************
+// *********************************************************************
 // Close SQLite3 database.
-// **********************************************************************
+// *********************************************************************
 	
-	close_database ();
+	database_close ();
 	return status;
 }

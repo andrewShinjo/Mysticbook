@@ -1,6 +1,6 @@
-#include <stdint.h>
+#include <sqlite3.h>
 
 typedef struct
 {
-	int64_t id;	
-} Document;
+	sqlite3_int64 id;	
+} DocumentEntity;
