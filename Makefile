@@ -7,16 +7,17 @@ FRONTEND_DIR := $(SRCDIR)/frontend
 BACKEND_DIR := $(SRCDIR)/backend
 COMPONENT_DIR := $(FRONTEND_DIR)/components
 PAGE_DIR := $(FRONTEND_DIR)/pages
-SRCS := $(wildcard $(FRONTEND_DIR)/*.c)
+FRONTEND := $(wildcard $(FRONTEND_DIR)/*.c)
 COMPONENTS := $(wildcard $(COMPONENT_DIR)/*.c)
-BACKEND := $(wildcard $(BACKEND_DIR)/*.c)
 PAGES := $(wildcard $(PAGE_DIR)/*.c)
+BACKEND := $(wildcard $(BACKEND_DIR)/*.c)
+SRCS := $(FRONTEND) $(COMPONENTS) $(PAGES) $(BACKEND)
 EXEC := main
 
 all: run
 
 $(EXEC): $(BUILDDIR)
-	$(CC) $(CFLAGS) -o $(BUILDDIR)$(EXEC) $(SRCS) $(COMPONENTS) $(PAGES) $(BACKEND) $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $(BUILDDIR)$(EXEC) $(SRCS) $(LDFLAGS)
 
 $(BUILDDIR):
 	mkdir -p $(BUILDDIR)
