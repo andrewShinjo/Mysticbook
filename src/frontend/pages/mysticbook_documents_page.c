@@ -42,18 +42,25 @@ mysticbook_documents_page_init(MysticbookDocumentsPage *self)
 	self->new_document_button = gtk_button_new_with_label("New Document");
 
 	self->document_list = mysticbook_document_list_new();
-	gtk_widget_set_hexpand(self->document_list, TRUE);
-	gtk_widget_set_vexpand(self->document_list, TRUE);
+	gtk_widget_set_hexpand (self->document_list, TRUE);
+	gtk_widget_set_vexpand (self->document_list, TRUE);
 
-	self->document_label = gtk_label_new("Documents");
-	gtk_widget_set_halign(self->document_label, GTK_ALIGN_START);
+	self->document_label = gtk_label_new ("Documents");
+	gtk_widget_set_halign (self->document_label, GTK_ALIGN_START);
 
-	self->vertical_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-	gtk_widget_set_hexpand(self->vertical_box, TRUE);
-	gtk_widget_set_vexpand(self->vertical_box, TRUE);
-	gtk_box_append(GTK_BOX(self->vertical_box), self->document_label);
-	gtk_box_append(GTK_BOX(self->vertical_box), self->document_list);
-	gtk_box_append(GTK_BOX(self->vertical_box), self->new_document_button);
+	self->vertical_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+	gtk_widget_set_hexpand (self->vertical_box, TRUE);
+	gtk_widget_set_vexpand (self->vertical_box, TRUE);
+	gtk_box_append (GTK_BOX (self->vertical_box), self->document_label);
+	gtk_box_append (GTK_BOX (self->vertical_box), self->document_list);
+	gtk_box_append (
+		GTK_BOX (self->vertical_box), 
+		self->new_document_button
+	);
+
+	mysticbook_document_list_get_rows (
+		MYSTICBOOK_DOCUMENT_LIST (self->document_list)
+	);
 
 	g_signal_connect(
 		self->new_document_button, 

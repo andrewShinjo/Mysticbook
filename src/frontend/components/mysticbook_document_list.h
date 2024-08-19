@@ -15,14 +15,15 @@ G_DECLARE_FINAL_TYPE(
 
 G_END_DECLS
 
-// **********************************************************************
+// *********************************************************************
 // * Interface
-// **********************************************************************
+// *********************************************************************
 
 GtkWidget * 
-mysticbook_document_list_new();
+mysticbook_document_list_new ();
 
 int 
-mysticbook_document_list_add_row(MysticbookDocumentList *self);
+mysticbook_document_list_add_row (MysticbookDocumentList *self);
 
-
+int
+mysticbook_document_list_get_rows (MysticbookDocumentList *self);
