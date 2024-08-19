@@ -1,17 +1,18 @@
+#pragma once
+#include "../entity/block.h"
 #include <glib.h>
 #include <sqlite3.h>
-#include "../entity/document_entity.h"
 
 // *********************************************************************
 // * Interface
 // *********************************************************************
 
 sqlite3_int64     
-document_repository_create ();
+block_repository_create ();
 
-DocumentEntity *  
-document_repository_find_by_id (sqlite3_int64 id);
+Block *  
+block_repository_find_by_id (sqlite3_int64 id);
 
 GArray *
-document_repository_find_all ();
+block_repository_find_all ();
 

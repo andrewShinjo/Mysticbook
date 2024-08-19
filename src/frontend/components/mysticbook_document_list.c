@@ -1,6 +1,5 @@
-#include "../../backend/repository/document_repository.h"
+#include "../../backend/repository/block_repository.h"
 #include "mysticbook_document_list.h"
-#include <stdio.h>
 
 struct _MysticbookDocumentList
 {
@@ -69,7 +68,7 @@ mysticbook_document_list_finalize (GObject *object)
 }
 
 // *********************************************************************
-// * Interface
+// * Public
 // *********************************************************************
 
 GtkWidget *
@@ -81,8 +80,8 @@ mysticbook_document_list_new ()
 int
 mysticbook_document_list_add_row (MysticbookDocumentList *self)
 {
-	guint64 new_id = document_repository_create ();
-	char s[21];
+	guint64 new_id = block_repository_create ();
+	gchar s[21];
 	g_snprintf (s, sizeof (s), "%llu", (unsigned long long) new_id);	
 	GtkWidget *label = gtk_label_new (s);
 	gtk_list_box_append (GTK_LIST_BOX (self->list_box), label);
@@ -92,10 +91,10 @@ mysticbook_document_list_add_row (MysticbookDocumentList *self)
 int
 mysticbook_document_list_get_rows (MysticbookDocumentList *self)
 {
-	GArray *documents = document_repository_find_all ();
+	GArray *documents = block_repository_find_all ();
 	for(guint i = 0; i < documents->len; i++)
 	{
-		DocumentEntity d = g_array_index (documents, DocumentEntity, i);
+		Block d = g_array_index (documents, Block, i);
 		guint64 id = d.id;
 		gchar *s = g_strdup_printf ("%" G_GUINT64_FORMAT, id);
 		GtkWidget *label = gtk_label_new (s);
@@ -103,7 +102,4 @@ mysticbook_document_list_get_rows (MysticbookDocumentList *self)
 	}
 	return 0;
 }
-
-
-
 
