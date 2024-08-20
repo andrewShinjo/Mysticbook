@@ -3,7 +3,10 @@
 struct _MysticbookDocumentListRow
 {
 	GtkWidget parent;
-	GtkWidget *test;
+	GtkWidget *id_label;
+	GtkWidget *creation_time_label;
+	GtkWidget *modification_time_label;
+	GtkWidget *content_label;
 };
 
 G_DEFINE_TYPE (
@@ -24,10 +27,7 @@ mysticbook_document_list_row_finalize (GObject *object);
 
 static void
 mysticbook_document_list_row_init (MysticbookDocumentListRow *self)
-{
-	self->test = gtk_picture_new_for_filename ("/home/andrew/Documents/Projects/Mysticbook/asset/article.png");	
-	gtk_widget_set_parent (self->test, GTK_WIDGET (self));
-}
+{}
 
 static void
 mysticbook_document_list_row_class_init (
@@ -47,7 +47,6 @@ static void
 mysticbook_document_list_row_dispose (GObject *object)
 {
 	MysticbookDocumentListRow *self = MYSTICBOOK_DOCUMENT_LIST_ROW (object);
-	g_clear_pointer (&self->test, gtk_widget_unparent);
 	G_OBJECT_CLASS (
 		mysticbook_document_list_row_parent_class
 	)->dispose (object);
