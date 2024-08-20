@@ -1,5 +1,6 @@
 #include "../../backend/repository/block_repository.h"
-#include "mysticbook_document_list.h"
+#include "./mysticbook_document_list.h"
+#include "./mysticbook_document_list_row.h"
 
 struct _MysticbookDocumentList
 {
@@ -83,8 +84,8 @@ mysticbook_document_list_add_row (MysticbookDocumentList *self)
 	guint64 new_id = block_repository_create ();
 	gchar s[21];
 	g_snprintf (s, sizeof (s), "%llu", (unsigned long long) new_id);	
-	GtkWidget *label = gtk_label_new (s);
-	gtk_list_box_append (GTK_LIST_BOX (self->list_box), label);
+	GtkWidget *list_row = mysticbook_document_list_row_new ();
+	gtk_list_box_append (GTK_LIST_BOX (self->list_box), list_row);
 	return 0;
 }
 
@@ -97,8 +98,8 @@ mysticbook_document_list_get_rows (MysticbookDocumentList *self)
 		Block d = g_array_index (documents, Block, i);
 		guint64 id = d.id;
 		gchar *s = g_strdup_printf ("%" G_GUINT64_FORMAT, id);
-		GtkWidget *label = gtk_label_new (s);
-		gtk_list_box_append (GTK_LIST_BOX(self->list_box), label);
+		GtkWidget *list_row = mysticbook_document_list_row_new ();
+		gtk_list_box_append (GTK_LIST_BOX(self->list_box), list_row);
 	}
 	return 0;
 }
