@@ -7,6 +7,9 @@ struct _MysticbookDocumentListRow
 	GtkWidget *creation_time_label;
 	GtkWidget *modification_time_label;
 	GtkWidget *content_label;
+
+	GtkWidget *open_button;
+	GtkWidget *delete_button;
 };
 
 G_DEFINE_TYPE (
@@ -27,7 +30,18 @@ mysticbook_document_list_row_finalize (GObject *object);
 
 static void
 mysticbook_document_list_row_init (MysticbookDocumentListRow *self)
-{}
+{
+	GtkWidget *widget = gtk_image_new_from_file ("asset/paper.png");
+	gtk_widget_set_size_request(widget, 100, 100);
+	GtkWidget *label = gtk_label_new ("Label");
+	gtk_widget_set_hexpand (label, TRUE);
+	self->open_button = gtk_button_new_with_label ("Open");
+	self->delete_button = gtk_button_new_with_label ("Delete");
+	gtk_widget_set_parent (widget, GTK_WIDGET(self));
+	gtk_widget_set_parent (label, GTK_WIDGET (self));
+	gtk_widget_set_parent (self->open_button, GTK_WIDGET (self));
+	gtk_widget_set_parent (self->delete_button, GTK_WIDGET (self));
+}
 
 static void
 mysticbook_document_list_row_class_init (
