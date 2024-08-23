@@ -7,7 +7,6 @@ struct _MysticbookDocumentListRow
 	GtkWidget *creation_time_label;
 	GtkWidget *modification_time_label;
 	GtkWidget *content_label;
-
 	GtkWidget *open_button;
 	GtkWidget *delete_button;
 };
@@ -31,14 +30,11 @@ mysticbook_document_list_row_finalize (GObject *object);
 static void
 mysticbook_document_list_row_init (MysticbookDocumentListRow *self)
 {
-	GtkWidget *widget = gtk_image_new_from_file ("asset/paper.png");
-	gtk_widget_set_size_request(widget, 100, 100);
-	GtkWidget *label = gtk_label_new ("Label");
-	gtk_widget_set_hexpand (label, TRUE);
+	self->content_label = gtk_label_new ("Label");
+	gtk_widget_set_hexpand (self->content_label, TRUE);
 	self->open_button = gtk_button_new_with_label ("Open");
 	self->delete_button = gtk_button_new_with_label ("Delete");
-	gtk_widget_set_parent (widget, GTK_WIDGET(self));
-	gtk_widget_set_parent (label, GTK_WIDGET (self));
+	gtk_widget_set_parent (self->content_label, GTK_WIDGET (self));
 	gtk_widget_set_parent (self->open_button, GTK_WIDGET (self));
 	gtk_widget_set_parent (self->delete_button, GTK_WIDGET (self));
 }
@@ -61,6 +57,9 @@ static void
 mysticbook_document_list_row_dispose (GObject *object)
 {
 	MysticbookDocumentListRow *self = MYSTICBOOK_DOCUMENT_LIST_ROW (object);
+	g_clear_pointer (&self->content_label, gtk_widget_unparent);
+	g_clear_pointer (&self->open_button, gtk_widget_unparent);
+	g_clear_pointer (&self->delete_button, gtk_widget_unparent);
 	G_OBJECT_CLASS (
 		mysticbook_document_list_row_parent_class
 	)->dispose (object);
