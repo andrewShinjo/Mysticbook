@@ -18,6 +18,22 @@ G_DEFINE_TYPE (
 )
 
 // **********************************************************************
+// * Callbacks
+// **********************************************************************
+
+static void
+delete_button_clicked (GtkButton *self, gpointer user_data)
+{
+	g_print ("Delete button clicked.\n");
+}
+
+static void
+open_button_clicked (GtkButton *self, gpointer user_data)
+{
+	g_print ("Open button clicked.\n");
+}
+
+// **********************************************************************
 // * Widget lifecycle
 // **********************************************************************
 
@@ -31,12 +47,26 @@ static void
 mysticbook_document_list_row_init (MysticbookDocumentListRow *self)
 {
 	self->content_label = gtk_label_new ("Label");
+	gtk_widget_set_halign (self->content_label, GTK_ALIGN_START);
 	gtk_widget_set_hexpand (self->content_label, TRUE);
 	self->open_button = gtk_button_new_with_label ("Open");
 	self->delete_button = gtk_button_new_with_label ("Delete");
 	gtk_widget_set_parent (self->content_label, GTK_WIDGET (self));
 	gtk_widget_set_parent (self->open_button, GTK_WIDGET (self));
 	gtk_widget_set_parent (self->delete_button, GTK_WIDGET (self));
+
+	g_signal_connect (
+		self->delete_button,
+		"clicked",
+		G_CALLBACK (delete_button_clicked),
+		NULL
+	);
+	g_signal_connect (
+		self->open_button,
+		"clicked",
+		G_CALLBACK (open_button_clicked),
+		NULL
+	);
 }
 
 static void
