@@ -4,7 +4,7 @@
 #include <sqlite3.h>
 
 // *********************************************************************
-// * Interface
+// * Public
 // *********************************************************************
 
 sqlite3_int64     
@@ -16,3 +16,5 @@ block_repository_find_by_id (sqlite3_int64 id);
 GArray *
 block_repository_find_all ();
 
+int
+block_repository_delete_by_id (sqlite3_int64 id);

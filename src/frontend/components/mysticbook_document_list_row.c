@@ -1,5 +1,21 @@
 #include "./mysticbook_document_list_row.h"
 
+// **********************************************************************
+// * Properties
+// **********************************************************************
+
+enum
+{
+	PROP_CONTENT = 1,
+	N_PROPERTIES
+};
+
+static GParamSpec *properties[N_PROPERTIES];
+
+// **********************************************************************
+// * GObject Definition
+// **********************************************************************
+
 struct _MysticbookDocumentListRow
 {
 	GtkWidget parent;
@@ -16,6 +32,37 @@ G_DEFINE_TYPE (
 	mysticbook_document_list_row,
 	GTK_TYPE_WIDGET
 )
+
+
+// **********************************************************************
+// * Properties - Getters and Setters
+// **********************************************************************
+
+static void
+mysticbook_document_list_row_set_property (
+	GObject *object,
+	guint property_id,
+	const GValue *value,
+	GParamSpec *pspec
+)
+{
+	MysticbookDocumentListRow *self = MYSTICBOOK_DOCUMENT_LIST_ROW(object);
+
+	switch (property_id)
+	{
+		case PROP_CONTENT:
+		{
+			// TODO(andy): implement this.
+			break;
+		}
+		default:
+		{
+			/* No valid property */
+			G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);	
+			break;
+		} 
+	}
+}
 
 // **********************************************************************
 // * Callbacks
@@ -75,6 +122,8 @@ mysticbook_document_list_row_class_init (
 )
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
+	GParamFlags default_flags = 
+		G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | G_PARAM_EXPLICIT_NOTIFY;
 	object_class->dispose = mysticbook_document_list_row_dispose;
 	object_class->finalize = mysticbook_document_list_row_finalize;
 	gtk_widget_class_set_layout_manager_type (
@@ -111,3 +160,4 @@ mysticbook_document_list_row_new ()
 {
 	return g_object_new (MYSTICBOOK_TYPE_DOCUMENT_LIST_ROW, NULL);
 }
+

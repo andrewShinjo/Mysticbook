@@ -14,6 +14,6 @@ G_DECLARE_FINAL_TYPE(
 )
 
 GtkWidget *
-mysticbook_documents_page_new();
+mysticbook_documents_page_new ();
 
 G_END_DECLS
