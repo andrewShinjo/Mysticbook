@@ -19,13 +19,16 @@ find_all_callback (
 	for (gint i = 0; i < column_count; i++)
 	{
 		int compare = g_strcmp0 (column_name[i], "id");
+		g_print("Column %d: %s\n", i, column_name[i]);
 		if (compare != 0)
 		{
 			continue;
 		}
 		Block b;
-		gchar *id_text = column_text[i];
+		char *id_text = column_text[i];
+		char *content_text = column_text[i+3];
 		b.id = g_ascii_strtoull (id_text, NULL, 10);
+		b.content = content_text;
 		g_array_append_val (blocks, b);
 	}
 	return 0;

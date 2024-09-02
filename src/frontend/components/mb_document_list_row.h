@@ -3,12 +3,12 @@
 
 G_BEGIN_DECLS
 
-#define MYSTICBOOK_TYPE_DOCUMENT_LIST_ROW mysticbook_document_list_row_get_type()
+#define MB_TYPE_DOCUMENT_LIST_ROW mb_document_list_row_get_type()
 
-G_DECLARE_FINAL_TYPE (
-	MysticbookDocumentListRow,
-	mysticbook_document_list_row,
-	MYSTICBOOK,
+G_DECLARE_FINAL_TYPE(
+	MbDocumentListRow,
+	mb_document_list_row,
+	MB,
 	DOCUMENT_LIST_ROW,
 	GtkWidget
 )
@@ -16,8 +16,8 @@ G_DECLARE_FINAL_TYPE (
 G_END_DECLS
 
 // **********************************************************************
-// * Interface
+// * Public
 // **********************************************************************
 
 GtkWidget *
-mysticbook_document_list_row_new ();
+mb_document_list_row_new();

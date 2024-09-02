@@ -1,6 +1,6 @@
 #include "../../backend/repository/block_repository.h"
 #include "./mysticbook_document_list.h"
-#include "./mysticbook_document_list_row.h"
+#include "./mb_document_list_row.h"
 
 struct _MysticbookDocumentList
 {
@@ -84,7 +84,7 @@ mysticbook_document_list_add_row (MysticbookDocumentList *self)
 	guint64 new_id = block_repository_create ();
 	gchar s[21];
 	g_snprintf (s, sizeof (s), "%llu", (unsigned long long) new_id);	
-	GtkWidget *list_row = mysticbook_document_list_row_new ();
+	GtkWidget *list_row = mb_document_list_row_new("Add");
 	gtk_list_box_append (GTK_LIST_BOX (self->list_box), list_row);
 	return 0;
 }
@@ -92,13 +92,12 @@ mysticbook_document_list_add_row (MysticbookDocumentList *self)
 int
 mysticbook_document_list_get_rows (MysticbookDocumentList *self)
 {
-	GArray *documents = block_repository_find_all ();
+	GArray *documents = block_repository_find_all();
 	for(guint i = 0; i < documents->len; i++)
 	{
-		Block d = g_array_index (documents, Block, i);
-		guint64 id = d.id;
-		gchar *s = g_strdup_printf ("%" G_GUINT64_FORMAT, id);
-		GtkWidget *list_row = mysticbook_document_list_row_new ();
+		Block b = g_array_index(documents, Block, i);
+		gchar *s = g_strdup_printf ("%" G_GUINT64_FORMAT, b.id);
+		GtkWidget *list_row = mb_document_list_row_new(b.content);
 		gtk_list_box_append (GTK_LIST_BOX(self->list_box), list_row);
 	}
 	return 0;
