@@ -73,19 +73,19 @@ mysticbook_document_list_finalize (GObject *object)
 // *********************************************************************
 
 GtkWidget *
-mysticbook_document_list_new ()
+mysticbook_document_list_new()
 {
-  return g_object_new (MYSTICBOOK_TYPE_DOCUMENT_LIST, NULL);
+  return g_object_new(MYSTICBOOK_TYPE_DOCUMENT_LIST, NULL);
 }
 
 int
-mysticbook_document_list_add_row (MysticbookDocumentList *self)
+mysticbook_document_list_add_row(MysticbookDocumentList *self)
 {
-	guint64 new_id = block_repository_create ();
+	gint64 new_id = block_repository_create();
 	gchar s[21];
-	g_snprintf (s, sizeof (s), "%llu", (unsigned long long) new_id);	
-	GtkWidget *list_row = mb_document_list_row_new("Add");
-	gtk_list_box_append (GTK_LIST_BOX (self->list_box), list_row);
+	g_snprintf(s, sizeof(s), "%ld", new_id);
+	GtkWidget *list_row = mb_document_list_row_new(s);
+	gtk_list_box_append(GTK_LIST_BOX(self->list_box), list_row);
 	return 0;
 }
 
@@ -96,7 +96,6 @@ mysticbook_document_list_get_rows (MysticbookDocumentList *self)
 	for(guint i = 0; i < documents->len; i++)
 	{
 		Block b = g_array_index(documents, Block, i);
-		gchar *s = g_strdup_printf ("%" G_GUINT64_FORMAT, b.id);
 		GtkWidget *list_row = mb_document_list_row_new(b.content);
 		gtk_list_box_append (GTK_LIST_BOX(self->list_box), list_row);
 	}

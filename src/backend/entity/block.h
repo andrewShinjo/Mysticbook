@@ -6,6 +6,6 @@ typedef struct
 	sqlite3_int64       id;	
 	sqlite3_int64       creation_time;
 	sqlite3_int64       modification_time;
-	unsigned char       *content;
+	const unsigned char *content;
 	int                 is_document;
 } Block;

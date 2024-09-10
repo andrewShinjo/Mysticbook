@@ -213,7 +213,7 @@ mb_document_list_row_finalize (GObject *object)
 // **********************************************************************
 
 GtkWidget *
-mb_document_list_row_new(char *content)
+mb_document_list_row_new(gchar *content)
 {
 	return g_object_new (
 		MB_TYPE_DOCUMENT_LIST_ROW,
