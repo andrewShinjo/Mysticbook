@@ -1,39 +1,31 @@
-#include "mysticbook_application_window.h"
+#include "./mysticbook_application_window.h"
+#include "../pages/mb_block_view_page.h"
 #include "../pages/mysticbook_documents_page.h"
 
-struct _MysticbookApplicationWindow
+struct _MbApplicationWindow
 {
   GtkApplicationWindow parent;
-  GtkWidget *documents_page;
+  GtkWidget *active_page;
 };
 
-G_DEFINE_TYPE(
-	MysticbookApplicationWindow,
-	mysticbook_application_window,
-	GTK_TYPE_APPLICATION_WINDOW
-)
+G_DEFINE_TYPE(MbApplicationWindow, mb_application_window, GTK_TYPE_APPLICATION_WINDOW)
 
 static void
-mysticbook_application_window_init(MysticbookApplicationWindow *self)
+mb_application_window_init(MbApplicationWindow *self)
 {
   GtkWindow *window = GTK_WINDOW(self);
-  self->documents_page = mysticbook_documents_page_new();
-  gtk_window_set_child(window, self->documents_page);
+  self->active_page = mb_block_view_page_new();
+  gtk_window_set_child(window, self->active_page);
 }
 
 static void
-mysticbook_application_window_class_init(
-	MysticbookApplicationWindowClass *klass
-) {}
+mb_application_window_class_init(MbApplicationWindowClass *klass) 
+{}
 
 GtkWidget *
-mysticbook_application_window_new(GtkApplication *application)
+mb_application_window_new(GtkApplication *application)
 {
 	return GTK_WIDGET(
-		g_object_new(
-			MYSTICBOOK_TYPE_APPLICATION_WINDOW, 
-			"application", application, 
-			NULL
-		)
+    g_object_new(MB_TYPE_APPLICATION_WINDOW, "application", application, NULL)
 	);
 }

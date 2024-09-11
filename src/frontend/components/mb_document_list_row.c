@@ -23,7 +23,6 @@ struct _MbDocumentListRow
 	GtkWidget *creation_time_label;
 	GtkWidget *modification_time_label;
 	GtkWidget *content_label;
-	GtkWidget *rename_button;
 	GtkWidget *open_button;
 	GtkWidget *delete_button;
 
@@ -100,12 +99,6 @@ mb_document_list_row_get_property(
 // **********************************************************************
 
 static void
-rename_button_clicked(GtkButton *self, gpointer user_data)
-{
-	g_print("Rename button clicked.\n");
-}
-
-static void
 delete_button_clicked(GtkButton *self, gpointer user_data)
 {
 	g_print("Delete button clicked.\n");
@@ -133,20 +126,12 @@ mb_document_list_row_init(MbDocumentListRow *self)
 	self->content_label = gtk_label_new(NULL);
 	gtk_widget_set_halign(self->content_label, GTK_ALIGN_START);
 	gtk_widget_set_hexpand(self->content_label, TRUE);
-	self->rename_button = gtk_button_new_with_label("Rename");
 	self->open_button = gtk_button_new_with_label("Open");
 	self->delete_button = gtk_button_new_with_label("Delete");
 	gtk_widget_set_parent(self->content_label, GTK_WIDGET(self));
-	gtk_widget_set_parent(self->rename_button, GTK_WIDGET(self));
 	gtk_widget_set_parent(self->open_button, GTK_WIDGET(self));
 	gtk_widget_set_parent(self->delete_button, GTK_WIDGET(self));
 
-	g_signal_connect(
-		self->rename_button,
-		"clicked",
-		G_CALLBACK(rename_button_clicked),
-		NULL
-	);
 	g_signal_connect(
 		self->delete_button,
 		"clicked",
@@ -194,18 +179,17 @@ mb_document_list_row_class_init(MbDocumentListRowClass *klass)
 static void
 mb_document_list_row_dispose (GObject *object)
 {
-	MbDocumentListRow *self = MB_DOCUMENT_LIST_ROW (object);
+	MbDocumentListRow *self = MB_DOCUMENT_LIST_ROW(object);
 	g_clear_pointer(&self->content_label, gtk_widget_unparent);
-	g_clear_pointer(&self->rename_button, gtk_widget_unparent);
 	g_clear_pointer(&self->open_button, gtk_widget_unparent);
 	g_clear_pointer(&self->delete_button, gtk_widget_unparent);
-	G_OBJECT_CLASS(mb_document_list_row_parent_class)->dispose (object);
+	G_OBJECT_CLASS(mb_document_list_row_parent_class)->dispose(object);
 }
 
 static void
-mb_document_list_row_finalize (GObject *object)
+mb_document_list_row_finalize(GObject *object)
 {
-	G_OBJECT_CLASS(mb_document_list_row_parent_class)->finalize (object);
+	G_OBJECT_CLASS(mb_document_list_row_parent_class)->finalize(object);
 }
 
 // **********************************************************************
@@ -215,7 +199,7 @@ mb_document_list_row_finalize (GObject *object)
 GtkWidget *
 mb_document_list_row_new(gchar *content)
 {
-	return g_object_new (
+	return g_object_new(
 		MB_TYPE_DOCUMENT_LIST_ROW,
 		"content",
 		content,

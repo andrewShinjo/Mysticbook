@@ -6,8 +6,7 @@
 static void
 activate (GtkApplication *app, gpointer user_data)
 {
-  GtkWidget *mysticbook_application_window = 
-		mysticbook_application_window_new (app);
+  GtkWidget *mysticbook_application_window = mb_application_window_new (app);
   GtkWindow *window = GTK_WINDOW (mysticbook_application_window);
   gtk_window_set_title (window, "Mysticbook");
   gtk_window_maximize (window);
