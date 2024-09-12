@@ -8,6 +8,7 @@ struct _MbBlockViewPage
 {
 	GtkWidget parent;
   GtkWidget *vbox;
+  GtkWidget *main_text_view;
 };
 
 G_DEFINE_TYPE(MbBlockViewPage, mb_block_view_page, GTK_TYPE_WIDGET)
@@ -31,6 +32,8 @@ static void mb_block_view_page_finalize(GObject *object)
 static void mb_block_view_page_init(MbBlockViewPage *self)
 {
   self->vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);  
+  self->main_text_view = mb_text_view_new();
+  gtk_box_append(GTK_BOX(self->vbox), self->main_text_view);
   gtk_widget_set_hexpand(self->vbox, TRUE);
   gtk_widget_set_vexpand(self->vbox, TRUE);
 

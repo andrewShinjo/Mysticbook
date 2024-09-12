@@ -2,10 +2,10 @@
 
 struct _MbTextView
 {
-  GtkWidget parent;
+  GtkTextView parent;
 };
 
-G_DEFINE_TYPE(MbTextView, mb_text_view, GTK_TYPE_WIDGET)
+G_DEFINE_TYPE(MbTextView, mb_text_view, GTK_TYPE_TEXT_VIEW)
 
 static void mb_text_view_dispose(GObject *object) {}
 static void mb_text_view_finalize(GObject *object) {}
