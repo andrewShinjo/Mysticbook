@@ -9,6 +9,7 @@ struct _MbBlockViewPage
 	GtkWidget parent;
   GtkWidget *vbox;
   GtkWidget *main_text_view;
+  GtkEventController *key_controller;
 
   GtkWidget *hbox;
   GtkWidget *expander;
@@ -16,6 +17,23 @@ struct _MbBlockViewPage
 };
 
 G_DEFINE_TYPE(MbBlockViewPage, mb_block_view_page, GTK_TYPE_WIDGET)
+
+
+// *********************************************************************
+// * Signals
+// *********************************************************************
+
+gboolean
+key_pressed (
+  GtkEventControllerKey* self,
+  guint keyval,
+  guint keycode,
+  GdkModifierType state,
+  gpointer user_data
+)
+{
+  g_print("Key pressed\n");
+}
 
 // *********************************************************************
 // * Widget lifecycle
@@ -37,7 +55,9 @@ static void mb_block_view_page_init(MbBlockViewPage *self)
 {
   self->vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);  
   self->main_text_view = gtk_text_view_new();
-
+  self->key_controller = gtk_event_controller_key_new();
+  gtk_widget_add_controller(self->main_text_view, self->key_controller);
+  g_signal_connect(self->key_controller, "key-pressed", G_CALLBACK(key_pressed), NULL);
   gtk_widget_set_name(self->main_text_view, "main-text-view");
 
   /*

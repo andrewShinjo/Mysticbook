@@ -9,10 +9,10 @@ static void activate (GtkApplication *app, gpointer user_data)
   GtkCssProvider *css_provider = gtk_css_provider_new();
   gtk_css_provider_load_from_file(css_provider, g_file_new_for_path("stylesheet.css"));
   gtk_style_context_add_provider_for_display(
-      gdk_display_get_default(), 
-      GTK_STYLE_PROVIDER(css_provider), 
-      GTK_STYLE_PROVIDER_PRIORITY_USER
-    );
+    gdk_display_get_default(), 
+    GTK_STYLE_PROVIDER(css_provider), 
+    GTK_STYLE_PROVIDER_PRIORITY_USER
+  );
   GtkWindow *window = GTK_WINDOW (mysticbook_application_window);
   gtk_window_set_title (window, "Mysticbook");
   gtk_window_maximize (window);
