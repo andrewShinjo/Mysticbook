@@ -38,6 +38,9 @@ static void mb_block_view_page_init(MbBlockViewPage *self)
   self->vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);  
   self->main_text_view = gtk_text_view_new();
 
+  gtk_widget_set_name(self->main_text_view, "main-text-view");
+
+  /*
   self->hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
   self->expander = gtk_expander_new(NULL);
   self->child_tv = gtk_text_view_new();
@@ -45,9 +48,10 @@ static void mb_block_view_page_init(MbBlockViewPage *self)
   gtk_box_append(GTK_BOX(self->hbox), self->expander);
   gtk_box_append(GTK_BOX(self->hbox), self->child_tv);
   gtk_widget_set_hexpand(self->child_tv, TRUE);
+  */
 
   gtk_box_append(GTK_BOX(self->vbox), self->main_text_view);
-  gtk_box_append(GTK_BOX(self->vbox), self->hbox);
+  //gtk_box_append(GTK_BOX(self->vbox), self->hbox);
   gtk_widget_set_hexpand(self->vbox, TRUE);
   gtk_widget_set_vexpand(self->vbox, TRUE);
 
