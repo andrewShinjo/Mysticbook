@@ -24,8 +24,17 @@ G_DEFINE_TYPE(MbBlockViewPage, mb_block_view_page, GTK_TYPE_WIDGET)
 // * Signals
 // *********************************************************************
 
+gboolean child_tv_key_pressed(
+  GtkEventControllerKey *self,
+  guint keyval,
+  guint keycode,
+  GdkModifierType state,
+  gpointer user_data
+)
+{}
+
 gboolean
-key_pressed (
+main_tv_key_pressed(
   GtkEventControllerKey* self,
   guint keyval,
   guint keycode,
@@ -79,7 +88,7 @@ static void mb_block_view_page_init(MbBlockViewPage *self)
   g_signal_connect(
     self->key_controller, 
     "key-pressed", 
-    G_CALLBACK(key_pressed), 
+    G_CALLBACK(main_tv_key_pressed), 
     self->children_box
   );
   gtk_widget_set_name(self->main_text_view, "main-text-view");
