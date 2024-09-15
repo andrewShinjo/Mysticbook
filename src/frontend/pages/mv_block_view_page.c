@@ -10,6 +10,7 @@ struct _MbBlockViewPage
   GtkWidget *vbox;
   GtkWidget *main_text_view;
   GtkEventController *key_controller;
+  GtkWidget *children_box;
 
   GtkWidget *hbox;
   GtkWidget *expander;
@@ -32,7 +33,23 @@ key_pressed (
   gpointer user_data
 )
 {
-  g_print("Key pressed\n");
+
+  if(keyval == GDK_KEY_Return)
+  {
+    GtkBox *children_box = GTK_BOX(user_data);
+    GtkWidget *hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+    GtkWidget *expander = gtk_expander_new(NULL);
+    GtkWidget *textview = gtk_text_view_new();
+    gtk_widget_set_hexpand(textview, TRUE);
+    gtk_box_append(GTK_BOX(hbox), expander);
+    gtk_box_append(GTK_BOX(hbox), textview);
+    gtk_box_prepend(children_box, hbox);
+    gtk_widget_grab_focus(textview);
+    g_print("Return pressed.\n");
+    return TRUE;
+  }
+
+  return FALSE;
 }
 
 // *********************************************************************
@@ -53,11 +70,17 @@ static void mb_block_view_page_finalize(GObject *object)
 
 static void mb_block_view_page_init(MbBlockViewPage *self)
 {
-  self->vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);  
+  self->vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);  
   self->main_text_view = gtk_text_view_new();
   self->key_controller = gtk_event_controller_key_new();
+  self->children_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
   gtk_widget_add_controller(self->main_text_view, self->key_controller);
-  g_signal_connect(self->key_controller, "key-pressed", G_CALLBACK(key_pressed), NULL);
+  g_signal_connect(
+    self->key_controller, 
+    "key-pressed", 
+    G_CALLBACK(key_pressed), 
+    self->children_box
+  );
   gtk_widget_set_name(self->main_text_view, "main-text-view");
 
   /*
@@ -71,6 +94,7 @@ static void mb_block_view_page_init(MbBlockViewPage *self)
   */
 
   gtk_box_append(GTK_BOX(self->vbox), self->main_text_view);
+  gtk_box_append(GTK_BOX(self->vbox), self->children_box);
   //gtk_box_append(GTK_BOX(self->vbox), self->hbox);
   gtk_widget_set_hexpand(self->vbox, TRUE);
   gtk_widget_set_vexpand(self->vbox, TRUE);
