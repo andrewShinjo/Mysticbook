@@ -44,6 +44,7 @@ key_pressed (
     gtk_box_append(GTK_BOX(hbox), expander);
     gtk_box_append(GTK_BOX(hbox), textview);
     gtk_box_prepend(children_box, hbox);
+    gtk_widget_allocate(textview, 0, 0, 0, NULL);
     gtk_widget_grab_focus(textview);
     g_print("Return pressed.\n");
     return TRUE;
