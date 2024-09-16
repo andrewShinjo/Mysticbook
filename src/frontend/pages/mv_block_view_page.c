@@ -76,7 +76,6 @@ static void mb_block_view_page_init(MbBlockViewPage *self)
   self->layout = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);  
   self->root_block = mb_text_block_new();
   self->descendent_blocks = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
-  gtk_widget_set_name(self->root_block, "main-text-view");
   gtk_box_append(GTK_BOX(self->layout), self->root_block);
   gtk_box_append(GTK_BOX(self->layout), self->descendent_blocks);
   gtk_widget_set_hexpand(self->layout, TRUE);

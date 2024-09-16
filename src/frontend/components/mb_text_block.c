@@ -38,6 +38,7 @@ static void mb_text_block_init(MbTextBlock *self)
     G_CALLBACK(root_key_pressed),
     NULL
   );
+  gtk_widget_set_name(GTK_WIDGET(self), "main-text-view");
 }
 
 static void mb_text_block_class_init(MbTextBlockClass *klass) {}
