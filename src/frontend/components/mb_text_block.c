@@ -1,4 +1,4 @@
-#include "./mb_text_view.h"
+#include "./mb_text_block.h"
 
 struct _MbTextView
 {

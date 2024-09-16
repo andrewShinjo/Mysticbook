@@ -1,5 +1,5 @@
 #include "./mb_block_view_page.h"
-#include "../components/mb_text_view.h"
+#include "../components/mb_text_block.h"
 
 static void mb_block_view_page_dispose(GObject *object);
 static void mb_block_view_page_finalize(GObject *object);
