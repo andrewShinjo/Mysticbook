@@ -7,32 +7,28 @@ static void mb_block_view_page_finalize(GObject *object);
 struct _MbBlockViewPage
 {
 	GtkWidget parent;
-  GtkWidget *vbox;
-  GtkWidget *main_text_view;
-  GtkEventController *key_controller;
-  GtkWidget *children_box;
-
-  GtkWidget *hbox;
-  GtkWidget *expander;
-  GtkWidget *child_tv;
+  GtkWidget *layout;
+  GtkWidget *root_block;
+  GtkWidget *descendent_blocks;
 };
 
 G_DEFINE_TYPE(MbBlockViewPage, mb_block_view_page, GTK_TYPE_WIDGET)
 
+// Private
 
-// *********************************************************************
-// * Signals
-// *********************************************************************
+gboolean 
+prepend_block(MbBlockViewPage *self, GtkWidget *block)
+{
+  return TRUE;
+}
 
-gboolean child_tv_key_pressed(
-  GtkEventControllerKey *self,
-  guint keyval,
-  guint keycode,
-  GdkModifierType state,
-  gpointer user_data
-)
-{}
+gboolean 
+insert_block_after(MbBlockViewPage *self, GtkWidget *sibling, GtkWidget *insert)
+{
+  return TRUE;
+}
 
+/*
 gboolean
 main_tv_key_pressed(
   GtkEventControllerKey* self,
@@ -61,15 +57,12 @@ main_tv_key_pressed(
 
   return FALSE;
 }
-
-// *********************************************************************
-// * Widget lifecycle
-// *********************************************************************
+*/
 
 static void mb_block_view_page_dispose(GObject *object) 
 {
   MbBlockViewPage *self = MB_BLOCK_VIEW_PAGE(object);
-  g_clear_pointer(&self->vbox, gtk_widget_unparent);
+  g_clear_pointer(&self->layout, gtk_widget_unparent);
   G_OBJECT_CLASS(mb_block_view_page_parent_class)->dispose(object);
 }
 
@@ -80,36 +73,15 @@ static void mb_block_view_page_finalize(GObject *object)
 
 static void mb_block_view_page_init(MbBlockViewPage *self)
 {
-  self->vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);  
-  self->main_text_view = gtk_text_view_new();
-  self->key_controller = gtk_event_controller_key_new();
-  self->children_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
-  gtk_widget_add_controller(self->main_text_view, self->key_controller);
-  g_signal_connect(
-    self->key_controller, 
-    "key-pressed", 
-    G_CALLBACK(main_tv_key_pressed), 
-    self->children_box
-  );
-  gtk_widget_set_name(self->main_text_view, "main-text-view");
-
-  /*
-  self->hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-  self->expander = gtk_expander_new(NULL);
-  self->child_tv = gtk_text_view_new();
-
-  gtk_box_append(GTK_BOX(self->hbox), self->expander);
-  gtk_box_append(GTK_BOX(self->hbox), self->child_tv);
-  gtk_widget_set_hexpand(self->child_tv, TRUE);
-  */
-
-  gtk_box_append(GTK_BOX(self->vbox), self->main_text_view);
-  gtk_box_append(GTK_BOX(self->vbox), self->children_box);
-  //gtk_box_append(GTK_BOX(self->vbox), self->hbox);
-  gtk_widget_set_hexpand(self->vbox, TRUE);
-  gtk_widget_set_vexpand(self->vbox, TRUE);
-
-  gtk_widget_set_parent(self->vbox, GTK_WIDGET(self));
+  self->layout = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);  
+  self->root_block = mb_text_block_new();
+  self->descendent_blocks = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+  gtk_widget_set_name(self->root_block, "main-text-view");
+  gtk_box_append(GTK_BOX(self->layout), self->root_block);
+  gtk_box_append(GTK_BOX(self->layout), self->descendent_blocks);
+  gtk_widget_set_hexpand(self->layout, TRUE);
+  gtk_widget_set_vexpand(self->layout, TRUE);
+  gtk_widget_set_parent(self->layout, GTK_WIDGET(self));
 }
 static void mb_block_view_page_class_init(MbBlockViewPageClass *klass) 
 {
@@ -119,12 +91,9 @@ static void mb_block_view_page_class_init(MbBlockViewPageClass *klass)
   gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(klass), GTK_TYPE_BOX_LAYOUT);
 }
 
-// *********************************************************************
-// * Public
-// *********************************************************************
+// Public
 
-GtkWidget *
-mb_block_view_page_new()
+GtkWidget *mb_block_view_page_new()
 {
 	return g_object_new(MB_TYPE_BLOCK_VIEW_PAGE, NULL);
 }
