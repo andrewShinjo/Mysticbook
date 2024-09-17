@@ -2,46 +2,53 @@
 
 struct _MbTextBlock
 {
-  GtkTextView parent;
-  GtkEventController *key_controller;
+  GtkWidget parent;
+  GtkWidget *layout;
+  GtkWidget *expander;
+  GtkWidget *bullet_point;
+  GtkWidget *text_view;
 };
 
-G_DEFINE_TYPE(MbTextBlock, mb_text_block, GTK_TYPE_TEXT_VIEW)
+G_DEFINE_TYPE(MbTextBlock, mb_text_block, GTK_TYPE_WIDGET)
 
 // Private
 
-gboolean root_key_pressed(
-  GtkEventControllerKey *self,
-  guint keyval,
-  guint keycode,
-  GdkModifierType state,
-  gpointer user_data
-)
+static void mb_text_block_dispose(GObject *object) 
 {
-  if(keyval == GDK_KEY_Return)
-  {
-    return TRUE;
-  }
-  return FALSE;
+  MbTextBlock *self = MB_TEXT_BLOCK(object);
+  g_clear_pointer(&self->layout, gtk_widget_unparent);
+  G_OBJECT_CLASS(mb_text_block_parent_class)->dispose(object);
 }
 
-static void mb_text_block_dispose(GObject *object) {}
 static void mb_text_block_finalize(GObject *object) {}
 
 static void mb_text_block_init(MbTextBlock *self) 
 {
-  self->key_controller = gtk_event_controller_key_new();
-  gtk_widget_add_controller(GTK_WIDGET(self), self->key_controller);
-  g_signal_connect(
-    self->key_controller,
-    "key-pressed",
-    G_CALLBACK(root_key_pressed),
-    NULL
-  );
-  gtk_widget_set_name(GTK_WIDGET(self), "main-text-view");
+  self->layout = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+  self->expander = gtk_expander_new(NULL);
+  self->bullet_point = gtk_label_new("•");
+  self->text_view = gtk_text_view_new();
+
+  gtk_widget_set_hexpand(self->layout, TRUE);
+  gtk_widget_set_vexpand(self->layout, TRUE);
+
+  gtk_widget_allocate(self->text_view, 0, 0, 0, NULL);
+  gtk_widget_set_hexpand(self->text_view, TRUE);
+
+  gtk_box_append(GTK_BOX(self->layout), self->expander);
+  gtk_box_append(GTK_BOX(self->layout), self->bullet_point);
+  gtk_box_append(GTK_BOX(self->layout), self->text_view);
+
+  gtk_widget_set_parent(self->layout, GTK_WIDGET(self));
 }
 
-static void mb_text_block_class_init(MbTextBlockClass *klass) {}
+static void mb_text_block_class_init(MbTextBlockClass *klass) 
+{
+  GObjectClass *object_class = G_OBJECT_CLASS(klass);
+  object_class->dispose = mb_text_block_dispose;
+  object_class->finalize = mb_text_block_finalize;
+  gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(klass), GTK_TYPE_BOX_LAYOUT);
+}
 
 // Public
 
