@@ -7,11 +7,29 @@ struct _MbTextBlock
   GtkWidget *expander;
   GtkWidget *bullet_point;
   GtkWidget *text_view;
+  GtkEventController *key_controller;
 };
 
 G_DEFINE_TYPE(MbTextBlock, mb_text_block, GTK_TYPE_WIDGET)
 
-// Private
+// * Private
+
+// ** Callback
+
+gboolean
+_key_pressed(
+  GtkEventControllerKey *self,
+  guint keyval,
+  guint keycode,
+  GdkModifierType state,
+  gpointer user_data
+)
+{
+
+}
+
+
+// ** Widget lifecycle
 
 static void mb_text_block_dispose(GObject *object) 
 {
@@ -28,6 +46,7 @@ static void mb_text_block_init(MbTextBlock *self)
   self->expander = gtk_expander_new(NULL);
   self->bullet_point = gtk_label_new("•");
   self->text_view = gtk_text_view_new();
+  self->key_controller = gtk_event_controller_key_new();
 
   gtk_widget_set_hexpand(self->layout, TRUE);
   gtk_widget_set_vexpand(self->layout, TRUE);
