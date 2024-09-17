@@ -1,5 +1,6 @@
 #include "./mb_block_view_page.h"
 #include "../components/mb_text_block.h"
+#include "../components/mb_root_text_block.h"
 
 static void mb_block_view_page_dispose(GObject *object);
 static void mb_block_view_page_finalize(GObject *object);
@@ -9,7 +10,6 @@ struct _MbBlockViewPage
 	GtkWidget parent;
   GtkWidget *layout;
   GtkWidget *root_block;
-  GtkWidget *descendent_blocks;
 };
 
 G_DEFINE_TYPE(MbBlockViewPage, mb_block_view_page, GTK_TYPE_WIDGET)
@@ -74,10 +74,8 @@ static void mb_block_view_page_finalize(GObject *object)
 static void mb_block_view_page_init(MbBlockViewPage *self)
 {
   self->layout = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);  
-  self->root_block = mb_text_block_new();
-  self->descendent_blocks = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+  self->root_block = mb_root_text_block_new();
   gtk_box_append(GTK_BOX(self->layout), self->root_block);
-  gtk_box_append(GTK_BOX(self->layout), self->descendent_blocks);
   gtk_widget_set_hexpand(self->layout, TRUE);
   gtk_widget_set_vexpand(self->layout, TRUE);
   gtk_widget_set_parent(self->layout, GTK_WIDGET(self));
