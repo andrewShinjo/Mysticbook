@@ -75,3 +75,9 @@ GtkWidget *mb_text_block_new()
 {
   return g_object_new(MB_TYPE_TEXT_BLOCK, NULL);
 }
+
+void
+mb_text_block_focus(MbTextBlock *self)
+{
+  gtk_widget_grab_focus(self->text_view);
+}

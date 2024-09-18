@@ -37,8 +37,9 @@ key_pressed(
   MbRootTextBlock *root = MB_ROOT_TEXT_BLOCK(user_data);
   if(keyval == GDK_KEY_Return)
   {
-    g_print("Prepend child\n");
-    prepend_child(MB_ROOT_TEXT_BLOCK(user_data), mb_text_block_new());
+    GtkWidget *child = mb_text_block_new();
+    prepend_child(MB_ROOT_TEXT_BLOCK(user_data), child);
+    mb_text_block_focus(MB_TEXT_BLOCK(child));
     return TRUE;
   }
   return FALSE;
