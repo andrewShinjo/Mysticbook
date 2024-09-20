@@ -4,6 +4,7 @@ struct _MbTextBlock
 {
   GtkWidget parent;
   GtkWidget *layout;
+  GtkWidget *options_label;
   GtkWidget *expander;
   GtkWidget *bullet_point;
   GtkWidget *text_view;
@@ -62,8 +63,9 @@ static void mb_text_block_finalize(GObject *object) {}
 static void mb_text_block_init(MbTextBlock *self) 
 {
   self->layout = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+  self->options_label = gtk_label_new("  ⋯  ");
   self->expander = gtk_expander_new(NULL);
-  self->bullet_point = gtk_label_new("•");
+  self->bullet_point = gtk_label_new("  •   ");
   self->text_view = gtk_text_view_new();
   self->key_controller = gtk_event_controller_key_new();
 
@@ -81,7 +83,8 @@ static void mb_text_block_init(MbTextBlock *self)
   gtk_widget_allocate(self->text_view, 0, 0, 0, NULL);
   gtk_widget_set_hexpand(self->text_view, TRUE);
 
-  gtk_box_append(GTK_BOX(self->layout), self->expander);
+  gtk_box_append(GTK_BOX(self->layout), self->options_label);
+  // gtk_box_append(GTK_BOX(self->layout), self->expander);
   gtk_box_append(GTK_BOX(self->layout), self->bullet_point);
   gtk_box_append(GTK_BOX(self->layout), self->text_view);
 

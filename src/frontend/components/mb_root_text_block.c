@@ -5,6 +5,8 @@ struct _MbRootTextBlock
 {
   GtkWidget parent;
   GtkWidget *layout;
+  GtkWidget *hbox;
+  GtkWidget *options_label;
   GtkWidget *textview;
   GtkWidget *children_blocks;
   GtkEventController *key_controller;
@@ -75,6 +77,8 @@ static void
 mb_root_text_block_init(MbRootTextBlock *self) 
 {
   self->layout = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+  self->hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+  self->options_label = gtk_label_new("  ⋯  "); 
   self->textview = gtk_text_view_new();
   self->children_blocks = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   self->key_controller = gtk_event_controller_key_new();
@@ -87,10 +91,13 @@ mb_root_text_block_init(MbRootTextBlock *self)
     self
   );
 
-  gtk_box_append(GTK_BOX(self->layout), self->textview);
+  gtk_box_append(GTK_BOX(self->hbox), self->options_label); 
+  gtk_box_append(GTK_BOX(self->hbox), self->textview);
+  gtk_box_append(GTK_BOX(self->layout), self->hbox);
   gtk_box_append(GTK_BOX(self->layout), self->children_blocks);
   gtk_widget_set_hexpand(self->layout, TRUE);
   gtk_widget_set_vexpand(self->layout, TRUE);
+  gtk_widget_set_hexpand(self->textview, TRUE);
   gtk_widget_set_parent(self->layout, GTK_WIDGET(self));
 }
 
