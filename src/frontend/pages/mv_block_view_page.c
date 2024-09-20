@@ -8,6 +8,7 @@ static void mb_block_view_page_finalize(GObject *object);
 struct _MbBlockViewPage
 {
 	GtkWidget parent;
+  GtkWidget *scrolled_window;
   GtkWidget *layout;
   GtkWidget *root_block;
 };
@@ -28,41 +29,10 @@ insert_block_after(MbBlockViewPage *self, GtkWidget *sibling, GtkWidget *insert)
   return TRUE;
 }
 
-/*
-gboolean
-main_tv_key_pressed(
-  GtkEventControllerKey* self,
-  guint keyval,
-  guint keycode,
-  GdkModifierType state,
-  gpointer user_data
-)
-{
-
-  if(keyval == GDK_KEY_Return)
-  {
-    GtkBox *children_box = GTK_BOX(user_data);
-    GtkWidget *hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-    GtkWidget *expander = gtk_expander_new(NULL);
-    GtkWidget *textview = gtk_text_view_new();
-    gtk_widget_set_hexpand(textview, TRUE);
-    gtk_box_append(GTK_BOX(hbox), expander);
-    gtk_box_append(GTK_BOX(hbox), textview);
-    gtk_box_prepend(children_box, hbox);
-    gtk_widget_allocate(textview, 0, 0, 0, NULL);
-    gtk_widget_grab_focus(textview);
-    g_print("Return pressed.\n");
-    return TRUE;
-  }
-
-  return FALSE;
-}
-*/
-
 static void mb_block_view_page_dispose(GObject *object) 
 {
   MbBlockViewPage *self = MB_BLOCK_VIEW_PAGE(object);
-  g_clear_pointer(&self->layout, gtk_widget_unparent);
+  g_clear_pointer(&self->scrolled_window, gtk_widget_unparent);
   G_OBJECT_CLASS(mb_block_view_page_parent_class)->dispose(object);
 }
 
@@ -73,12 +43,14 @@ static void mb_block_view_page_finalize(GObject *object)
 
 static void mb_block_view_page_init(MbBlockViewPage *self)
 {
+  self->scrolled_window = gtk_scrolled_window_new();
   self->layout = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);  
   self->root_block = mb_root_text_block_new();
+  gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(self->scrolled_window), self->layout);
   gtk_box_append(GTK_BOX(self->layout), self->root_block);
   gtk_widget_set_hexpand(self->layout, TRUE);
   gtk_widget_set_vexpand(self->layout, TRUE);
-  gtk_widget_set_parent(self->layout, GTK_WIDGET(self));
+  gtk_widget_set_parent(self->scrolled_window, GTK_WIDGET(self));
 }
 static void mb_block_view_page_class_init(MbBlockViewPageClass *klass) 
 {
