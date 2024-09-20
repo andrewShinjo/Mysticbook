@@ -14,16 +14,28 @@ G_DEFINE_TYPE(MbRootTextBlock, mb_root_text_block, GTK_TYPE_WIDGET)
 
 // * Private
 
-void
+static void
 prepend_child(MbRootTextBlock *self, GtkWidget *child)
 {
   gtk_box_prepend(GTK_BOX(self->children_blocks), child);
 }
 
-void
-append_child_after_sibling(MbRootTextBlock *self, GtkWidget *sibling, GtkWidget *child);
+static void
+append_child_after_sibling(MbRootTextBlock *self, GtkWidget *child, GtkWidget *sibling)
+{
+  gtk_box_insert_child_after(GTK_BOX(self->children_blocks), child, sibling);
+}
 
 // ** Callback
+
+static void add_sibling(MbTextBlock *self, gpointer user_data)
+{
+  MbRootTextBlock *root = MB_ROOT_TEXT_BLOCK(user_data);
+  GtkWidget *child = mb_text_block_new();
+  g_signal_connect(child, "add-sibling", G_CALLBACK(add_sibling), user_data);
+  append_child_after_sibling(root, child, GTK_WIDGET(self));
+  mb_text_block_grab_focus(MB_TEXT_BLOCK(child));
+}
 
 gboolean
 key_pressed(
@@ -38,8 +50,9 @@ key_pressed(
   if(keyval == GDK_KEY_Return)
   {
     GtkWidget *child = mb_text_block_new();
+    g_signal_connect(child, "add-sibling", G_CALLBACK(add_sibling), user_data);
     prepend_child(MB_ROOT_TEXT_BLOCK(user_data), child);
-    mb_text_block_focus(MB_TEXT_BLOCK(child));
+    mb_text_block_grab_focus(MB_TEXT_BLOCK(child));
     return TRUE;
   }
   return FALSE;

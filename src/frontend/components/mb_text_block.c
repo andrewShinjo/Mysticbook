@@ -12,12 +12,26 @@ struct _MbTextBlock
 
 G_DEFINE_TYPE(MbTextBlock, mb_text_block, GTK_TYPE_WIDGET)
 
+// Signal
+
+enum signal_types
+{
+  ADD_SIBLING,
+  LAST_SIGNAL
+};
+
+static guint signals[LAST_SIGNAL];
+
+static gboolean add_sibling_signal_source_func(gpointer user_data)
+{
+  MbTextBlock *self = MB_TEXT_BLOCK(user_data);
+  g_signal_emit(self, signals[ADD_SIBLING], 0);
+  return G_SOURCE_CONTINUE;
+}
+
 // * Private
 
-// ** Callback
-
-gboolean
-_key_pressed(
+static gboolean key_pressed(
   GtkEventControllerKey *self,
   guint keyval,
   guint keycode,
@@ -25,7 +39,12 @@ _key_pressed(
   gpointer user_data
 )
 {
-
+  if(keyval == GDK_KEY_Return)
+  {
+    add_sibling_signal_source_func(user_data);
+    return TRUE;
+  }
+  return FALSE;
 }
 
 
@@ -48,6 +67,14 @@ static void mb_text_block_init(MbTextBlock *self)
   self->text_view = gtk_text_view_new();
   self->key_controller = gtk_event_controller_key_new();
 
+  gtk_widget_add_controller(self->text_view, self->key_controller);
+  g_signal_connect(
+    self->key_controller,
+    "key-pressed",
+    G_CALLBACK(key_pressed),
+    self
+  );
+
   gtk_widget_set_hexpand(self->layout, TRUE);
   gtk_widget_set_vexpand(self->layout, TRUE);
 
@@ -67,6 +94,20 @@ static void mb_text_block_class_init(MbTextBlockClass *klass)
   object_class->dispose = mb_text_block_dispose;
   object_class->finalize = mb_text_block_finalize;
   gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(klass), GTK_TYPE_BOX_LAYOUT);
+
+  // Signal
+
+  signals[ADD_SIBLING] = g_signal_new_class_handler(
+    "add-sibling", 
+    G_OBJECT_CLASS_TYPE(object_class), 
+    G_SIGNAL_RUN_LAST,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    G_TYPE_NONE,
+    0
+  );
 }
 
 // Public
@@ -76,8 +117,7 @@ GtkWidget *mb_text_block_new()
   return g_object_new(MB_TYPE_TEXT_BLOCK, NULL);
 }
 
-void
-mb_text_block_focus(MbTextBlock *self)
+void mb_text_block_grab_focus(MbTextBlock *self)
 {
   gtk_widget_grab_focus(self->text_view);
 }
