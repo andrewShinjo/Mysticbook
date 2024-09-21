@@ -40,10 +40,28 @@ static gboolean key_pressed(
   gpointer user_data
 )
 {
-  if(keyval == GDK_KEY_Return)
+  MbTextBlock *text_block = MB_TEXT_BLOCK(user_data);
+
+  if(keyval == GDK_KEY_BackSpace)
   {
-    add_sibling_signal_source_func(user_data);
-    return TRUE;
+    GtkTextBuffer *buffer = gtk_text_view_get_buffer(
+      GTK_TEXT_VIEW(text_block->text_view)
+    ); 
+    GtkTextIter start, end;
+    gtk_text_buffer_get_start_iter(buffer, &start);
+    gtk_text_buffer_get_end_iter(buffer, &end);
+    if(gtk_text_iter_equal(&start, &end))
+    {
+      g_print("Text block is empty.\n");
+    }
+  }
+  else if(keyval == GDK_KEY_Return)
+  {
+    if(!(state && GDK_SHIFT_MASK))
+    {
+      add_sibling_signal_source_func(user_data);
+      return TRUE;
+    }
   }
   return FALSE;
 }
@@ -82,6 +100,9 @@ static void mb_text_block_init(MbTextBlock *self)
 
   gtk_widget_allocate(self->text_view, 0, 0, 0, NULL);
   gtk_widget_set_hexpand(self->text_view, TRUE);
+
+  gtk_widget_set_valign(self->options_label, GTK_ALIGN_START);
+  gtk_widget_set_valign(self->bullet_point, GTK_ALIGN_START);
 
   gtk_box_append(GTK_BOX(self->layout), self->options_label);
   // gtk_box_append(GTK_BOX(self->layout), self->expander);
