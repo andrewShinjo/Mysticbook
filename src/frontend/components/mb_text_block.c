@@ -18,6 +18,7 @@ G_DEFINE_TYPE(MbTextBlock, mb_text_block, GTK_TYPE_WIDGET)
 enum signal_types
 {
   ADD_SIBLING,
+  REMOVE_SELF,
   LAST_SIGNAL
 };
 
@@ -27,6 +28,13 @@ static gboolean add_sibling_signal_source_func(gpointer user_data)
 {
   MbTextBlock *self = MB_TEXT_BLOCK(user_data);
   g_signal_emit(self, signals[ADD_SIBLING], 0);
+  return G_SOURCE_CONTINUE;
+}
+
+static gboolean remove_self_signal_source_func(gpointer user_data)
+{
+  MbTextBlock *self = MB_TEXT_BLOCK(user_data);
+  g_signal_emit(self, signals[REMOVE_SELF], 0);
   return G_SOURCE_CONTINUE;
 }
 
@@ -53,6 +61,7 @@ static gboolean key_pressed(
     if(gtk_text_iter_equal(&start, &end))
     {
       g_print("Text block is empty.\n");
+      remove_self_signal_source_func(user_data);
     }
   }
   else if(keyval == GDK_KEY_Return)
@@ -131,7 +140,18 @@ static void mb_text_block_class_init(MbTextBlockClass *klass)
     NULL,
     G_TYPE_NONE,
     0
-  );
+  ); 
+  signals[REMOVE_SELF] = g_signal_new_class_handler(
+    "remove-self", 
+    G_OBJECT_CLASS_TYPE(object_class), 
+    G_SIGNAL_RUN_LAST,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    G_TYPE_NONE,
+    0
+ );
 }
 
 // Public

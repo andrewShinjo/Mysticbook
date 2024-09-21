@@ -28,6 +28,16 @@ append_child_after_sibling(MbRootTextBlock *self, GtkWidget *child, GtkWidget *s
   gtk_box_insert_child_after(GTK_BOX(self->children_blocks), child, sibling);
 }
 
+static void
+remove_child(MbTextBlock *self, gpointer user_data)
+{
+  MbRootTextBlock *root = MB_ROOT_TEXT_BLOCK(user_data);
+  GtkWidget *child = GTK_WIDGET(self);
+  GtkWidget *previous_sibling = gtk_widget_get_prev_sibling(child);
+  gtk_box_remove(GTK_BOX(root->children_blocks), child);
+  mb_text_block_grab_focus(MB_TEXT_BLOCK(previous_sibling));
+}
+
 // ** Callback
 
 static void add_sibling(MbTextBlock *self, gpointer user_data)
@@ -35,6 +45,7 @@ static void add_sibling(MbTextBlock *self, gpointer user_data)
   MbRootTextBlock *root = MB_ROOT_TEXT_BLOCK(user_data);
   GtkWidget *child = mb_text_block_new();
   g_signal_connect(child, "add-sibling", G_CALLBACK(add_sibling), user_data);
+  g_signal_connect(child, "remove-self", G_CALLBACK(remove_child), user_data);
   append_child_after_sibling(root, child, GTK_WIDGET(self));
   mb_text_block_grab_focus(MB_TEXT_BLOCK(child));
 }
@@ -53,6 +64,7 @@ key_pressed(
   {
     GtkWidget *child = mb_text_block_new();
     g_signal_connect(child, "add-sibling", G_CALLBACK(add_sibling), user_data);
+    g_signal_connect(child, "remove-self", G_CALLBACK(remove_child), user_data);
     prepend_child(MB_ROOT_TEXT_BLOCK(user_data), child);
     mb_text_block_grab_focus(MB_TEXT_BLOCK(child));
     return TRUE;
