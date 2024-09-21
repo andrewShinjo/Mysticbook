@@ -60,7 +60,6 @@ static gboolean key_pressed(
     gtk_text_buffer_get_end_iter(buffer, &end);
     if(gtk_text_iter_equal(&start, &end))
     {
-      g_print("Text block is empty.\n");
       remove_self_signal_source_func(user_data);
     }
   }
