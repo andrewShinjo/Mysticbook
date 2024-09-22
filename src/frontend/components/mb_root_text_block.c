@@ -22,7 +22,7 @@ prepend_child(MbRootTextBlock *self, GtkWidget *child)
 }
 
 static void
-indent_self(MbTextBlock *self, gpointer user_data)
+on_indent_self(MbTextBlock *self, gpointer user_data)
 {
   MbRootTextBlock *root = MB_ROOT_TEXT_BLOCK(user_data);
   GtkWidget *child = GTK_WIDGET(self);
@@ -36,7 +36,7 @@ indent_self(MbTextBlock *self, gpointer user_data)
 }
 
 static void
-remove_child(MbTextBlock *self, gpointer user_data)
+on_remove_child(MbTextBlock *self, gpointer user_data)
 {
   MbRootTextBlock *root = MB_ROOT_TEXT_BLOCK(user_data);
   GtkWidget *child = GTK_WIDGET(self);
@@ -55,15 +55,13 @@ remove_child(MbTextBlock *self, gpointer user_data)
 // ** Callback
 
 static void 
-add_sibling(MbTextBlock *self, gpointer user_data)
+on_add_sibling(MbTextBlock *self, gpointer user_data)
 {
- //  MbRootTextBlock *root = MB_ROOT_TEXT_BLOCK(user_data);
   GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(self));
   GtkWidget *child = mb_text_block_new();
-  g_signal_connect(child, "add-sibling", G_CALLBACK(add_sibling), user_data);
-  g_signal_connect(child, "indent-self", G_CALLBACK(indent_self), user_data);
-  g_signal_connect(child, "remove-self", G_CALLBACK(remove_child), user_data);
-  // gtk_box_insert_child_after(GTK_BOX(root->children_blocks), child, GTK_WIDGET(self));
+  g_signal_connect(child, "add-sibling", G_CALLBACK(on_add_sibling), user_data);
+  g_signal_connect(child, "indent-self", G_CALLBACK(on_indent_self), user_data);
+  g_signal_connect(child, "remove-self", G_CALLBACK(on_remove_child), user_data);
   gtk_box_insert_child_after(GTK_BOX(parent), child, GTK_WIDGET(self));
   mb_text_block_grab_focus(MB_TEXT_BLOCK(child));
 }
@@ -81,9 +79,9 @@ key_pressed(
   if(keyval == GDK_KEY_Return)
   {
     GtkWidget *child = mb_text_block_new();
-    g_signal_connect(child, "add-sibling", G_CALLBACK(add_sibling), user_data);
-    g_signal_connect(child, "indent-self", G_CALLBACK(indent_self), user_data);
-    g_signal_connect(child, "remove-self", G_CALLBACK(remove_child), user_data);
+    g_signal_connect(child, "add-sibling", G_CALLBACK(on_add_sibling), user_data);
+    g_signal_connect(child, "indent-self", G_CALLBACK(on_indent_self), user_data);
+    g_signal_connect(child, "remove-self", G_CALLBACK(on_remove_child), user_data);
     prepend_child(MB_ROOT_TEXT_BLOCK(user_data), child);
     mb_text_block_grab_focus(MB_TEXT_BLOCK(child));
     return TRUE;
