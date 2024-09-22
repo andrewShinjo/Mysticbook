@@ -13,7 +13,7 @@ struct _MbRootTextBlock
 
 G_DEFINE_TYPE(MbRootTextBlock, mb_root_text_block, GTK_TYPE_WIDGET)
 
-// * Private
+// Private
 
 static void
 on_indent_child(MbTextBlock *self, gpointer user_data)
@@ -26,6 +26,30 @@ on_indent_child(MbTextBlock *self, gpointer user_data)
   {
     gtk_box_remove(GTK_BOX(parent), child);
     mb_text_block_add_child(MB_TEXT_BLOCK(previous_sibling), child);
+    mb_text_block_grab_focus(self);
+  }
+}
+
+static void
+on_unindent_child(MbTextBlock *self, gpointer user_data)
+{
+  GtkWidget *child = GTK_WIDGET(self);
+  GtkWidget *parent = gtk_widget_get_parent(child);
+  GtkWidget *parent2 = gtk_widget_get_parent(parent);
+
+
+  if(G_TYPE_CHECK_INSTANCE_TYPE(parent, MB_TYPE_ROOT_TEXT_BLOCK))
+  {
+    g_print("Do nothing 1\n");
+  }
+  else if(G_TYPE_CHECK_INSTANCE_TYPE(parent2, MB_TYPE_ROOT_TEXT_BLOCK))
+  {
+    g_print("Do nothing 2\n");
+  }
+  else
+  {
+    gtk_box_remove(GTK_BOX(parent), child);
+    gtk_box_append(GTK_BOX(parent2), child);
     mb_text_block_grab_focus(self);
   }
 }
@@ -47,8 +71,6 @@ on_remove_child(MbTextBlock *self, gpointer user_data)
   }
 }
 
-// ** Callback
-
 static void 
 on_add_sibling(MbTextBlock *self, gpointer user_data)
 {
@@ -57,6 +79,7 @@ on_add_sibling(MbTextBlock *self, gpointer user_data)
   g_signal_connect(child, "add-sibling", G_CALLBACK(on_add_sibling), user_data);
   g_signal_connect(child, "indent-self", G_CALLBACK(on_indent_child), user_data);
   g_signal_connect(child, "remove-self", G_CALLBACK(on_remove_child), user_data);
+  g_signal_connect(child, "unindent-self", G_CALLBACK(on_unindent_child), user_data);
   gtk_box_insert_child_after(GTK_BOX(parent), child, GTK_WIDGET(self));
   mb_text_block_grab_focus(MB_TEXT_BLOCK(child));
 }
@@ -77,6 +100,7 @@ key_pressed(
     g_signal_connect(child, "add-sibling", G_CALLBACK(on_add_sibling), user_data);
     g_signal_connect(child, "indent-self", G_CALLBACK(on_indent_child), user_data);
     g_signal_connect(child, "remove-self", G_CALLBACK(on_remove_child), user_data);
+    g_signal_connect(child, "unindent-self", G_CALLBACK(on_unindent_child), user_data);
     gtk_box_prepend(GTK_BOX(root->children_blocks), child);
     mb_text_block_grab_focus(MB_TEXT_BLOCK(child));
     return TRUE;

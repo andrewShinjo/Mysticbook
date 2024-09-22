@@ -86,7 +86,14 @@ key_pressed(
   }
   else if(keyval == GDK_KEY_Tab)
   {
-    indent_self_signal_source_func(user_data);
+    if(state && GDK_CONTROL_MASK)
+    {
+      unindent_self_signal_source_func(user_data);
+    }
+    else
+    {
+      indent_self_signal_source_func(user_data);
+    }
     return TRUE;
   }
   else if(keyval == GDK_KEY_Return)
