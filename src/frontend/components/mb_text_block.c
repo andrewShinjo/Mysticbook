@@ -20,6 +20,7 @@ enum signal_types
   ADD_SIBLING,
   INDENT_SELF,
   REMOVE_SELF,
+  UNINDENT_SELF,
   LAST_SIGNAL
 };
 
@@ -46,6 +47,14 @@ remove_self_signal_source_func(gpointer user_data)
 {
   MbTextBlock *self = MB_TEXT_BLOCK(user_data);
   g_signal_emit(self, signals[REMOVE_SELF], 0);
+  return G_SOURCE_CONTINUE;
+}
+
+static gboolean
+unindent_self_signal_source_func(gpointer user_data)
+{
+  MbTextBlock *self = MB_TEXT_BLOCK(user_data);
+  g_signal_emit(self, signals[UNINDENT_SELF], 0);
   return G_SOURCE_CONTINUE;
 }
 
@@ -182,6 +191,17 @@ static void mb_text_block_class_init(MbTextBlockClass *klass)
     G_TYPE_NONE,
     0
  );
+  signals[UNINDENT_SELF] = g_signal_new_class_handler(
+    "unindent-self",
+    G_OBJECT_CLASS_TYPE(object_class),
+    G_SIGNAL_RUN_LAST,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    G_TYPE_NONE,
+    0
+  );
 }
 
 // Public

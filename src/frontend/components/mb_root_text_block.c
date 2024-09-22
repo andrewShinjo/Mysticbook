@@ -16,22 +16,17 @@ G_DEFINE_TYPE(MbRootTextBlock, mb_root_text_block, GTK_TYPE_WIDGET)
 // * Private
 
 static void
-prepend_child(MbRootTextBlock *self, GtkWidget *child)
+on_indent_child(MbTextBlock *self, gpointer user_data)
 {
-  gtk_box_prepend(GTK_BOX(self->children_blocks), child);
-}
-
-static void
-on_indent_self(MbTextBlock *self, gpointer user_data)
-{
-  MbRootTextBlock *root = MB_ROOT_TEXT_BLOCK(user_data);
   GtkWidget *child = GTK_WIDGET(self);
+  GtkWidget *parent = gtk_widget_get_parent(child);
   GtkWidget *previous_sibling = gtk_widget_get_prev_sibling(child);
 
   if(previous_sibling != NULL)
   {
-    gtk_box_remove(GTK_BOX(root->children_blocks), child);
+    gtk_box_remove(GTK_BOX(parent), child);
     mb_text_block_add_child(MB_TEXT_BLOCK(previous_sibling), child);
+    mb_text_block_grab_focus(self);
   }
 }
 
@@ -60,7 +55,7 @@ on_add_sibling(MbTextBlock *self, gpointer user_data)
   GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(self));
   GtkWidget *child = mb_text_block_new();
   g_signal_connect(child, "add-sibling", G_CALLBACK(on_add_sibling), user_data);
-  g_signal_connect(child, "indent-self", G_CALLBACK(on_indent_self), user_data);
+  g_signal_connect(child, "indent-self", G_CALLBACK(on_indent_child), user_data);
   g_signal_connect(child, "remove-self", G_CALLBACK(on_remove_child), user_data);
   gtk_box_insert_child_after(GTK_BOX(parent), child, GTK_WIDGET(self));
   mb_text_block_grab_focus(MB_TEXT_BLOCK(child));
@@ -80,9 +75,9 @@ key_pressed(
   {
     GtkWidget *child = mb_text_block_new();
     g_signal_connect(child, "add-sibling", G_CALLBACK(on_add_sibling), user_data);
-    g_signal_connect(child, "indent-self", G_CALLBACK(on_indent_self), user_data);
+    g_signal_connect(child, "indent-self", G_CALLBACK(on_indent_child), user_data);
     g_signal_connect(child, "remove-self", G_CALLBACK(on_remove_child), user_data);
-    prepend_child(MB_ROOT_TEXT_BLOCK(user_data), child);
+    gtk_box_prepend(GTK_BOX(root->children_blocks), child);
     mb_text_block_grab_focus(MB_TEXT_BLOCK(child));
     return TRUE;
   }
