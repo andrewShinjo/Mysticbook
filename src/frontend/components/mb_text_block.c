@@ -107,7 +107,7 @@ static void mb_text_block_init(MbTextBlock *self)
 {
   self->layout = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   self->hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-  self->bullet_point = gtk_label_new("  •   ");
+  self->bullet_point = gtk_label_new("  •  ");
   self->text_view = gtk_text_view_new();
   self->children_blocks = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   self->key_controller = gtk_event_controller_key_new();
@@ -133,7 +133,7 @@ static void mb_text_block_init(MbTextBlock *self)
   gtk_box_append(GTK_BOX(self->hbox), self->bullet_point);
   gtk_box_append(GTK_BOX(self->hbox), self->text_view);
 
-  gtk_widget_set_margin_start(self->children_blocks, 100);
+  gtk_widget_set_margin_start(self->children_blocks, 32);
 
   gtk_box_append(GTK_BOX(self->layout), self->hbox);
   gtk_box_append(GTK_BOX(self->layout), self->children_blocks);

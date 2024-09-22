@@ -16,29 +16,14 @@ G_DEFINE_TYPE(MbRootTextBlock, mb_root_text_block, GTK_TYPE_WIDGET)
 // * Private
 
 static void
-indent_child(MbRootTextBlock *self, GtkWidget *child)
-{
-  GtkWidget *previous_sibling = gtk_widget_get_prev_sibling(child);
-  MbTextBlock *previous_text_block = MB_TEXT_BLOCK(previous_sibling);
-  mb_text_block_add_child(previous_text_block, child);
-}
-
-static void
 prepend_child(MbRootTextBlock *self, GtkWidget *child)
 {
   gtk_box_prepend(GTK_BOX(self->children_blocks), child);
 }
 
 static void
-append_child_after_sibling(MbRootTextBlock *self, GtkWidget *child, GtkWidget *sibling)
-{
-  gtk_box_insert_child_after(GTK_BOX(self->children_blocks), child, sibling);
-}
-
-static void
 indent_self(MbTextBlock *self, gpointer user_data)
 {
-  g_print("indent_self\n");
   MbRootTextBlock *root = MB_ROOT_TEXT_BLOCK(user_data);
   GtkWidget *child = GTK_WIDGET(self);
   GtkWidget *previous_sibling = gtk_widget_get_prev_sibling(child);
@@ -72,12 +57,14 @@ remove_child(MbTextBlock *self, gpointer user_data)
 static void 
 add_sibling(MbTextBlock *self, gpointer user_data)
 {
-  MbRootTextBlock *root = MB_ROOT_TEXT_BLOCK(user_data);
+ //  MbRootTextBlock *root = MB_ROOT_TEXT_BLOCK(user_data);
+  GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(self));
   GtkWidget *child = mb_text_block_new();
   g_signal_connect(child, "add-sibling", G_CALLBACK(add_sibling), user_data);
   g_signal_connect(child, "indent-self", G_CALLBACK(indent_self), user_data);
   g_signal_connect(child, "remove-self", G_CALLBACK(remove_child), user_data);
-  gtk_box_insert_child_after(GTK_BOX(root->children_blocks), child, GTK_WIDGET(self));
+  // gtk_box_insert_child_after(GTK_BOX(root->children_blocks), child, GTK_WIDGET(self));
+  gtk_box_insert_child_after(GTK_BOX(parent), child, GTK_WIDGET(self));
   mb_text_block_grab_focus(MB_TEXT_BLOCK(child));
 }
 
