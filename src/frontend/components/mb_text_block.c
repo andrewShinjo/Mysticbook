@@ -38,7 +38,7 @@ static gboolean remove_self_signal_source_func(gpointer user_data)
   return G_SOURCE_CONTINUE;
 }
 
-// * Private
+// Private
 
 static gboolean key_pressed(
   GtkEventControllerKey *self,
@@ -52,13 +52,11 @@ static gboolean key_pressed(
 
   if(keyval == GDK_KEY_BackSpace)
   {
-    GtkTextBuffer *buffer = gtk_text_view_get_buffer(
-      GTK_TEXT_VIEW(text_block->text_view)
-    ); 
-    GtkTextIter start, end;
+    GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text_block->text_view)); 
+    GtkTextIter insert, start;
+    gtk_text_buffer_get_iter_at_mark(buffer, &insert, gtk_text_buffer_get_insert(buffer));
     gtk_text_buffer_get_start_iter(buffer, &start);
-    gtk_text_buffer_get_end_iter(buffer, &end);
-    if(gtk_text_iter_equal(&start, &end))
+    if(gtk_text_iter_equal(&insert, &start))
     {
       remove_self_signal_source_func(user_data);
     }
