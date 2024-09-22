@@ -9,3 +9,4 @@ G_END_DECLS
 
 GtkWidget *mb_text_block_new();
 void mb_text_block_grab_focus(MbTextBlock *self);
+void mb_text_block_add_child(MbTextBlock *self, GtkWidget *child);
