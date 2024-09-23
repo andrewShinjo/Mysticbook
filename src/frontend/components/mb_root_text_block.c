@@ -53,17 +53,13 @@ on_unindent_child(MbTextBlock *self, gpointer user_data)
 static void
 on_remove_child(MbTextBlock *self, gpointer user_data)
 {
-  MbRootTextBlock *root = MB_ROOT_TEXT_BLOCK(user_data);
+  GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(self));
   GtkWidget *child = GTK_WIDGET(self);
   GtkWidget *previous_sibling = gtk_widget_get_prev_sibling(child);
-  gtk_box_remove(GTK_BOX(root->children_blocks), child);
+  gtk_box_remove(GTK_BOX(parent), child);
   if(previous_sibling != NULL)
   {
     mb_text_block_grab_focus(MB_TEXT_BLOCK(previous_sibling));
-  }
-  else
-  {
-    gtk_widget_grab_focus(root->textview);
   }
 }
 
