@@ -34,24 +34,20 @@ static void
 on_unindent_child(MbTextBlock *self, gpointer user_data)
 {
   GtkWidget *child = GTK_WIDGET(self);
-  GtkWidget *parent = gtk_widget_get_parent(child);
-  GtkWidget *parent2 = gtk_widget_get_parent(parent);
+  GtkWidget *current_box = gtk_widget_get_parent(child);
+  GtkWidget *current_layout = gtk_widget_get_parent(current_box);
+  GtkWidget *parent_block = gtk_widget_get_parent(current_layout);
 
+  if(G_TYPE_CHECK_INSTANCE_TYPE(parent_block, MB_TYPE_ROOT_TEXT_BLOCK))
+  {
+    return;
+  }
 
-  if(G_TYPE_CHECK_INSTANCE_TYPE(parent, MB_TYPE_ROOT_TEXT_BLOCK))
-  {
-    g_print("Do nothing 1\n");
-  }
-  else if(G_TYPE_CHECK_INSTANCE_TYPE(parent2, MB_TYPE_ROOT_TEXT_BLOCK))
-  {
-    g_print("Do nothing 2\n");
-  }
-  else
-  {
-    gtk_box_remove(GTK_BOX(parent), child);
-    gtk_box_append(GTK_BOX(parent2), child);
-    mb_text_block_grab_focus(self);
-  }
+  GtkWidget *append_box = gtk_widget_get_parent(parent_block);
+
+  gtk_box_remove(GTK_BOX(current_box), child);
+  gtk_box_insert_child_after(GTK_BOX(append_box), child, parent_block);
+  mb_text_block_grab_focus(self);
 }
 
 static void
