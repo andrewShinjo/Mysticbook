@@ -8,3 +8,4 @@ G_END_DECLS
 // Public
 
 GtkWidget *mb_root_text_block_new();
+void mb_root_text_block_grab_focus();

@@ -16,23 +16,9 @@ G_DEFINE_TYPE(MbRootTextBlock, mb_root_text_block, GTK_TYPE_WIDGET)
 // Private
 
 static void
-on_indent_child(MbTextBlock *self, gpointer user_data)
-{
-  GtkWidget *child = GTK_WIDGET(self);
-  GtkWidget *parent = gtk_widget_get_parent(child);
-  GtkWidget *previous_sibling = gtk_widget_get_prev_sibling(child);
-
-  if(previous_sibling != NULL)
-  {
-    gtk_box_remove(GTK_BOX(parent), child);
-    mb_text_block_add_child(MB_TEXT_BLOCK(previous_sibling), child);
-    mb_text_block_grab_focus(self);
-  }
-}
-
-static void
 on_unindent_child(MbTextBlock *self, gpointer user_data)
 {
+  // gtk_widget_get_ancestor may be better here
   GtkWidget *child = GTK_WIDGET(self);
   GtkWidget *current_box = gtk_widget_get_parent(child);
   GtkWidget *current_layout = gtk_widget_get_parent(current_box);
@@ -53,14 +39,46 @@ on_unindent_child(MbTextBlock *self, gpointer user_data)
 static void
 on_remove_child(MbTextBlock *self, gpointer user_data)
 {
-  GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(self));
-  GtkWidget *child = GTK_WIDGET(self);
-  GtkWidget *previous_sibling = gtk_widget_get_prev_sibling(child);
-  gtk_box_remove(GTK_BOX(parent), child);
-  if(previous_sibling != NULL)
+  GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(self)); // box
+
+  // grandparent is either text block or root text block
+  GtkWidget *grandparent = gtk_widget_get_parent(gtk_widget_get_parent(parent));
+
+  if(G_TYPE_CHECK_INSTANCE_TYPE(grandparent, MB_TYPE_ROOT_TEXT_BLOCK))
   {
-    mb_text_block_grab_focus(MB_TEXT_BLOCK(previous_sibling));
+    g_print("grandparent is root text block\n");
+    MbRootTextBlock *root = MB_ROOT_TEXT_BLOCK(grandparent);
+    GtkWidget *previous_sibling = gtk_widget_get_prev_sibling(GTK_WIDGET(self));
+    GtkWidget *first_child = mb_text_block_get_first_child(self);
+    while(first_child != NULL)
+    {
+      if(previous_sibling != NULL)
+      {
+        gtk_box_insert_child_after(
+          GTK_BOX(root->children_blocks), 
+          first_child, 
+          previous_sibling
+        );
+        previous_sibling = first_child;
+      }
+      else
+      {
+        gtk_box_append(GTK_BOX(root->children_blocks), first_child);
+      }
+      mb_text_block_remove_child(self, first_child);
+      first_child = mb_text_block_get_first_child(self);
+    }
   }
+  else if(G_TYPE_CHECK_INSTANCE_TYPE(grandparent, MB_TYPE_TEXT_BLOCK))
+  {
+    g_print("grandparent is text block\n");
+  }
+  else
+  {
+    g_print("on_remove_child: should be unreachable.\n");
+    return;
+  }
+  
 }
 
 static void 
@@ -68,10 +86,6 @@ on_add_sibling(MbTextBlock *self, gpointer user_data)
 {
   GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(self));
   GtkWidget *child = mb_text_block_new();
-  g_signal_connect(child, "add-sibling", G_CALLBACK(on_add_sibling), user_data);
-  g_signal_connect(child, "indent-self", G_CALLBACK(on_indent_child), user_data);
-  g_signal_connect(child, "remove-self", G_CALLBACK(on_remove_child), user_data);
-  g_signal_connect(child, "unindent-self", G_CALLBACK(on_unindent_child), user_data);
   gtk_box_insert_child_after(GTK_BOX(parent), child, GTK_WIDGET(self));
   mb_text_block_grab_focus(MB_TEXT_BLOCK(child));
 }
@@ -89,10 +103,6 @@ key_pressed(
   if(keyval == GDK_KEY_Return)
   {
     GtkWidget *child = mb_text_block_new();
-    g_signal_connect(child, "add-sibling", G_CALLBACK(on_add_sibling), user_data);
-    g_signal_connect(child, "indent-self", G_CALLBACK(on_indent_child), user_data);
-    g_signal_connect(child, "remove-self", G_CALLBACK(on_remove_child), user_data);
-    g_signal_connect(child, "unindent-self", G_CALLBACK(on_unindent_child), user_data);
     gtk_box_prepend(GTK_BOX(root->children_blocks), child);
     mb_text_block_grab_focus(MB_TEXT_BLOCK(child));
     return TRUE;
@@ -153,4 +163,10 @@ mb_root_text_block_class_init(MbRootTextBlockClass *klass)
 GtkWidget *mb_root_text_block_new()
 {
   return g_object_new(MB_TYPE_ROOT_TEXT_BLOCK, NULL);
+}
+
+void
+mb_root_text_block_grab_focus(MbRootTextBlock *self)
+{
+  gtk_widget_grab_focus(self->textview);
 }
