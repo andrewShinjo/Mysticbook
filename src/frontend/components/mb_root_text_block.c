@@ -15,81 +15,6 @@ G_DEFINE_TYPE(MbRootTextBlock, mb_root_text_block, GTK_TYPE_WIDGET)
 
 // Private
 
-static void
-on_unindent_child(MbTextBlock *self, gpointer user_data)
-{
-  // gtk_widget_get_ancestor may be better here
-  GtkWidget *child = GTK_WIDGET(self);
-  GtkWidget *current_box = gtk_widget_get_parent(child);
-  GtkWidget *current_layout = gtk_widget_get_parent(current_box);
-  GtkWidget *parent_block = gtk_widget_get_parent(current_layout);
-
-  if(G_TYPE_CHECK_INSTANCE_TYPE(parent_block, MB_TYPE_ROOT_TEXT_BLOCK))
-  {
-    return;
-  }
-
-  GtkWidget *append_box = gtk_widget_get_parent(parent_block);
-
-  gtk_box_remove(GTK_BOX(current_box), child);
-  gtk_box_insert_child_after(GTK_BOX(append_box), child, parent_block);
-  mb_text_block_grab_focus(self);
-}
-
-static void
-on_remove_child(MbTextBlock *self, gpointer user_data)
-{
-  GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(self)); // box
-
-  // grandparent is either text block or root text block
-  GtkWidget *grandparent = gtk_widget_get_parent(gtk_widget_get_parent(parent));
-
-  if(G_TYPE_CHECK_INSTANCE_TYPE(grandparent, MB_TYPE_ROOT_TEXT_BLOCK))
-  {
-    g_print("grandparent is root text block\n");
-    MbRootTextBlock *root = MB_ROOT_TEXT_BLOCK(grandparent);
-    GtkWidget *previous_sibling = gtk_widget_get_prev_sibling(GTK_WIDGET(self));
-    GtkWidget *first_child = mb_text_block_get_first_child(self);
-    while(first_child != NULL)
-    {
-      if(previous_sibling != NULL)
-      {
-        gtk_box_insert_child_after(
-          GTK_BOX(root->children_blocks), 
-          first_child, 
-          previous_sibling
-        );
-        previous_sibling = first_child;
-      }
-      else
-      {
-        gtk_box_append(GTK_BOX(root->children_blocks), first_child);
-      }
-      mb_text_block_remove_child(self, first_child);
-      first_child = mb_text_block_get_first_child(self);
-    }
-  }
-  else if(G_TYPE_CHECK_INSTANCE_TYPE(grandparent, MB_TYPE_TEXT_BLOCK))
-  {
-    g_print("grandparent is text block\n");
-  }
-  else
-  {
-    g_print("on_remove_child: should be unreachable.\n");
-    return;
-  }
-  
-}
-
-static void 
-on_add_sibling(MbTextBlock *self, gpointer user_data)
-{
-  GtkWidget *parent = gtk_widget_get_parent(GTK_WIDGET(self));
-  GtkWidget *child = mb_text_block_new();
-  gtk_box_insert_child_after(GTK_BOX(parent), child, GTK_WIDGET(self));
-  mb_text_block_grab_focus(MB_TEXT_BLOCK(child));
-}
-
 static gboolean
 key_pressed(
   GtkEventControllerKey *self,
@@ -160,6 +85,20 @@ mb_root_text_block_class_init(MbRootTextBlockClass *klass)
 
 // Public
 
+void
+mb_root_text_block_insert_child_after(
+  MbRootTextBlock *self,
+  MbTextBlock *child,
+  MbTextBlock *sibling
+)
+{
+  gtk_box_insert_child_after(
+    GTK_BOX(self->children_blocks),
+    GTK_WIDGET(child),
+    GTK_WIDGET(sibling)
+  );
+}
+
 GtkWidget *mb_root_text_block_new()
 {
   return g_object_new(MB_TYPE_ROOT_TEXT_BLOCK, NULL);
@@ -169,4 +108,23 @@ void
 mb_root_text_block_grab_focus(MbRootTextBlock *self)
 {
   gtk_widget_grab_focus(self->textview);
+}
+
+// Removes child from self's list of children blocks.
+void
+mb_root_text_block_remove_child(MbRootTextBlock *self, MbTextBlock *_child)
+{
+  GtkBox *_children_blocks = GTK_BOX(self->children_blocks);
+  GtkWidget *child = GTK_WIDGET(_child);
+
+  if(self->children_blocks != gtk_widget_get_parent(child))
+  {
+    g_print(
+      "mb_root_text_block.c, mb_root_text_block_remove_child(): "
+      "child is not in self->children_blocks.\n"
+    );
+    return;
+  }
+
+  gtk_box_remove(_children_blocks, child);
 }
