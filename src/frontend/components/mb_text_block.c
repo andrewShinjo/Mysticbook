@@ -48,6 +48,9 @@ insert_child_after(
 );
 
 static gboolean
+is_all_text_highlighted(MbTextBlock *_self);
+
+static gboolean
 is_insert_at_start(MbTextBlock *_self);
 
 static void
@@ -125,6 +128,20 @@ insert_child_after(
   GtkWidget *sibling = GTK_WIDGET(_sibling);
   gtk_box_insert_child_after(_children_blocks, child, sibling);
 
+}
+
+static gboolean
+is_all_text_highlighted(MbTextBlock *_self)
+{
+  GtkTextView *_text_view = GTK_TEXT_VIEW(_self->text_view);
+  GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(_text_view);
+  GtkTextIter start, end, highlight_start, highlight_end;
+  gtk_text_buffer_get_start_iter(text_buffer, &start);
+  gtk_text_buffer_get_end_iter(text_buffer, &end);
+  gtk_text_buffer_get_selection_bounds(text_buffer, &highlight_start, &highlight_end);
+  return gtk_text_iter_equal(&start, &highlight_start) 
+    && gtk_text_iter_equal(&end, &highlight_end)
+    && !gtk_text_iter_equal(&highlight_start, &highlight_end);
 }
 
 static gboolean
@@ -337,7 +354,7 @@ key_pressed(
 
   if(keyval == GDK_KEY_BackSpace)
   {
-    if(is_insert_at_start(_self))
+    if(is_insert_at_start(_self) && ! is_all_text_highlighted(_self))
     {
       remove_self(_self);
     }
