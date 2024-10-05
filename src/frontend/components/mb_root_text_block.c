@@ -6,7 +6,7 @@ struct _MbRootTextBlock
   GtkWidget parent;
   GtkWidget *layout;
   GtkWidget *hbox;
-  GtkWidget *textview;
+  GtkWidget *text_view;
   GtkWidget *children_blocks;
   GtkEventController *key_controller;
 };
@@ -53,11 +53,11 @@ mb_root_text_block_init(MbRootTextBlock *self)
 {
   self->layout = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   self->hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-  self->textview = gtk_text_view_new();
+  self->text_view = gtk_text_view_new();
   self->children_blocks = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   self->key_controller = gtk_event_controller_key_new();
 
-  gtk_widget_add_controller(self->textview, self->key_controller);
+  gtk_widget_add_controller(self->text_view, self->key_controller);
   g_signal_connect(
     self->key_controller,
     "key-pressed",
@@ -65,12 +65,12 @@ mb_root_text_block_init(MbRootTextBlock *self)
     self
   );
 
-  gtk_box_append(GTK_BOX(self->hbox), self->textview);
+  gtk_box_append(GTK_BOX(self->hbox), self->text_view);
   gtk_box_append(GTK_BOX(self->layout), self->hbox);
   gtk_box_append(GTK_BOX(self->layout), self->children_blocks);
   gtk_widget_set_hexpand(self->layout, TRUE);
   gtk_widget_set_vexpand(self->layout, TRUE);
-  gtk_widget_set_hexpand(self->textview, TRUE);
+  gtk_widget_set_hexpand(self->text_view, TRUE);
   gtk_widget_set_parent(self->layout, GTK_WIDGET(self));
 }
 
@@ -84,6 +84,16 @@ mb_root_text_block_class_init(MbRootTextBlockClass *klass)
 }
 
 // Public
+
+void
+mb_root_text_block_append_content(MbRootTextBlock *_self, gchar *content)
+{
+  GtkTextView *text_view = GTK_TEXT_VIEW(_self->text_view);
+  GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(text_view);
+  GtkTextIter end;
+  gtk_text_buffer_get_end_iter(text_buffer, &end);
+  gtk_text_buffer_insert(text_buffer, &end, content, -1);
+}
 
 void
 mb_root_text_block_insert_child_after(
@@ -107,12 +117,12 @@ GtkWidget *mb_root_text_block_new()
 void
 mb_root_text_block_grab_focus(MbRootTextBlock *self)
 {
-  gtk_widget_grab_focus(self->textview);
+  gtk_widget_grab_focus(self->text_view);
 }
 
 // Removes child from self's list of children blocks.
 void
-mb_root_text_block_remove_child(MbRootTextBlock *self, MbTextBlock *_child)
+mb_root_text_block_remove_child(MbRootTextBlock *_self, MbTextBlock *_child)
 {
   GtkBox *_children_blocks = GTK_BOX(self->children_blocks);
   GtkWidget *child = GTK_WIDGET(_child);

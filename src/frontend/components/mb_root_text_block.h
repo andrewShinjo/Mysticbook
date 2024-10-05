@@ -9,6 +9,9 @@ G_END_DECLS
 // Public
 
 void
+mb_root_text_block_append_content(MbRootTextBlock *self, gchar *content);
+
+void
 mb_root_text_block_insert_child_after(
   MbRootTextBlock *self,
   MbTextBlock *child,

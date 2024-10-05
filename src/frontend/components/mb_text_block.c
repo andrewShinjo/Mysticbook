@@ -17,7 +17,13 @@ G_DEFINE_TYPE(MbTextBlock, mb_text_block, GTK_TYPE_WIDGET)
 // Private
 
 static void
+append_content(MbTextBlock *_self, gchar *content);
+
+static void
 append_sibling_after_self(MbTextBlock *self, MbTextBlock *sibling);
+
+static gchar *
+get_content(MbTextBlock *_self);
 
 static GtkWidget *
 get_first_child(MbTextBlock *_self);
@@ -43,6 +49,29 @@ is_insert_at_start(MbTextBlock *_self);
 
 static void
 remove_child(MbTextBlock *self, MbTextBlock *_child);
+
+static void
+append_content(MbTextBlock *_self, gchar *content)
+{
+  GtkTextView *text_view = GTK_TEXT_VIEW(_self->text_view);
+  GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(text_view);
+  GtkTextIter end;
+  gtk_text_buffer_get_end_iter(text_buffer, &end);
+  gtk_text_buffer_insert(text_buffer, &end, content, -1);
+}
+
+static gchar *
+get_content(MbTextBlock *_self)
+{
+  GtkTextView *text_view = GTK_TEXT_VIEW(_self->text_view);
+  GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(text_view);
+  GtkTextIter start, end;
+  gtk_text_buffer_get_start_iter(text_buffer, &start);
+  gtk_text_buffer_get_end_iter(text_buffer, &end);
+  gchar *content = gtk_text_buffer_get_text(text_buffer, &start, &end, FALSE);
+  return content;
+  // Caller frees content.
+}
 
 static GtkWidget *
 get_first_child(MbTextBlock *_self)
@@ -217,6 +246,7 @@ remove_self(MbTextBlock *_self)
   GtkWidget *previous_sibling = gtk_widget_get_prev_sibling(self);
   GtkWidget *first_child = get_first_child(_self);
 
+  // Move children before self gets deleted.
   if(MB_IS_TEXT_BLOCK(parent))
   {
     MbTextBlock *_parent = MB_TEXT_BLOCK(parent);
@@ -244,11 +274,11 @@ remove_self(MbTextBlock *_self)
     }
   }
 
+  // Delete self.
   if(MB_IS_TEXT_BLOCK(parent)) 
   {
     MbTextBlock *_parent = MB_TEXT_BLOCK(parent);
     remove_child(_parent, _self);
-
   }
   else if(MB_IS_ROOT_TEXT_BLOCK(parent)) 
   {
@@ -256,21 +286,29 @@ remove_self(MbTextBlock *_self)
     mb_root_text_block_remove_child(_parent, _self);
   }
 
+  gchar *content = get_content(_self);
+
+  // Change focus.
   if(previous_sibling != NULL)
   {
     MbTextBlock *_previous_sibling = MB_TEXT_BLOCK(previous_sibling);
+    append_content(_previous_sibling, content);
     mb_text_block_grab_focus(_previous_sibling);
   }
   else if(MB_IS_TEXT_BLOCK(parent))
   {
     MbTextBlock *_parent = MB_TEXT_BLOCK(parent);
+    append_content(_parent, content);
     mb_text_block_grab_focus(_parent);
   }
   else if(MB_IS_ROOT_TEXT_BLOCK(parent))
   {
     MbRootTextBlock *_parent = MB_ROOT_TEXT_BLOCK(parent);
+    mb_root_text_block_append_content(_parent, content);
     mb_root_text_block_grab_focus(_parent);
   }
+
+  g_free(content);
 }
 
 static gboolean 
