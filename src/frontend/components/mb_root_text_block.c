@@ -124,10 +124,10 @@ mb_root_text_block_grab_focus(MbRootTextBlock *self)
 void
 mb_root_text_block_remove_child(MbRootTextBlock *_self, MbTextBlock *_child)
 {
-  GtkBox *_children_blocks = GTK_BOX(self->children_blocks);
+  GtkBox *_children_blocks = GTK_BOX(_self->children_blocks);
   GtkWidget *child = GTK_WIDGET(_child);
 
-  if(self->children_blocks != gtk_widget_get_parent(child))
+  if(_self->children_blocks != gtk_widget_get_parent(child))
   {
     g_print(
       "mb_root_text_block.c, mb_root_text_block_remove_child(): "

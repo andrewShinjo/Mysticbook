@@ -28,6 +28,9 @@ get_content(MbTextBlock *_self);
 static GtkWidget *
 get_first_child(MbTextBlock *_self);
 
+static MbTextBlock *
+get_last_child(MbTextBlock *_self);
+
 static GtkWidget *
 get_parent(MbTextBlock *_self);
 
@@ -79,6 +82,12 @@ get_first_child(MbTextBlock *_self)
   return gtk_widget_get_first_child(_self->children_blocks);
 }
 
+static MbTextBlock *
+get_last_child(MbTextBlock *_self)
+{
+  GtkWidget *last_child = gtk_widget_get_last_child(_self->children_blocks);
+  return MB_TEXT_BLOCK(last_child);
+}
 
 static GtkWidget *
 get_parent(MbTextBlock *_self)
@@ -288,12 +297,22 @@ remove_self(MbTextBlock *_self)
 
   gchar *content = get_content(_self);
 
-  // Change focus.
+  // Adjust text, and change focus.
   if(previous_sibling != NULL)
   {
-    MbTextBlock *_previous_sibling = MB_TEXT_BLOCK(previous_sibling);
-    append_content(_previous_sibling, content);
-    mb_text_block_grab_focus(_previous_sibling);
+    MbTextBlock *_last_child = MB_TEXT_BLOCK(previous_sibling);
+    MbTextBlock *_previous = NULL;
+    while(_last_child != NULL)
+    {
+      _previous = _last_child;
+      _last_child = get_last_child(_last_child);
+    }
+    assert(MB_IS_TEXT_BLOCK(_previous));
+    append_content(_previous, content);
+    mb_text_block_grab_focus(_previous);
+    //MbTextBlock *_previous_sibling = MB_TEXT_BLOCK(previous_sibling);
+    //append_content(_previous_sibling, content);
+    //mb_text_block_grab_focus(_previous_sibling);
   }
   else if(MB_IS_TEXT_BLOCK(parent))
   {
