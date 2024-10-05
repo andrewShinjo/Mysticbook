@@ -29,6 +29,16 @@ static GtkWidget *
 get_root(MbTextBlock *_self);
 
 static gboolean
+has_child(MbTextBlock *_self);
+
+static void
+insert_child_after(
+  MbTextBlock *_self,
+  MbTextBlock *_child,
+  MbTextBlock *_sibling
+);
+
+static gboolean
 is_insert_at_start(MbTextBlock *_self);
 
 static void
@@ -41,8 +51,6 @@ get_first_child(MbTextBlock *_self)
 }
 
 
-// Gets self's parent. 
-// Could be either a text block or a root text block.
 static GtkWidget *
 get_parent(MbTextBlock *_self)
 {
@@ -55,15 +63,32 @@ get_parent(MbTextBlock *_self)
   return parent;
 }
 
-// Get self's root text block.
- 
 static GtkWidget *
 get_root(MbTextBlock *self)
 {
   return gtk_widget_get_ancestor(GTK_WIDGET(self), MB_TYPE_ROOT_TEXT_BLOCK);
 }
 
-// Returns TRUE if the insert is at the start of the buffer.
+static gboolean
+has_child(MbTextBlock *_self)
+{
+  return gtk_widget_get_first_child(_self->children_blocks) != NULL;
+}
+
+static void
+insert_child_after(
+  MbTextBlock *_self,
+  MbTextBlock *_child,
+  MbTextBlock *_sibling
+)
+{
+  GtkBox *_children_blocks = GTK_BOX(_self->children_blocks);
+  GtkWidget *child = GTK_WIDGET(_child);
+  GtkWidget *sibling = GTK_WIDGET(_sibling);
+  gtk_box_insert_child_after(_children_blocks, child, sibling);
+
+}
+
 static gboolean
 is_insert_at_start(MbTextBlock *_self)
 {
@@ -78,6 +103,14 @@ is_insert_at_start(MbTextBlock *_self)
     gtk_text_buffer_get_insert(text_buffer)
   );
   return gtk_text_iter_equal(&start, &insert);
+}
+
+static void
+prepend_child(MbTextBlock *_self, MbTextBlock *_child)
+{
+  GtkBox *_children_blocks = GTK_BOX(_self->children_blocks);
+  GtkWidget *child = GTK_WIDGET(_child);
+  gtk_box_prepend(_children_blocks, child);
 }
 
 static void
@@ -97,37 +130,40 @@ unindent_self(MbTextBlock *_self)
 
 }
 
-// Adds a text block to self's list of children blocks.
 static void
-append_child(MbTextBlock* self, MbTextBlock *new_child)
+append_child(MbTextBlock* self, MbTextBlock *_child)
 {
-  GtkBox *children_blocks = GTK_BOX(self->children_blocks);
-  GtkWidget *child_widget = GTK_WIDGET(new_child);
-  gtk_box_append(children_blocks, child_widget);
+  GtkBox *_children_blocks = GTK_BOX(self->children_blocks);
+  GtkWidget *child = GTK_WIDGET(_child);
+  gtk_box_append(_children_blocks, child);
 }
 
-// Creates a new text block, then append it after self in the block list.
-// Returns the new child.
 static void
-append_sibling_after_self(MbTextBlock *self, MbTextBlock *sibling)
+append_sibling_after_self(MbTextBlock *_self, MbTextBlock *_sibling)
 {
-  GtkWidget *parent = get_parent(self);
+  GtkWidget *parent = get_parent(_self);
   
   if(MB_IS_TEXT_BLOCK(parent))
   {
-    append_child(MB_TEXT_BLOCK(parent), sibling);
+    // append_child(MB_TEXT_BLOCK(parent), sibling);
+    MbTextBlock *_parent = MB_TEXT_BLOCK(parent);
+    insert_child_after(
+      _parent,
+      _sibling,
+      _self
+    );
   }
   if(MB_IS_ROOT_TEXT_BLOCK(parent))
   {
+    MbRootTextBlock *_parent = MB_ROOT_TEXT_BLOCK(parent);
     mb_root_text_block_insert_child_after(
-      MB_ROOT_TEXT_BLOCK(parent),
-      sibling,
-      self 
+      _parent,
+      _sibling,
+      _self 
     );
   }
 }
 
-// Removes child from self's list of children (if exists).
 static void
 remove_child(MbTextBlock *self, MbTextBlock *_child)
 {
@@ -143,7 +179,6 @@ remove_child(MbTextBlock *self, MbTextBlock *_child)
   gtk_widget_unparent(child); 
 }
 
-// Indents self if a previous sibling exists.
 static void
 indent_self(MbTextBlock *_self)
 {
@@ -174,17 +209,12 @@ indent_self(MbTextBlock *_self)
   append_child(_previous_sibling, _self);
 }
 
-// Removes self from list of blocks.
 static void
 remove_self(MbTextBlock *_self)
 {
   GtkWidget *parent = get_parent(_self);
   GtkWidget *self = GTK_WIDGET(_self);
   GtkWidget *previous_sibling = gtk_widget_get_prev_sibling(self);
-
-  // Remove all of my children.
-  // Add the children to my parent.
-
   GtkWidget *first_child = get_first_child(_self);
 
   if(MB_IS_TEXT_BLOCK(parent))
@@ -277,12 +307,22 @@ key_pressed(
   }
   else if(keyval == GDK_KEY_Return)
   {
-    if(!(state && GDK_SHIFT_MASK))
+    if(! (state && GDK_SHIFT_MASK) )
     {
-      GtkWidget *sibling = mb_text_block_new();
-      MbTextBlock *_sibling = MB_TEXT_BLOCK(sibling);
-      append_sibling_after_self(_self, _sibling);
-      mb_text_block_grab_focus(_sibling);
+      if(has_child(_self))
+      {
+        GtkWidget *child = mb_text_block_new();
+        MbTextBlock *_child = MB_TEXT_BLOCK(child);
+        prepend_child(_self, _child);
+        mb_text_block_grab_focus(_child);
+      }
+      else
+      {
+        GtkWidget *sibling = mb_text_block_new();
+        MbTextBlock *_sibling = MB_TEXT_BLOCK(sibling);
+        append_sibling_after_self(_self, _sibling);
+        mb_text_block_grab_focus(_sibling);
+      }
       return TRUE;
     }
   }
