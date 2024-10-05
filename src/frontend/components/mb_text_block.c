@@ -79,7 +79,6 @@ force_redraw_cursor(MbTextBlock *_self)
   {
     return;
   }
-
   GtkTextView *text_view = GTK_TEXT_VIEW(_self->text_view);
   GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(text_view);
   gtk_text_buffer_set_text(text_buffer, " ", -1);
@@ -96,7 +95,6 @@ get_content(MbTextBlock *_self)
   gtk_text_buffer_get_end_iter(text_buffer, &end);
   gchar *content = gtk_text_buffer_get_text(text_buffer, &start, &end, FALSE);
   return content;
-  // Caller frees content.
 }
 
 static GtkWidget *
