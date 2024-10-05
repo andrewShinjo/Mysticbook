@@ -255,7 +255,6 @@ remove_self(MbTextBlock *_self)
   GtkWidget *previous_sibling = gtk_widget_get_prev_sibling(self);
   GtkWidget *first_child = get_first_child(_self);
 
-  // Move children before self gets deleted.
   if(MB_IS_TEXT_BLOCK(parent))
   {
     MbTextBlock *_parent = MB_TEXT_BLOCK(parent);
@@ -283,7 +282,6 @@ remove_self(MbTextBlock *_self)
     }
   }
 
-  // Delete self.
   if(MB_IS_TEXT_BLOCK(parent)) 
   {
     MbTextBlock *_parent = MB_TEXT_BLOCK(parent);
@@ -297,7 +295,6 @@ remove_self(MbTextBlock *_self)
 
   gchar *content = get_content(_self);
 
-  // Adjust text, and change focus.
   if(previous_sibling != NULL)
   {
     MbTextBlock *_last_child = MB_TEXT_BLOCK(previous_sibling);
@@ -310,9 +307,6 @@ remove_self(MbTextBlock *_self)
     assert(MB_IS_TEXT_BLOCK(_previous));
     append_content(_previous, content);
     mb_text_block_grab_focus(_previous);
-    //MbTextBlock *_previous_sibling = MB_TEXT_BLOCK(previous_sibling);
-    //append_content(_previous_sibling, content);
-    //mb_text_block_grab_focus(_previous_sibling);
   }
   else if(MB_IS_TEXT_BLOCK(parent))
   {
