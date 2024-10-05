@@ -359,18 +359,16 @@ key_pressed(
       remove_self(_self);
     }
   }
+  else if(keyval == GDK_KEY_ISO_Left_Tab && state && GDK_SHIFT_MASK)
+  {
+    unindent_self(_self);
+    mb_text_block_grab_focus(_self);
+    return TRUE;
+  }
   else if(keyval == GDK_KEY_Tab)
   {
-    if(state && GDK_CONTROL_MASK)
-    {
-      unindent_self(_self);
-      mb_text_block_grab_focus(_self);
-    }
-    else
-    {
-      indent_self(_self);
-      mb_text_block_grab_focus(_self);
-    }
+    indent_self(_self);
+    mb_text_block_grab_focus(_self);
     return TRUE;
   }
   else if(keyval == GDK_KEY_Return)
