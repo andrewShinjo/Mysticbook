@@ -22,6 +22,9 @@ append_content(MbTextBlock *_self, gchar *content);
 static void
 append_sibling_after_self(MbTextBlock *self, MbTextBlock *sibling);
 
+static void
+force_redraw_cursor(MbTextBlock *self);
+
 static gchar *
 get_content(MbTextBlock *_self);
 
@@ -51,6 +54,9 @@ static gboolean
 is_all_text_highlighted(MbTextBlock *_self);
 
 static gboolean
+is_empty(MbTextBlock *_self);
+
+static gboolean
 is_insert_at_start(MbTextBlock *_self);
 
 static void
@@ -64,6 +70,20 @@ append_content(MbTextBlock *_self, gchar *content)
   GtkTextIter end;
   gtk_text_buffer_get_end_iter(text_buffer, &end);
   gtk_text_buffer_insert(text_buffer, &end, content, -1);
+}
+
+static void
+force_redraw_cursor(MbTextBlock *_self)
+{
+  if(!is_empty(_self))
+  {
+    return;
+  }
+
+  GtkTextView *text_view = GTK_TEXT_VIEW(_self->text_view);
+  GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(text_view);
+  gtk_text_buffer_set_text(text_buffer, " ", -1);
+  gtk_text_buffer_set_text(text_buffer, "", -1);
 }
 
 static gchar *
@@ -123,6 +143,7 @@ insert_child_after(
   MbTextBlock *_sibling
 )
 {
+  // gtk_widget_insert_after
   GtkBox *_children_blocks = GTK_BOX(_self->children_blocks);
   GtkWidget *child = GTK_WIDGET(_child);
   GtkWidget *sibling = GTK_WIDGET(_sibling);
@@ -142,6 +163,17 @@ is_all_text_highlighted(MbTextBlock *_self)
   return gtk_text_iter_equal(&start, &highlight_start) 
     && gtk_text_iter_equal(&end, &highlight_end)
     && !gtk_text_iter_equal(&highlight_start, &highlight_end);
+}
+
+static gboolean
+is_empty(MbTextBlock *_self)
+{
+  GtkTextView *_text_view = GTK_TEXT_VIEW(_self->text_view);
+  GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(_text_view);
+  GtkTextIter start, end;
+  gtk_text_buffer_get_start_iter(text_buffer, &start);
+  gtk_text_buffer_get_end_iter(text_buffer, &end);
+  return gtk_text_iter_equal(&start, &end);
 }
 
 static gboolean
@@ -200,7 +232,6 @@ append_sibling_after_self(MbTextBlock *_self, MbTextBlock *_sibling)
   
   if(MB_IS_TEXT_BLOCK(parent))
   {
-    // append_child(MB_TEXT_BLOCK(parent), sibling);
     MbTextBlock *_parent = MB_TEXT_BLOCK(parent);
     insert_child_after(
       _parent,
@@ -324,6 +355,8 @@ remove_self(MbTextBlock *_self)
     assert(MB_IS_TEXT_BLOCK(_previous));
     append_content(_previous, content);
     mb_text_block_grab_focus(_previous);
+    force_redraw_cursor(_previous);
+
   }
   else if(MB_IS_TEXT_BLOCK(parent))
   {
@@ -337,7 +370,6 @@ remove_self(MbTextBlock *_self)
     mb_root_text_block_append_content(_parent, content);
     mb_root_text_block_grab_focus(_parent);
   }
-
   g_free(content);
 }
 
