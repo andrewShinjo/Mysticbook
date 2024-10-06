@@ -8,6 +8,8 @@ struct _MbRootTextBlock
   GtkWidget *hbox;
   GtkWidget *text_view;
   GtkWidget *children_blocks;
+
+  // Event listener.
   GtkEventController *key_controller;
 };
 
@@ -35,7 +37,7 @@ key_pressed(
   return FALSE;
 }
 
-// ** Widget lifecycle
+// Widget lifecycle
 
 static void 
 mb_root_text_block_dispose(GObject *object) 
