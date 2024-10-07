@@ -2,8 +2,11 @@
 #include "../components/mb_text_block.h"
 #include "../components/mb_root_text_block.h"
 
+// idea: override snapshot method to draw rectangle
+
 static void mb_block_view_page_dispose(GObject *object);
 static void mb_block_view_page_finalize(GObject *object);
+static void mb_block_view_page_snapshot(GtkWidget *widget, GtkSnapshot *snapshot);
 
 struct _MbBlockViewPage
 {
@@ -14,8 +17,6 @@ struct _MbBlockViewPage
   GtkWidget *root_block;
 
   // Drag
-  GtkWidget *drawing_area;
-  GtkGesture *gesture_drag;
   double x0;
   double x1;
   double y0;
@@ -35,11 +36,6 @@ drag_begin(
   gpointer user_data
 )
 {
-  MbBlockViewPage *_self = MB_BLOCK_VIEW_PAGE(user_data);
-  _self->dragging = TRUE;
-  _self->x0 = start_x;
-  _self->y0 = start_y;
-  gtk_widget_queue_draw(_self->drawing_area);
 }
 
 static void
@@ -50,10 +46,6 @@ drag_update(
   gpointer user_data
 )
 {
-  MbBlockViewPage *_self = MB_BLOCK_VIEW_PAGE(user_data);
-  _self->x1 = offset_x;
-  _self->y1 = offset_y;
-  gtk_widget_queue_draw(_self->drawing_area);
 }
 
 static void
@@ -64,38 +56,6 @@ drag_end(
   gpointer user_data
 )
 {
-  MbBlockViewPage *_self = MB_BLOCK_VIEW_PAGE(user_data);
-  _self->dragging = FALSE;
-  _self->x0 = 0;
-  _self->x1 = 0;
-  _self->y0 = 0;
-  _self->y1 = 0;
-  gtk_widget_queue_draw(_self->drawing_area);
-}
-
-static void
-draw_rectangle(
-  GtkDrawingArea *drawing_area, 
-  cairo_t *cr, 
-  int width, 
-  int height, 
-  gpointer data
-)
-{
-  MbBlockViewPage *_self = MB_BLOCK_VIEW_PAGE(data);
-  if(!_self->dragging)
-  {
-    return;
-  }
-  cairo_set_source_rgb(cr, 0.0, 0.0, 1.0);
-  cairo_rectangle(
-    cr, 
-    _self->x0,
-    _self->y0,
-    _self->x1,
-    _self->y1
-  );
-  cairo_fill(cr);
 }
 
 gboolean 
@@ -110,11 +70,29 @@ insert_block_after(MbBlockViewPage *self, GtkWidget *sibling, GtkWidget *insert)
   return TRUE;
 }
 
+/* Virtual functions */
+
 static void mb_block_view_page_dispose(GObject *object) 
 {
   MbBlockViewPage *self = MB_BLOCK_VIEW_PAGE(object);
-  g_clear_pointer(&self->overlay, gtk_widget_unparent);
+  g_clear_pointer(&self->scrolled_window, gtk_widget_unparent);
   G_OBJECT_CLASS(mb_block_view_page_parent_class)->dispose(object);
+}
+
+static void 
+mb_block_view_page_snapshot(GtkWidget *widget, GtkSnapshot *snapshot)
+{
+  MbBlockViewPage *_self = MB_BLOCK_VIEW_PAGE(widget);
+  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(mb_block_view_page_parent_class);
+
+  // Call parent snapshot function.
+  widget_class->snapshot(widget, snapshot);
+
+  g_print("Draw rectangle.\n");
+  graphene_rect_t graphene_rect = GRAPHENE_RECT_INIT(0, 0, 100, 100);
+  GdkRGBA color;
+  gdk_rgba_parse(&color, "red");
+  gtk_snapshot_append_color(snapshot, &color, &graphene_rect);
 }
 
 static void 
@@ -126,37 +104,21 @@ mb_block_view_page_finalize(GObject *object)
 static void 
 mb_block_view_page_init(MbBlockViewPage *self)
 {
-  self->overlay = gtk_overlay_new();
   self->scrolled_window = gtk_scrolled_window_new();
   self->layout = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);  
   self->root_block = mb_root_text_block_new();
+  gtk_widget_set_hexpand(self->scrolled_window, TRUE);
   gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(self->scrolled_window), self->layout);
   gtk_box_append(GTK_BOX(self->layout), self->root_block);
-  gtk_widget_set_hexpand(self->layout, TRUE);
-  gtk_widget_set_vexpand(self->layout, TRUE);
-  gtk_widget_set_parent(self->overlay, GTK_WIDGET(self));
+  gtk_widget_set_parent(self->scrolled_window, GTK_WIDGET(self));
   
-  self->gesture_drag = gtk_gesture_drag_new();
-  self->drawing_area = gtk_drawing_area_new();
-
   self->x0 = 0;
   self->x1 = 0;
   self->y0 = 0;
   self->y1 = 0;
   self->dragging = FALSE;
 
-  gtk_drawing_area_set_draw_func(
-    GTK_DRAWING_AREA(self->drawing_area), 
-    draw_rectangle, 
-    self,
-    NULL
-  );
-
-  gtk_overlay_set_child(GTK_OVERLAY(self->overlay), self->scrolled_window);
-  gtk_overlay_add_overlay(GTK_OVERLAY(self->overlay), self->drawing_area);
-
-  gtk_widget_add_controller(self->drawing_area, GTK_EVENT_CONTROLLER(self->gesture_drag));
-
+  /*
   g_signal_connect(
     self->gesture_drag, 
     "drag-begin", 
@@ -177,13 +139,16 @@ mb_block_view_page_init(MbBlockViewPage *self)
     G_CALLBACK(drag_end), 
     self
   );
-  
+  */
 }
 static void mb_block_view_page_class_init(MbBlockViewPageClass *klass) 
 {
   GObjectClass *object_class = G_OBJECT_CLASS(klass);
+  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
+  
   object_class->dispose = mb_block_view_page_dispose;
   object_class->finalize = mb_block_view_page_finalize;
+  widget_class->snapshot = mb_block_view_page_snapshot;
   gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(klass), GTK_TYPE_BOX_LAYOUT);
 }
 
