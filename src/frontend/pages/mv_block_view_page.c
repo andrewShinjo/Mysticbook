@@ -2,8 +2,6 @@
 #include "../components/mb_text_block.h"
 #include "../components/mb_root_text_block.h"
 
-// idea: override snapshot method to draw rectangle
-
 static void mb_block_view_page_dispose(GObject *object);
 static void mb_block_view_page_finalize(GObject *object);
 static void mb_block_view_page_snapshot(GtkWidget *widget, GtkSnapshot *snapshot);
@@ -69,10 +67,10 @@ drag_end(
 {
   GtkWidget *self = GTK_WIDGET(user_data);
   MbBlockViewPage *_self = MB_BLOCK_VIEW_PAGE(user_data);
-  _self->x0 = 0;
-  _self->x1 = 0;
-  _self->y0 = 0;
-  _self->y1 = 0;
+  _self->x0 = 0.0;
+  _self->x1 = 0.0;
+  _self->y0 = 0.0;
+  _self->y1 = 0.0;
   _self->dragging = FALSE;
   gtk_widget_queue_draw(self);
 }
@@ -115,7 +113,7 @@ mb_block_view_page_snapshot(GtkWidget *widget, GtkSnapshot *snapshot)
       _self->y1
     );
     GdkRGBA color;
-    gdk_rgba_parse(&color, "red");
+    gdk_rgba_parse(&color, "rgba(255, 0, 0, 0.25)");
     gtk_snapshot_append_color(snapshot, &color, &graphene_rect);
   }
 }
