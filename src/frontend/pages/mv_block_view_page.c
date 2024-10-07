@@ -39,7 +39,6 @@ drag_begin(
 {
   GtkWidget *self = GTK_WIDGET(user_data);
   MbBlockViewPage *_self = MB_BLOCK_VIEW_PAGE(user_data);
-  g_print("drag_begin\n");
   _self->x0 = start_x;
   _self->y0 = start_y;
 }
@@ -54,7 +53,6 @@ drag_update(
 {
   GtkWidget *self = GTK_WIDGET(user_data);
   MbBlockViewPage *_self = MB_BLOCK_VIEW_PAGE(user_data);
-  g_print("drag_update\n");
   _self->dragging = TRUE;
   _self->x1 = offset_x;
   _self->y1 = offset_y;
@@ -71,7 +69,6 @@ drag_end(
 {
   GtkWidget *self = GTK_WIDGET(user_data);
   MbBlockViewPage *_self = MB_BLOCK_VIEW_PAGE(user_data);
-  g_print("drag_end\n");
   _self->x0 = 0;
   _self->x1 = 0;
   _self->y0 = 0;
@@ -111,10 +108,11 @@ mb_block_view_page_snapshot(GtkWidget *widget, GtkSnapshot *snapshot)
 
   if(_self->dragging)
   {
-    g_print("Drawing rectangle.\n");
-    g_print("x0=%f, y0=%f, x1=%f, y1=%f\n", _self->x0, _self->y0, _self->x1, _self->y1);
     graphene_rect_t graphene_rect = GRAPHENE_RECT_INIT(
-        _self->x0, _self->y0, _self->x1, _self->y1
+      _self->x0, 
+      _self->y0, 
+      _self->x1, 
+      _self->y1
     );
     GdkRGBA color;
     gdk_rgba_parse(&color, "red");
