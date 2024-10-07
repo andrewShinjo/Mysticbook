@@ -57,3 +57,4 @@ dkms.conf
 compile_commands.json
 build/
 main
+*.db
