@@ -10,11 +10,13 @@ struct _MbTextBlock
   GtkWidget *text_view;
   GtkWidget *children_blocks;
   GtkEventController *key_controller;
+
+  gboolean selected;
 };
 
 G_DEFINE_TYPE(MbTextBlock, mb_text_block, GTK_TYPE_WIDGET)
 
-// Private
+/* PRIVATE INTERFACE */
 
 static void
 append_content(MbTextBlock *_self, gchar *content);
@@ -61,6 +63,11 @@ is_insert_at_start(MbTextBlock *_self);
 
 static void
 remove_child(MbTextBlock *self, MbTextBlock *_child);
+
+static void
+snapshot(GtkWidget *widget, GtkSnapshot *snapshot);
+
+/* PRIVATE IMPLEMENTATION */
 
 static void
 append_content(MbTextBlock *_self, gchar *content)
@@ -199,20 +206,30 @@ prepend_child(MbTextBlock *_self, MbTextBlock *_child)
 }
 
 static void
+snapshot(GtkWidget *widget, GtkSnapshot *snapshot)
+{
+  MbTextBlock* _self = MB_TEXT_BLOCK(widget);
+  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(mb_text_block_parent_class);
+  widget_class->snapshot(widget, snapshot);
+
+  if(_self->selected)
+  {
+    int height = gtk_widget_get_height(widget);
+    int width = gtk_widget_get_width(widget);
+  }
+}
+
+static void
 unindent_self(MbTextBlock *_self) 
 {
   GtkWidget *parent = get_parent(_self);
-
   if(MB_IS_ROOT_TEXT_BLOCK(parent))
   {
     return;
   }
-
   MbTextBlock *_parent = MB_TEXT_BLOCK(parent);
-
   remove_child(_parent, _self);
   append_sibling_after_self(_parent, _self);
-
 }
 
 static void
@@ -382,7 +399,18 @@ key_pressed(
 {
   MbTextBlock *_self = MB_TEXT_BLOCK(user_data);
 
-  if(keyval == GDK_KEY_BackSpace)
+  if(keyval == GDK_KEY_a)
+  {
+    if(state & GDK_CONTROL_MASK)
+    {
+      gboolean should_highlight_block = is_all_text_highlighted(_self) || is_empty(_self);
+      if(should_highlight_block)
+      {
+        g_print("Highlight block.\n");
+      }
+    }
+  }
+  else if(keyval == GDK_KEY_BackSpace)
   {
     if(is_insert_at_start(_self) && ! is_all_text_highlighted(_self))
     {
@@ -446,6 +474,7 @@ static void mb_text_block_init(MbTextBlock *self)
   self->text_view = gtk_text_view_new();
   self->children_blocks = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   self->key_controller = gtk_event_controller_key_new();
+  self->selected = FALSE;
 
   gtk_widget_add_controller(self->text_view, self->key_controller);
   g_signal_connect(
@@ -478,8 +507,10 @@ static void mb_text_block_init(MbTextBlock *self)
 static void mb_text_block_class_init(MbTextBlockClass *klass) 
 {
   GObjectClass *object_class = G_OBJECT_CLASS(klass);
+  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
   object_class->dispose = mb_text_block_dispose;
   object_class->finalize = mb_text_block_finalize;
+  widget_class->snapshot = snapshot;
   gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(klass), GTK_TYPE_BOX_LAYOUT);
 }
 
