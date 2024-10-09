@@ -216,6 +216,13 @@ snapshot(GtkWidget *widget, GtkSnapshot *snapshot)
   {
     int height = gtk_widget_get_height(widget);
     int width = gtk_widget_get_width(widget);
+    graphene_rect_t graphene_rect;
+    if(gtk_widget_compute_bounds(widget, widget, &graphene_rect))
+    {
+      GdkRGBA color;
+      gdk_rgba_parse(&color, "rgba(255, 0, 0, 0.25)");
+      gtk_snapshot_append_color(snapshot, &color, &graphene_rect);
+    }
   }
 }
 
@@ -407,6 +414,8 @@ key_pressed(
       if(should_highlight_block)
       {
         g_print("Highlight block.\n");
+        _self->selected = TRUE;
+        gtk_widget_queue_draw(GTK_WIDGET(_self));
       }
     }
   }
