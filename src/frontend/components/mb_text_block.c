@@ -10,13 +10,13 @@ struct _MbTextBlock
   GtkWidget *text_view;
   GtkWidget *children_blocks;
   GtkEventController *key_controller;
-
+  GtkEventController *focus_controller;
   gboolean selected;
 };
 
 G_DEFINE_TYPE(MbTextBlock, mb_text_block, GTK_TYPE_WIDGET)
 
-/* PRIVATE INTERFACE */
+/* private interface */
 
 static void
 append_content(MbTextBlock *_self, gchar *content);
@@ -60,6 +60,9 @@ is_empty(MbTextBlock *_self);
 
 static gboolean
 is_insert_at_start(MbTextBlock *_self);
+
+static void
+leave(GtkEventControllerFocus *focus, gpointer user_data);
 
 static void
 remove_child(MbTextBlock *self, MbTextBlock *_child);
@@ -187,7 +190,6 @@ is_insert_at_start(MbTextBlock *_self)
   GtkTextView *text_view = GTK_TEXT_VIEW(_self->text_view);
   GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(text_view);
   GtkTextIter insert, start;
-
   gtk_text_buffer_get_start_iter(text_buffer, &start);
   gtk_text_buffer_get_iter_at_mark(
     text_buffer, 
@@ -195,6 +197,16 @@ is_insert_at_start(MbTextBlock *_self)
     gtk_text_buffer_get_insert(text_buffer)
   );
   return gtk_text_iter_equal(&start, &insert);
+}
+
+static void
+leave(GtkEventControllerFocus *focus, gpointer user_data)
+{
+  MbTextBlock *_self = MB_TEXT_BLOCK(user_data);
+  GtkWidget *self = GTK_WIDGET(user_data);
+  _self->selected = FALSE;
+  gtk_widget_queue_draw(self);
+  g_print("Leave\n");
 }
 
 static void
@@ -217,7 +229,7 @@ snapshot(GtkWidget *widget, GtkSnapshot *snapshot)
     int height = gtk_widget_get_height(widget);
     int width = gtk_widget_get_width(widget);
     graphene_rect_t graphene_rect;
-    if(gtk_widget_compute_bounds(widget, widget, &graphene_rect))
+    if(gtk_widget_compute_bounds(_self->hbox, _self->hbox, &graphene_rect))
     {
       GdkRGBA color;
       gdk_rgba_parse(&color, "rgba(255, 0, 0, 0.25)");
@@ -405,6 +417,7 @@ key_pressed(
 )
 {
   MbTextBlock *_self = MB_TEXT_BLOCK(user_data);
+  GtkWidget *self = GTK_WIDGET(user_data);
 
   if(keyval == GDK_KEY_a)
   {
@@ -413,8 +426,9 @@ key_pressed(
       gboolean should_highlight_block = is_all_text_highlighted(_self) || is_empty(_self);
       if(should_highlight_block)
       {
-        g_print("Highlight block.\n");
         _self->selected = TRUE;
+        gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(_self->text_view), FALSE);
+        gtk_text_view_set_editable(GTK_TEXT_VIEW(_self->text_view), FALSE);
         gtk_widget_queue_draw(GTK_WIDGET(_self));
       }
     }
@@ -440,6 +454,10 @@ key_pressed(
   }
   else if(keyval == GDK_KEY_Return)
   {
+    _self->selected = FALSE;
+    gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(_self->text_view), TRUE);
+    gtk_text_view_set_editable(GTK_TEXT_VIEW(_self->text_view), TRUE);
+    gtk_widget_queue_draw(self);
     if(! (state && GDK_SHIFT_MASK) )
     {
       if(has_child(_self))
@@ -462,9 +480,6 @@ key_pressed(
   return FALSE;
 }
 
-
-// ** Widget lifecycle
-
 static void mb_text_block_dispose(GObject *object) 
 {
   MbTextBlock *self = MB_TEXT_BLOCK(object);
@@ -483,6 +498,7 @@ static void mb_text_block_init(MbTextBlock *self)
   self->text_view = gtk_text_view_new();
   self->children_blocks = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   self->key_controller = gtk_event_controller_key_new();
+  self->focus_controller = gtk_event_controller_focus_new();
   self->selected = FALSE;
 
   gtk_widget_add_controller(self->text_view, self->key_controller);
@@ -492,6 +508,9 @@ static void mb_text_block_init(MbTextBlock *self)
     G_CALLBACK(key_pressed),
     self
   );
+
+  gtk_widget_add_controller(self->text_view, self->focus_controller);
+  g_signal_connect(self->focus_controller, "leave", G_CALLBACK(leave), self);
 
   gtk_widget_set_hexpand(self->layout, TRUE);
   gtk_widget_set_vexpand(self->layout, TRUE);
