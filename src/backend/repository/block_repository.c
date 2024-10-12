@@ -3,11 +3,7 @@
 #include "../entity/block.h"
 #include "./block_repository.h"
 
-// *********************************************************************
-// * Private
-// *********************************************************************
-
-int
+static int
 find_all_callback (
 	void *data, 
 	int  column_count,
@@ -31,16 +27,13 @@ find_all_callback (
 	return 0;
 }
 
-// *********************************************************************
-// * Public
-// *********************************************************************
-
 sqlite3_int64
 block_repository_create()
 {
 	sqlite3 *database = database_get();
-	const char *sql = "INSERT INTO blocks(creation_time, modification_time, content, is_document) " 
-	                  "VALUES(0, 0, 'Untitled', 1);";
+	const char *sql = "INSERT INTO blocks("
+    "creation_time, modification_time, content, is_document)" 
+	  " VALUES(0, 0, 'Untitled', 1);";
 	int return_code = sqlite3_exec(database, sql, 0, 0, 0);
 	if(return_code != 0)
 	{
@@ -72,9 +65,9 @@ block_repository_delete_by_id(sqlite3_int64 id)
 	sqlite3_stmt *stmt;
 	const char *sql = "DELETE FROM blocks where id = ?";
 	
-	if (sqlite3_prepare_v2 (db, sql, -1, &stmt, NULL) != SQLITE_OK)
+	if(sqlite3_prepare_v2 (db, sql, -1, &stmt, NULL) != SQLITE_OK)
 	{
-		fprintf (
+		fprintf(
 			stderr, 
 			"Failed to prepare statement: %s\n", 
 			sqlite3_errmsg(db)
@@ -89,7 +82,11 @@ block_repository_delete_by_id(sqlite3_int64 id)
 	}
 	if(sqlite3_step(stmt) != SQLITE_DONE)
 	{
-		fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(db));
+		fprintf(
+      stderr, 
+      "Failed to execute statement: %s\n", 
+      sqlite3_errmsg(db)
+    );
 		sqlite3_finalize (stmt);
 		return 1;
 	}
@@ -97,3 +94,6 @@ block_repository_delete_by_id(sqlite3_int64 id)
 	sqlite3_finalize (stmt);
 	return 0;
 }
+
+gboolean 
+update_block(sqlite3_int64 id, gchar *text);
