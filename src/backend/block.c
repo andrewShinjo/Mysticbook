@@ -29,8 +29,9 @@ find_all_callback (
 
 sqlite3_int64 block_new()
 {
+  sqlite3 *db = db_get();
 	const char *sql = "INSERT INTO blocks("
-    "creation_time, modification_time, content, is_document)" 
+    "creation_time, is_document, modification_time, content)" 
 	  " VALUES(0, 0, 'Untitled', 1);";
 	int rc = sqlite3_exec(db, sql, 0, 0, 0);
 	if(rc != 0)
@@ -42,6 +43,7 @@ sqlite3_int64 block_new()
 
 GArray* block_get_all()
 {
+  sqlite3 *db = db_get();
 	const char *sql = "SELECT * FROM blocks;";
 	GArray *blocks = g_array_new(FALSE, FALSE, sizeof (Block));
 	int return_code = sqlite3_exec(
@@ -56,6 +58,7 @@ GArray* block_get_all()
 
 int block_delete_by_id(sqlite3_int64 id)
 {
+  sqlite3 *db = db_get();
 	sqlite3_stmt *stmt;
 	const char *sql = "DELETE FROM blocks where id = ?";
 	

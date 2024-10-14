@@ -22,3 +22,8 @@ int db_close()
 	}
 	return 0;
 }
+
+sqlite3* db_get()
+{
+  return db;
+}
