@@ -84,7 +84,7 @@ mysticbook_document_list_add_row(MysticbookDocumentList *self)
 	gint64 new_id = block_repository_create();
 	gchar s[21];
 	g_snprintf(s, sizeof(s), "%ld", new_id);
-	GtkWidget *list_row = mb_document_list_row_new(s);
+	GtkWidget *list_row = mb_document_list_row_new("Untitled");
 	gtk_list_box_append(GTK_LIST_BOX(self->list_box), list_row);
 	return 0;
 }

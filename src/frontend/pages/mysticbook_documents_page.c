@@ -6,11 +6,11 @@ static void mysticbook_documents_page_finalize(GObject *object);
 
 struct _MysticbookDocumentsPage
 {
- 	GtkWidget parent;
+  GtkWidget parent;
   GtkWidget *vertical_box;
   GtkWidget *document_label;
-	GtkWidget *document_list;
-	GtkWidget *new_document_button;
+  GtkWidget *document_list;
+  GtkWidget *new_document_button;
 };
 
 G_DEFINE_TYPE(MysticbookDocumentsPage, mysticbook_documents_page, GTK_TYPE_WIDGET)
