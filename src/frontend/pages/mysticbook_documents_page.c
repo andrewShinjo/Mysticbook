@@ -13,14 +13,20 @@ struct _MysticbookDocumentsPage
   GtkWidget *new_document_button;
 };
 
-G_DEFINE_TYPE(MysticbookDocumentsPage, mysticbook_documents_page, GTK_TYPE_WIDGET)
+G_DEFINE_TYPE(
+  MysticbookDocumentsPage, 
+  mysticbook_documents_page, 
+  GTK_TYPE_WIDGET
+)
 
 /* Signal start */
 
 static void 
 new_document_button_clicked(GtkButton *self, gpointer user_data)
 {
-	MysticbookDocumentList *document_list = MYSTICBOOK_DOCUMENT_LIST(user_data);
+	MysticbookDocumentList *document_list = MYSTICBOOK_DOCUMENT_LIST(
+    user_data
+  );
 	mysticbook_document_list_add_row(document_list);
 }
 

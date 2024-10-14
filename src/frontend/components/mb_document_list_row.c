@@ -1,9 +1,5 @@
 #include "./mb_document_list_row.h"
 
-// **********************************************************************
-// * Properties
-// **********************************************************************
-
 enum
 {
 	PROP_CONTENT = 1,
@@ -11,10 +7,6 @@ enum
 };
 
 static GParamSpec *properties[N_PROPERTIES];
-
-// **********************************************************************
-// * GObject Definition
-// **********************************************************************
 
 struct _MbDocumentListRow
 {
@@ -29,15 +21,7 @@ struct _MbDocumentListRow
 	gchar *content;
 };
 
-G_DEFINE_TYPE(
-	MbDocumentListRow,
-	mb_document_list_row,
-	GTK_TYPE_WIDGET
-)
-
-// **********************************************************************
-// * Properties - Getters and Setters
-// **********************************************************************
+G_DEFINE_TYPE(MbDocumentListRow, mb_document_list_row, GTK_TYPE_WIDGET)
 
 static void
 mb_document_list_row_set_property(
@@ -94,10 +78,6 @@ mb_document_list_row_get_property(
 	}	
 }
 
-// **********************************************************************
-// * Callbacks
-// **********************************************************************
-
 static void
 delete_button_clicked(GtkButton *self, gpointer user_data)
 {
@@ -110,18 +90,10 @@ open_button_clicked(GtkButton *self, gpointer user_data)
 	g_print("Open button clicked.\n");
 }
 
-// **********************************************************************
-// * Widget lifecycle
-// **********************************************************************
+static void mb_document_list_row_dispose(GObject *object);
+static void mb_document_list_row_finalize(GObject *object);
 
-static void
-mb_document_list_row_dispose(GObject *object);
-
-static void
-mb_document_list_row_finalize(GObject *object);
-
-static void
-mb_document_list_row_init(MbDocumentListRow *self)
+static void mb_document_list_row_init(MbDocumentListRow *self)
 {
 	self->content_label = gtk_label_new(NULL);
 	gtk_widget_set_halign(self->content_label, GTK_ALIGN_START);

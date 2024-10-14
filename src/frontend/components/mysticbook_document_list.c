@@ -1,4 +1,4 @@
-#include "../../backend/repository/block_repository.h"
+#include "../../backend/block.h"
 #include "./mysticbook_document_list.h"
 #include "./mb_document_list_row.h"
 
@@ -81,7 +81,7 @@ mysticbook_document_list_new()
 int
 mysticbook_document_list_add_row(MysticbookDocumentList *self)
 {
-	gint64 new_id = block_repository_create();
+	gint64 new_id = block_new();
 	gchar s[21];
 	g_snprintf(s, sizeof(s), "%ld", new_id);
 	GtkWidget *list_row = mb_document_list_row_new("Untitled");
@@ -92,7 +92,7 @@ mysticbook_document_list_add_row(MysticbookDocumentList *self)
 int
 mysticbook_document_list_get_rows (MysticbookDocumentList *self)
 {
-	GArray *documents = block_repository_find_all();
+	GArray *documents = block_get_all();
 	for(guint i = 0; i < documents->len; i++)
 	{
 		Block b = g_array_index(documents, Block, i);

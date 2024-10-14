@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include "../database.h"
-#include "../entity/block.h"
-#include "./block_repository.h"
+#include "./database.h"
+#include "./block.h"
+
 
 static int
 find_all_callback (
@@ -12,10 +12,10 @@ find_all_callback (
 )
 {
 	GArray *blocks = (GArray *) data;
-	for (gint i = 0; i < column_count; i++)
+	for(gint i = 0; i < column_count; i++)
 	{
 		int compare = g_strcmp0 (column_name[i], "id");
-		if (compare != 0)
+		if(compare != 0)
 		{
 			continue;
 		}
@@ -27,29 +27,25 @@ find_all_callback (
 	return 0;
 }
 
-sqlite3_int64
-block_repository_create()
+sqlite3_int64 block_new()
 {
-	sqlite3 *database = database_get();
 	const char *sql = "INSERT INTO blocks("
     "creation_time, modification_time, content, is_document)" 
 	  " VALUES(0, 0, 'Untitled', 1);";
-	int return_code = sqlite3_exec(database, sql, 0, 0, 0);
-	if(return_code != 0)
+	int rc = sqlite3_exec(db, sql, 0, 0, 0);
+	if(rc != 0)
 	{
 		return -1;
 	}
-	return sqlite3_last_insert_rowid(database);
+	return sqlite3_last_insert_rowid(db);
 }
 
-GArray *
-block_repository_find_all()
+GArray* block_get_all()
 {
-	sqlite3 *database = database_get();
 	const char *sql = "SELECT * FROM blocks;";
 	GArray *blocks = g_array_new(FALSE, FALSE, sizeof (Block));
 	int return_code = sqlite3_exec(
-		database, 
+		db, 
 		sql, 
 		find_all_callback, 
 		blocks,
@@ -58,14 +54,12 @@ block_repository_find_all()
 	return blocks;
 }
 
-int 
-block_repository_delete_by_id(sqlite3_int64 id)
+int block_delete_by_id(sqlite3_int64 id)
 {
-	sqlite3 *db = database_get ();
 	sqlite3_stmt *stmt;
 	const char *sql = "DELETE FROM blocks where id = ?";
 	
-	if(sqlite3_prepare_v2 (db, sql, -1, &stmt, NULL) != SQLITE_OK)
+	if(sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) != SQLITE_OK)
 	{
 		fprintf(
 			stderr, 
@@ -90,10 +84,11 @@ block_repository_delete_by_id(sqlite3_int64 id)
 		sqlite3_finalize (stmt);
 		return 1;
 	}
-
 	sqlite3_finalize (stmt);
 	return 0;
 }
 
-gboolean 
-update_block(sqlite3_int64 id, gchar *text);
+int block_update_content(sqlite3_int64 id, gchar *content)
+{
+  return 0;
+}
