@@ -1,6 +1,6 @@
 #include "./mysticbook_application_window.h"
 #include "../pages/mb_block_view_page.h"
-#include "../pages/mysticbook_documents_page.h"
+#include "../pages/mb_documents_page.h"
 
 struct _MbApplicationWindow
 {
@@ -13,7 +13,7 @@ G_DEFINE_TYPE(MbApplicationWindow, mb_application_window, GTK_TYPE_APPLICATION_W
 static void mb_application_window_init(MbApplicationWindow *self)
 {
   GtkWindow *window = GTK_WINDOW(self);
-  self->active_page = mysticbook_documents_page_new();
+  self->active_page = mb_documents_page_new();
   gtk_window_set_child(window, self->active_page);
 }
 

@@ -1,10 +1,10 @@
-#include "./mysticbook_documents_page.h"
+#include "./mb_documents_page.h"
 #include "../components/mb_document_list.h"
 
-static void mysticbook_documents_page_dispose(GObject *object);
-static void mysticbook_documents_page_finalize(GObject *object);
+static void dispose(GObject *object);
+static void finalize(GObject *object);
 
-struct _MysticbookDocumentsPage
+struct _MbDocumentsPage
 {
   GtkWidget parent;
   GtkWidget *vertical_box;
@@ -13,13 +13,7 @@ struct _MysticbookDocumentsPage
   GtkWidget *new_document_button;
 };
 
-G_DEFINE_TYPE(
-  MysticbookDocumentsPage, 
-  mysticbook_documents_page, 
-  GTK_TYPE_WIDGET
-)
-
-/* Signal start */
+G_DEFINE_TYPE(MbDocumentsPage, mb_documents_page, GTK_TYPE_WIDGET)
 
 static void 
 new_document_button_clicked(GtkButton *self, gpointer user_data)
@@ -28,10 +22,7 @@ new_document_button_clicked(GtkButton *self, gpointer user_data)
 	mb_document_list_add_row(document_list);
 }
 
-/* Signal end */
-
-static void
-mysticbook_documents_page_init(MysticbookDocumentsPage *self)
+static void mb_documents_page_init(MbDocumentsPage *self)
 {
 	self->new_document_button = gtk_button_new_with_label("New Document");
 
@@ -47,7 +38,10 @@ mysticbook_documents_page_init(MysticbookDocumentsPage *self)
 	gtk_widget_set_vexpand(self->vertical_box, TRUE);
 	gtk_box_append(GTK_BOX(self->vertical_box), self->document_label);
 	gtk_box_append(GTK_BOX(self->vertical_box), self->document_list);
-	gtk_box_append(GTK_BOX(self->vertical_box), self->new_document_button);
+	gtk_box_append(
+    GTK_BOX(self->vertical_box), 
+    self->new_document_button
+  );
 
 	mb_document_list_get_rows(MB_DOCUMENT_LIST(self->document_list));
 
@@ -62,28 +56,30 @@ mysticbook_documents_page_init(MysticbookDocumentsPage *self)
 }
 
 static void
-mysticbook_documents_page_class_init(MysticbookDocumentsPageClass *klass) 
+mb_documents_page_class_init(MbDocumentsPageClass *klass) 
 {
 	GObjectClass *object_class = G_OBJECT_CLASS(klass);
-	object_class->dispose = mysticbook_documents_page_dispose;
-	object_class->finalize = mysticbook_documents_page_finalize;
-	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(klass), GTK_TYPE_BOX_LAYOUT);
+	object_class->dispose = dispose;
+	object_class->finalize = finalize;
+	gtk_widget_class_set_layout_manager_type(
+    GTK_WIDGET_CLASS(klass), 
+    GTK_TYPE_BOX_LAYOUT
+  );
 }
 
-static void mysticbook_documents_page_dispose(GObject *object)
+static void dispose(GObject *object)
 {
-	MysticbookDocumentsPage *self = MYSTICBOOK_DOCUMENTS_PAGE(object);
+	MbDocumentsPage *self = MB_DOCUMENTS_PAGE(object);
 	g_clear_pointer(&self->vertical_box, gtk_widget_unparent);
-	G_OBJECT_CLASS(mysticbook_documents_page_parent_class)->dispose(object);
+	G_OBJECT_CLASS(mb_documents_page_parent_class)->dispose(object);
 }
 
-static void mysticbook_documents_page_finalize(GObject *object)
+static void finalize(GObject *object)
 {
-	G_OBJECT_CLASS(mysticbook_documents_page_parent_class)->finalize(object);
+	G_OBJECT_CLASS(mb_documents_page_parent_class)->finalize(object);
 }
 
-GtkWidget *
-mysticbook_documents_page_new()
+GtkWidget* mb_documents_page_new()
 {
-    return g_object_new(MYSTICBOOK_TYPE_DOCUMENTS_PAGE, NULL);
+    return g_object_new(MB_TYPE_DOCUMENTS_PAGE, NULL);
 }
