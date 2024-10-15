@@ -2,9 +2,9 @@
 #include "../components/mb_text_block.h"
 #include "../components/mb_root_text_block.h"
 
-static void mb_block_view_page_dispose(GObject *object);
-static void mb_block_view_page_finalize(GObject *object);
-static void mb_block_view_page_snapshot(GtkWidget *widget, GtkSnapshot *snapshot);
+static void dispose(GObject *object);
+static void finalize(GObject *object);
+static void snapshot(GtkWidget *widget, GtkSnapshot *snapshot);
 
 struct _MbBlockViewPage
 {
@@ -89,7 +89,7 @@ insert_block_after(MbBlockViewPage *self, GtkWidget *sibling, GtkWidget *insert)
 
 /* Virtual functions */
 
-static void mb_block_view_page_dispose(GObject *object) 
+static void dispose(GObject *object) 
 {
   MbBlockViewPage *self = MB_BLOCK_VIEW_PAGE(object);
   g_clear_pointer(&self->scrolled_window, gtk_widget_unparent);
@@ -97,7 +97,7 @@ static void mb_block_view_page_dispose(GObject *object)
 }
 
 static void 
-mb_block_view_page_snapshot(GtkWidget *widget, GtkSnapshot *snapshot)
+snapshot(GtkWidget *widget, GtkSnapshot *snapshot)
 {
   MbBlockViewPage *_self = MB_BLOCK_VIEW_PAGE(widget);
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(mb_block_view_page_parent_class);
@@ -119,7 +119,7 @@ mb_block_view_page_snapshot(GtkWidget *widget, GtkSnapshot *snapshot)
 }
 
 static void 
-mb_block_view_page_finalize(GObject *object)
+finalize(GObject *object)
 {
   G_OBJECT_CLASS(mb_block_view_page_parent_class)->finalize(object);
 }
@@ -153,9 +153,9 @@ static void mb_block_view_page_class_init(MbBlockViewPageClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS(klass);
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
   
-  object_class->dispose = mb_block_view_page_dispose;
-  object_class->finalize = mb_block_view_page_finalize;
-  widget_class->snapshot = mb_block_view_page_snapshot;
+  object_class->dispose = dispose;
+  object_class->finalize = finalize;
+  widget_class->snapshot = snapshot;
   gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(klass), GTK_TYPE_BOX_LAYOUT);
 }
 

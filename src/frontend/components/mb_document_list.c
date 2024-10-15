@@ -1,8 +1,8 @@
 #include "../../backend/block.h"
-#include "./mysticbook_document_list.h"
+#include "./mb_document_list.h"
 #include "./mb_document_list_row.h"
 
-struct _MysticbookDocumentList
+struct _MbDocumentList
 {
   GtkWidget parent;
   GtkWidget *scrolled_window;
@@ -10,16 +10,16 @@ struct _MysticbookDocumentList
 };
 
 G_DEFINE_TYPE(
-  MysticbookDocumentList,
-  mysticbook_document_list,
+  MbDocumentList,
+  mb_document_list,
   GTK_TYPE_WIDGET
 )
 
-static void mysticbook_document_list_dispose (GObject *object);
-static void mysticbook_document_list_finalize (GObject *object);
+static void mb_document_list_dispose (GObject *object);
+static void mb_document_list_finalize (GObject *object);
 
 static void 
-mysticbook_document_list_init (MysticbookDocumentList *self)
+mb_document_list_init (MbDocumentList *self)
 {
 	self->scrolled_window = gtk_scrolled_window_new();
 	self->list_box = gtk_list_box_new();
@@ -33,41 +33,37 @@ mysticbook_document_list_init (MysticbookDocumentList *self)
 }
 
 static void
-mysticbook_document_list_class_init(MysticbookDocumentListClass *klass)
+mb_document_list_class_init(MbDocumentListClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS(klass);
-	object_class->dispose = mysticbook_document_list_dispose;
-	object_class->finalize = mysticbook_document_list_finalize;
+	object_class->dispose = mb_document_list_dispose;
+	object_class->finalize = mb_document_list_finalize;
   gtk_widget_class_set_layout_manager_type(
 		GTK_WIDGET_CLASS(klass), 
 		GTK_TYPE_BOX_LAYOUT
 	);
 }
 
-static void mysticbook_document_list_dispose(GObject *object)
+static void mb_document_list_dispose(GObject *object)
 {
-	MysticbookDocumentList *self = MYSTICBOOK_DOCUMENT_LIST (object);
-	g_clear_pointer (&self->scrolled_window, gtk_widget_unparent);
-	G_OBJECT_CLASS (
-		mysticbook_document_list_parent_class
-	)->dispose (object);
+	MbDocumentList *self = MB_DOCUMENT_LIST(object);
+	g_clear_pointer(&self->scrolled_window, gtk_widget_unparent);
+	G_OBJECT_CLASS(mb_document_list_parent_class)->dispose(object);
 }
 
-static void
-mysticbook_document_list_finalize(GObject *object)
+static void mb_document_list_finalize(GObject *object)
 {
-  G_OBJECT_CLASS(mysticbook_document_list_parent_class)->finalize(
+  G_OBJECT_CLASS(mb_document_list_parent_class)->finalize(
     object
   );
 }
 
-GtkWidget* mysticbook_document_list_new()
+GtkWidget* mb_document_list_new()
 {
-  return g_object_new(MYSTICBOOK_TYPE_DOCUMENT_LIST, NULL);
+  return g_object_new(MB_TYPE_DOCUMENT_LIST, NULL);
 }
 
-int
-mysticbook_document_list_add_row(MysticbookDocumentList *self)
+int mb_document_list_add_row(MbDocumentList *self)
 {
 	gint64 new_id = block_new();
 	//gchar s[21];
@@ -77,8 +73,7 @@ mysticbook_document_list_add_row(MysticbookDocumentList *self)
 	return 0;
 }
 
-int
-mysticbook_document_list_get_rows (MysticbookDocumentList *self)
+int mb_document_list_get_rows(MbDocumentList *self)
 {
 	GArray *documents = block_get_all();
 	for(guint i = 0; i < documents->len; i++)
