@@ -1,6 +1,6 @@
 #include <gtk/gtk.h>
 #include <sqlite3.h>
-#include "components/mysticbook_application_window.h"
+#include "components/mb_application_window.h"
 #include "../backend/database.h"
 
 static void activate (GtkApplication *app, gpointer user_data)
