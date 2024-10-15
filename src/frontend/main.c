@@ -3,9 +3,10 @@
 #include "components/mb_application_window.h"
 #include "../backend/database.h"
 
-static void activate (GtkApplication *app, gpointer user_data)
+static void activate(GtkApplication *app, gpointer user_data)
 {
-  GtkWidget *mysticbook_application_window = mb_application_window_new (app);
+  GtkWidget *mysticbook_application_window = 
+    mb_application_window_new(app);
   GtkCssProvider *css_provider = gtk_css_provider_new();
   gtk_css_provider_load_from_file(
     css_provider, 

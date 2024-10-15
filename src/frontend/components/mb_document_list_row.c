@@ -1,3 +1,4 @@
+#include "./mb_application_window.h"
 #include "./mb_document_list_row.h"
 
 enum
@@ -85,9 +86,14 @@ delete_button_clicked(GtkButton *self, gpointer user_data)
 }
 
 static void
-open_button_clicked(GtkButton *self, gpointer user_data)
+open_button_clicked(GtkButton *button, gpointer user_data)
 {
+  GtkWidget *self = GTK_WIDGET(user_data);
 	g_print("Open button clicked.\n");
+  GtkWidget *window = gtk_widget_get_ancestor(
+    self, 
+    MB_TYPE_APPLICATION_WINDOW
+  );
 }
 
 static void mb_document_list_row_dispose(GObject *object);
@@ -114,7 +120,7 @@ static void mb_document_list_row_init(MbDocumentListRow *self)
 		self->open_button,
 		"clicked",
 		G_CALLBACK(open_button_clicked),
-		NULL
+    self
 	);
 }
 

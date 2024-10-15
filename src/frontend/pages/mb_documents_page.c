@@ -24,7 +24,8 @@ new_document_button_clicked(GtkButton *self, gpointer user_data)
 
 static void mb_documents_page_init(MbDocumentsPage *self)
 {
-	self->new_document_button = gtk_button_new_with_label("New Document");
+	self->new_document_button = 
+    gtk_button_new_with_label("New Document");
 
 	self->document_list = mb_document_list_new();
 	gtk_widget_set_hexpand (self->document_list, TRUE);
