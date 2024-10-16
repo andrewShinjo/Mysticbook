@@ -1,4 +1,3 @@
-#include "./mb_application_window.h"
 #include "./mb_document_list_row.h"
 
 enum property_types

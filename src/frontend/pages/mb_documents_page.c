@@ -5,6 +5,8 @@
 static void dispose(GObject *object);
 static void finalize(GObject *object);
 
+/* Struct Definition */
+
 struct _MbDocumentsPage
 {
   GtkWidget parent;
@@ -40,7 +42,6 @@ static gboolean open_doc_signal_source_func(gpointer user_data)
   return G_SOURCE_CONTINUE;
 }
 
-/* Private interface */
 static void open_row_cb(MbDocumentListRow *row, gpointer user_data);
 
 void populate_rows(MbDocumentsPage *_self)

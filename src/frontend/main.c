@@ -1,12 +1,11 @@
 #include <gtk/gtk.h>
 #include <sqlite3.h>
-#include "components/mb_application_window.h"
+#include "components/mb_app_window.h"
 #include "../backend/database.h"
 
 static void activate(GtkApplication *app, gpointer user_data)
 {
-  GtkWidget *mysticbook_application_window = 
-    mb_application_window_new(app);
+  GtkWidget *mb_app_window = mb_app_window_new(app);
   GtkCssProvider *css_provider = gtk_css_provider_new();
   gtk_css_provider_load_from_file(
     css_provider, 
@@ -17,7 +16,7 @@ static void activate(GtkApplication *app, gpointer user_data)
     GTK_STYLE_PROVIDER(css_provider), 
     GTK_STYLE_PROVIDER_PRIORITY_USER
   );
-  GtkWindow *window = GTK_WINDOW(mysticbook_application_window);
+  GtkWindow *window = GTK_WINDOW(mb_app_window);
   gtk_window_set_title(window, "Mysticbook");
   gtk_window_maximize(window);
   gtk_window_present(window);
