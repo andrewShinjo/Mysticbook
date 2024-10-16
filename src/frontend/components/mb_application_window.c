@@ -27,6 +27,14 @@ mb_application_window_class_init(MbApplicationWindowClass *klass)
 
 }
 
+void
+mb_app_window_change_page(
+  MbApplicationWindow *_self,
+  GtkWidget *page)
+{
+  _self->active_page = page;
+}
+
 GtkWidget* mb_application_window_new(GtkApplication *application)
 {
 	return GTK_WIDGET(g_object_new(

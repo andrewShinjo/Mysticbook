@@ -94,6 +94,7 @@ open_button_clicked(GtkButton *button, gpointer user_data)
     self, 
     MB_TYPE_APPLICATION_WINDOW
   );
+  MbApplicationWindow *_window = MB_APPLICATION_WINDOW(window);
 }
 
 static void mb_document_list_row_dispose(GObject *object);

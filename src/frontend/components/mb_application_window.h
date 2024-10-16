@@ -13,6 +13,10 @@ G_DECLARE_FINAL_TYPE(
   GtkApplicationWindow
 )
 
+void 
+mb_app_window_change_page(
+  MbApplicationWindow *_self, 
+  GtkWidget *page
+);
 GtkWidget* mb_application_window_new(GtkApplication *application);
-
 G_END_DECLS

@@ -2,8 +2,22 @@
 #include "../components/mb_text_block.h"
 #include "../components/mb_root_text_block.h"
 
+enum
+{
+  BLOCK_ID = 1,
+  N_PROPERTIES
+};
+
+static GParamSpec *properties[N_PROPERTIES];
+
 static void dispose(GObject *object);
 static void finalize(GObject *object);
+static void set_property(
+  GObject *object,
+  guint property_id,
+  const GValue *value,
+  GParamSpec *pspec
+);
 static void snapshot(GtkWidget *widget, GtkSnapshot *snapshot);
 
 struct _MbBlockViewPage
@@ -13,6 +27,8 @@ struct _MbBlockViewPage
   GtkWidget *scrolled_window;
   GtkWidget *layout;
   GtkWidget *root_block;
+
+  gint64 block_id;
 
   // Drag
   GtkGesture *gesture_drag;
@@ -124,6 +140,52 @@ finalize(GObject *object)
   G_OBJECT_CLASS(mb_block_view_page_parent_class)->finalize(object);
 }
 
+static void set_property(
+  GObject *object,
+  guint property_id,
+  const GValue *value,
+  GParamSpec *pspec
+)
+{
+  MbBlockViewPage *_self = MB_BLOCK_VIEW_PAGE(object);
+  switch(property_id)
+  {
+    case BLOCK_ID:
+    {
+      _self->block_id = g_value_get_int64(value); 
+    }
+    default:
+    {
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+      break;
+    }
+  }
+}
+
+static void
+get_property(
+  GObject *object,
+  guint property_id,
+  GValue *value,
+  GParamSpec *pspec
+)
+{
+  MbBlockViewPage *_self = MB_BLOCK_VIEW_PAGE(object);
+  switch(property_id)
+  {
+    case BLOCK_ID:
+    {
+      g_value_set_int64(value, _self->block_id);
+      break;
+    }
+    default:
+    {
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+      break;
+    }
+  }
+}
+
 static void 
 mb_block_view_page_init(MbBlockViewPage *self)
 {
@@ -144,19 +206,57 @@ mb_block_view_page_init(MbBlockViewPage *self)
   self->y1 = 0;
   self->dragging = FALSE;
 
-  g_signal_connect(self->gesture_drag, "drag-begin", G_CALLBACK(drag_begin), self);
-  g_signal_connect(self->gesture_drag, "drag-update", G_CALLBACK(drag_update), self);
-  g_signal_connect(self->gesture_drag, "drag-end", G_CALLBACK(drag_end), self);
+  g_signal_connect(
+    self->gesture_drag, 
+    "drag-begin", 
+    G_CALLBACK(drag_begin), 
+    self
+  );
+  g_signal_connect(
+    self->gesture_drag, 
+    "drag-update", 
+    G_CALLBACK(drag_update), 
+    self
+  );
+  g_signal_connect(
+    self->gesture_drag, 
+    "drag-end", 
+    G_CALLBACK(drag_end), 
+    self
+  );
 }
 static void mb_block_view_page_class_init(MbBlockViewPageClass *klass) 
 {
   GObjectClass *object_class = G_OBJECT_CLASS(klass);
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
+  GParamFlags default_flags = G_PARAM_READWRITE | 
+    G_PARAM_STATIC_STRINGS | G_PARAM_EXPLICIT_NOTIFY;
+
+  properties[BLOCK_ID] = g_param_spec_int64(
+    "block_id", 
+    "block_id", 
+    "block_id",
+    0, 
+    G_MAXINT64, 
+    0, 
+    default_flags
+  );
+
+  g_object_class_install_properties(
+    object_class, 
+    N_PROPERTIES, 
+    properties
+  );
   
   object_class->dispose = dispose;
   object_class->finalize = finalize;
+  object_class->get_property = get_property;
+  object_class->set_property = set_property;
   widget_class->snapshot = snapshot;
-  gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(klass), GTK_TYPE_BOX_LAYOUT);
+  gtk_widget_class_set_layout_manager_type(
+    GTK_WIDGET_CLASS(klass), 
+    GTK_TYPE_BOX_LAYOUT
+  );
 }
 
 // Public
