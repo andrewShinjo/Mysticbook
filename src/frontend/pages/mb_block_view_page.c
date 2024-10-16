@@ -2,7 +2,7 @@
 #include "../components/mb_text_block.h"
 #include "../components/mb_root_text_block.h"
 
-enum
+enum property_types
 {
   BLOCK_ID = 1,
   N_PROPERTIES
