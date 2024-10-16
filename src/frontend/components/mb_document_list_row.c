@@ -104,13 +104,8 @@ delete_button_clicked(GtkButton *self, gpointer user_data)
 static void
 open_button_clicked(GtkButton *button, gpointer user_data)
 {
-  GtkWidget *self = GTK_WIDGET(user_data);
-	g_print("Open button clicked.\n");
-  GtkWidget *window = gtk_widget_get_ancestor(
-    self, 
-    MB_TYPE_APPLICATION_WINDOW
-  );
-  MbApplicationWindow *_window = MB_APPLICATION_WINDOW(window);
+  MbDocumentListRow *_self = MB_DOCUMENT_LIST_ROW(user_data);
+  open_signal_source_func(_self);
 }
 
 static void mb_document_list_row_dispose(GObject *object);
@@ -171,7 +166,7 @@ mb_document_list_row_class_init(MbDocumentListRowClass *klass)
 
   /* Signal */
   signals[OPEN] = g_signal_new_class_handler(
-    "open",
+    "opened",
     G_OBJECT_CLASS_TYPE(object_class),
     G_SIGNAL_RUN_LAST,
     NULL,
@@ -198,8 +193,7 @@ static void mb_document_list_row_dispose(GObject *object)
 	G_OBJECT_CLASS(mb_document_list_row_parent_class)->dispose(object);
 }
 
-static void
-mb_document_list_row_finalize(GObject *object)
+static void mb_document_list_row_finalize(GObject *object)
 {
 	G_OBJECT_CLASS(mb_document_list_row_parent_class)->finalize(object);
 }
