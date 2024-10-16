@@ -83,8 +83,9 @@ mb_document_list_row_get_property(
 	{
 		case PROP_CONTENT:
 		{
+      GtkLabel *content_label = GTK_LABEL(self->content_label);
 			g_value_set_string(value, self->content);
-			gtk_label_set_text(GTK_LABEL(self->content_label), self->content);
+			gtk_label_set_text(content_label, self->content);
 			break;
 		}
 		default:

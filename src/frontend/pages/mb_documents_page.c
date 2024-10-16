@@ -16,8 +16,31 @@ struct _MbDocumentsPage
 
 G_DEFINE_TYPE(MbDocumentsPage, mb_documents_page, GTK_TYPE_WIDGET)
 
-/* Private interface */
+/* Property */
 
+enum property_types
+{
+  N_PROPERTIES
+};
+
+/* Signal */
+
+enum signal_types
+{
+  OPEN_DOC,
+  LAST_SIGNAL
+};
+
+static guint signals[LAST_SIGNAL];
+
+static gboolean open_doc_signal_source_func(gpointer user_data)
+{
+  MbDocumentsPage *_self = MB_DOCUMENTS_PAGE(user_data);
+  g_signal_emit(_self, signals[OPEN_DOC], 0);
+  return G_SOURCE_CONTINUE;
+}
+
+/* Private interface */
 static void open_row_cb(MbDocumentListRow *row, gpointer user_data);
 
 void populate_rows(MbDocumentsPage *_self)
@@ -35,7 +58,7 @@ void populate_rows(MbDocumentsPage *_self)
       new_row,
       "opened",
       G_CALLBACK(open_row_cb),
-      NULL
+      _self
     );
   }
 }
@@ -44,7 +67,8 @@ void populate_rows(MbDocumentsPage *_self)
 
 static void open_row_cb(MbDocumentListRow *row, gpointer user_data)
 {
-  g_print("Callback to open pressed in list row.\n"); 
+  MbDocumentsPage *_self = MB_DOCUMENTS_PAGE(user_data);
+  open_doc_signal_source_func(_self);
 }
 
 static void 
@@ -96,6 +120,21 @@ mb_documents_page_class_init(MbDocumentsPageClass *klass)
   /* Map vfunc */
 	object_class->dispose =  dispose;
 	object_class->finalize = finalize;
+
+  /* Properties */
+
+  /* Signals */
+  signals[OPEN_DOC] = g_signal_new_class_handler(
+    "open_doc",
+    G_OBJECT_CLASS_TYPE(object_class),
+    G_SIGNAL_RUN_LAST,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    G_TYPE_NONE,
+    0
+  );
 
   /* Layout manager */
 	gtk_widget_class_set_layout_manager_type(
