@@ -1,8 +1,10 @@
+#include "./mb_app_window.h"
 #include "./mb_document_list_row.h"
 
 enum property_types
 {
 	PROP_CONTENT = 1,
+  PROP_ID,
 	N_PROPERTIES
 };
 
@@ -28,6 +30,7 @@ struct _MbDocumentListRow
 
   // Properties
 	gchar *content;
+  guint64 id;
 };
 
 G_DEFINE_TYPE(MbDocumentListRow, mb_document_list_row, GTK_TYPE_WIDGET)
@@ -55,10 +58,16 @@ mb_document_list_row_set_property(
 		{
 			g_free(self->content);
 			self->content = g_value_dup_string(value);
-			gtk_label_set_text(GTK_LABEL(self->content_label), self->content);
-			g_print("Content: %s\n", self->content);
+			gtk_label_set_text(
+        GTK_LABEL(self->content_label), 
+        self->content
+      );
 			break;
 		}
+    case PROP_ID:
+    {
+      break;
+    }
 		default:
 		{
 			/* No valid property */
@@ -87,6 +96,10 @@ mb_document_list_row_get_property(
 			gtk_label_set_text(content_label, self->content);
 			break;
 		}
+    case PROP_ID:
+    {
+      break;
+    }
 		default:
 		{
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -157,6 +170,16 @@ mb_document_list_row_class_init(MbDocumentListRowClass *klass)
 		"Untitled",               /* Default value           */ 
 		G_PARAM_READWRITE         /* Flags                   */
 	);
+
+  properties[PROP_ID] = g_param_spec_int64(
+    "id",
+    "id",
+    "id",
+    G_MININT64,
+    G_MAXINT64,
+    0,
+    G_PARAM_READWRITE
+  );
 
 	g_object_class_install_properties(
 		object_class,
