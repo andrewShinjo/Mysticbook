@@ -14,5 +14,6 @@ typedef struct
 int           block_delete_by_id(sqlite3_int64 id);
 Block*        block_find_by_id(sqlite3_int64 id);
 GArray*       block_get_all();
+GArray*       block_get_all_ids();
 sqlite3_int64 block_new();
 int           block_update_content(sqlite3_int64 id, gchar *content);

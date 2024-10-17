@@ -2,7 +2,6 @@
 #include "./database.h"
 #include "./block.h"
 
-
 static int
 find_all_callback (
 	void *data, 
@@ -11,7 +10,7 @@ find_all_callback (
 	char **column_name
 )
 {
-	GArray *blocks = (GArray *) data;
+	GArray *blocks = (GArray*) data;
 	for(gint i = 0; i < column_count; i++)
 	{
 		int compare = g_strcmp0 (column_name[i], "id");
@@ -25,6 +24,28 @@ find_all_callback (
 		g_array_append_val(blocks, b);
 	}
 	return 0;
+}
+
+static int
+find_all_ids_callback(
+  void *data,
+  int column_count,
+  char **column_text,
+  char **column_name
+)
+{
+  GArray *ids = (GArray*) data;
+  for(gint i=0; i < column_count; i++)
+  {
+    int compare = g_strcmp0(column_name[i], "id");
+    if(compare != 0)
+    {
+      continue;
+    }
+    gint64 id = g_ascii_strtoull(column_text[i], NULL, 10);
+    g_array_append_val(ids, id);
+  }
+  return 0;
 }
 
 sqlite3_int64 block_new()
@@ -45,7 +66,7 @@ GArray* block_get_all()
 {
   sqlite3 *db = db_get();
 	const char *sql = "SELECT * FROM blocks;";
-	GArray *blocks = g_array_new(FALSE, FALSE, sizeof (Block));
+	GArray *blocks = g_array_new(FALSE, FALSE, sizeof(Block));
 	int return_code = sqlite3_exec(
 		db, 
 		sql, 
@@ -54,6 +75,20 @@ GArray* block_get_all()
 		NULL
 	);
 	return blocks;
+}
+
+GArray* block_get_all_ids()
+{
+  sqlite3 *db = db_get();
+  const char *sql = "SELECT id FROM blocks;";
+  GArray *ids = g_array_new(FALSE, FALSE, sizeof(sqlite3_int64));
+  int rc = sqlite3_exec(
+    db,
+    sql,
+    find_all_ids_callback,
+    ids,
+    NULL
+  );
 }
 
 int block_delete_by_id(sqlite3_int64 id)

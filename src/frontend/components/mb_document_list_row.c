@@ -19,8 +19,8 @@ static guint signals[LAST_SIGNAL];
 
 struct _MbDocumentListRow
 {
-  // Widgets
 	GtkWidget parent;
+  /* Widgets */
 	GtkWidget *id_label;
 	GtkWidget *creation_time_label;
 	GtkWidget *modification_time_label;
@@ -28,13 +28,14 @@ struct _MbDocumentListRow
 	GtkWidget *open_button;
 	GtkWidget *delete_button;
 
-  // Properties
-	gchar *content;
+  /* Properties */
+	gchar  *content;
   guint64 id;
 };
 
 G_DEFINE_TYPE(MbDocumentListRow, mb_document_list_row, GTK_TYPE_WIDGET)
 
+/* Properties */
 static gboolean open_signal_source_func(gpointer user_data)
 {
   MbDocumentListRow *_self = MB_DOCUMENT_LIST_ROW(user_data);
@@ -51,21 +52,18 @@ mb_document_list_row_set_property(
 )
 {
 	MbDocumentListRow *self = MB_DOCUMENT_LIST_ROW(object);
-
 	switch(property_id)
 	{
 		case PROP_CONTENT:
 		{
 			g_free(self->content);
 			self->content = g_value_dup_string(value);
-			gtk_label_set_text(
-        GTK_LABEL(self->content_label), 
-        self->content
-      );
+			gtk_label_set_text(GTK_LABEL(self->content_label), self->content);
 			break;
 		}
     case PROP_ID:
     {
+      self->id = g_value_get_int64(value);
       break;
     }
 		default:
@@ -108,14 +106,14 @@ mb_document_list_row_get_property(
 	}	
 }
 
+/* Callbacks */
 static void
 delete_button_clicked(GtkButton *self, gpointer user_data)
 {
 	g_print("Delete button clicked.\n");
 }
 
-static void
-open_button_clicked(GtkButton *button, gpointer user_data)
+static void open_button_clicked(GtkButton *button, gpointer user_data)
 {
   MbDocumentListRow *_self = MB_DOCUMENT_LIST_ROW(user_data);
   open_signal_source_func(_self);
@@ -170,7 +168,6 @@ mb_document_list_row_class_init(MbDocumentListRowClass *klass)
 		"Untitled",               /* Default value           */ 
 		G_PARAM_READWRITE         /* Flags                   */
 	);
-
   properties[PROP_ID] = g_param_spec_int64(
     "id",
     "id",
@@ -180,7 +177,6 @@ mb_document_list_row_class_init(MbDocumentListRowClass *klass)
     0,
     G_PARAM_READWRITE
   );
-
 	g_object_class_install_properties(
 		object_class,
 		N_PROPERTIES,
@@ -199,7 +195,6 @@ mb_document_list_row_class_init(MbDocumentListRowClass *klass)
     G_TYPE_NONE,
     0
   );
-
   /* Layout Manager */
 	gtk_widget_class_set_layout_manager_type(
 		GTK_WIDGET_CLASS(klass), 
@@ -221,12 +216,14 @@ static void mb_document_list_row_finalize(GObject *object)
 	G_OBJECT_CLASS(mb_document_list_row_parent_class)->finalize(object);
 }
 
-GtkWidget* mb_document_list_row_new(gchar *content)
+GtkWidget* mb_document_list_row_new(gchar *content, gint64 *id)
 {
 	return g_object_new(
 		MB_TYPE_DOCUMENT_LIST_ROW,
 		"content",
 		content,
+    "id",
+    id,
 		NULL
 	);
 }

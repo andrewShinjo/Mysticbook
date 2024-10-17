@@ -10,23 +10,25 @@ static void finalize(GObject *object);
 struct _MbDocumentsPage
 {
   GtkWidget parent;
+  /* Widgets */
   GtkWidget *vertical_box;
   GtkWidget *document_label;
   GtkWidget *document_list;
   GtkWidget *new_document_button;
+  /* Properties */
+  /* Other fields */
+  gint64 id_to_open;
 };
 
 G_DEFINE_TYPE(MbDocumentsPage, mb_documents_page, GTK_TYPE_WIDGET)
 
 /* Property */
-
 enum property_types
 {
   N_PROPERTIES
 };
 
 /* Signal */
-
 enum signal_types
 {
   OPEN_DOC,
@@ -51,8 +53,8 @@ void populate_rows(MbDocumentsPage *_self)
 
   for(guint i=0; i < blocks->len; i++)
   {
-    Block block = g_array_index(blocks, Block, i);
-    GtkWidget *new_row = mb_document_list_row_new(block.content);
+    Block b = g_array_index(blocks, Block, i);
+    GtkWidget *new_row = mb_document_list_row_new(b.content, &(b.id));
     gtk_box_append(_document_list, new_row);
 
     g_signal_connect(
