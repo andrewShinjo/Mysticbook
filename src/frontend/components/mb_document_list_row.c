@@ -64,7 +64,6 @@ mb_document_list_row_set_property(
     case PROP_ID:
     {
       self->id = g_value_get_int64(value);
-      g_print("mb_doc_list_row_set_prop: id=%ld\n", self->id);
       break;
     }
 		default:
@@ -220,7 +219,6 @@ static void mb_document_list_row_finalize(GObject *object)
 
 GtkWidget* mb_document_list_row_new(gchar *content, gint64 id)
 {
-  g_print("mb_doc_list_row_new: id=%ld\n", id);
 	return g_object_new(
 		MB_TYPE_DOCUMENT_LIST_ROW,
 		"content", content,

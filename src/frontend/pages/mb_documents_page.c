@@ -73,9 +73,7 @@ void populate_rows(MbDocumentsPage *_self)
 static void open_row_cb(MbDocumentListRow *_row, gpointer user_data)
 {
   MbDocumentsPage *_self = MB_DOCUMENTS_PAGE(user_data);
-  gint64 id;
-  g_object_get(G_OBJECT(_row), "id", &id, NULL);
-  g_print("Open id: %ld\n", id);
+  g_object_get(G_OBJECT(_row), "id", &(_self->id_to_open), NULL);
   open_doc_signal_source_func(_self);
 }
 
@@ -161,6 +159,11 @@ static void dispose(GObject *object)
 static void finalize(GObject *object)
 {
 	G_OBJECT_CLASS(mb_documents_page_parent_class)->finalize(object);
+}
+
+gint64 mb_documents_page_get_id_to_open(MbDocumentsPage *_self)
+{
+  return _self->id_to_open;
 }
 
 GtkWidget* mb_documents_page_new()

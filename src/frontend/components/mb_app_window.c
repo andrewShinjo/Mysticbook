@@ -14,7 +14,8 @@ G_DEFINE_TYPE(MbAppWindow, mb_app_window, GTK_TYPE_APPLICATION_WINDOW)
 
 static void open_doc_cb(MbDocumentsPage *doc_page, gpointer user_data)
 {
-  g_print("mb_app_window: open_doc_cb\n");
+  gint64 id_to_open = mb_documents_page_get_id_to_open(doc_page);
+  g_print("mb_app_window: id_to_open=%ld\n", id_to_open);
 }
 
 static void mb_app_window_init(MbAppWindow *self)

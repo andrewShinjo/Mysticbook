@@ -13,6 +13,7 @@ G_DECLARE_FINAL_TYPE(
   GtkWidget
 )
 
+gint64 mb_documents_page_get_id_to_open(MbDocumentsPage *_self);
 GtkWidget* mb_documents_page_new();
 
 G_END_DECLS
