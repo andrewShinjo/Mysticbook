@@ -48,6 +48,12 @@ find_all_ids_callback(
   return 0;
 }
 
+Block* block_find_by_id(sqlite3_int64 id)
+{
+  g_print("block_find_by_id\n");
+  sqlite3 *db = db_get();
+}
+
 sqlite3_int64 block_new()
 {
   sqlite3 *db = db_get();
