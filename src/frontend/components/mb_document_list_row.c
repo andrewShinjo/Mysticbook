@@ -64,6 +64,7 @@ mb_document_list_row_set_property(
     case PROP_ID:
     {
       self->id = g_value_get_int64(value);
+      g_print("mb_doc_list_row_set_prop: id=%ld\n", self->id);
       break;
     }
 		default:
@@ -83,19 +84,20 @@ mb_document_list_row_get_property(
 	GParamSpec *pspec
 )
 {
-	MbDocumentListRow *self = MB_DOCUMENT_LIST_ROW(object);
+	MbDocumentListRow *_self = MB_DOCUMENT_LIST_ROW(object);
 
-	switch (property_id)
+	switch(property_id)
 	{
 		case PROP_CONTENT:
 		{
-      GtkLabel *content_label = GTK_LABEL(self->content_label);
-			g_value_set_string(value, self->content);
-			gtk_label_set_text(content_label, self->content);
+      GtkLabel *content_label = GTK_LABEL(_self->content_label);
+			g_value_set_string(value, _self->content);
+			gtk_label_set_text(content_label, _self->content);
 			break;
 		}
     case PROP_ID:
     {
+      g_value_set_int64(value, _self->id);
       break;
     }
 		default:
@@ -216,14 +218,13 @@ static void mb_document_list_row_finalize(GObject *object)
 	G_OBJECT_CLASS(mb_document_list_row_parent_class)->finalize(object);
 }
 
-GtkWidget* mb_document_list_row_new(gchar *content, gint64 *id)
+GtkWidget* mb_document_list_row_new(gchar *content, gint64 id)
 {
+  g_print("mb_doc_list_row_new: id=%ld\n", id);
 	return g_object_new(
 		MB_TYPE_DOCUMENT_LIST_ROW,
-		"content",
-		content,
-    "id",
-    id,
+		"content", content,
+    "id", id,
 		NULL
 	);
 }

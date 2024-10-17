@@ -44,7 +44,9 @@ static gboolean open_doc_signal_source_func(gpointer user_data)
   return G_SOURCE_CONTINUE;
 }
 
-static void open_row_cb(MbDocumentListRow *row, gpointer user_data);
+/* Callbacks */
+
+static void open_row_cb(MbDocumentListRow *_row, gpointer user_data);
 
 void populate_rows(MbDocumentsPage *_self)
 {
@@ -54,7 +56,7 @@ void populate_rows(MbDocumentsPage *_self)
   for(guint i=0; i < blocks->len; i++)
   {
     Block b = g_array_index(blocks, Block, i);
-    GtkWidget *new_row = mb_document_list_row_new(b.content, &(b.id));
+    GtkWidget *new_row = mb_document_list_row_new(b.content, b.id);
     gtk_box_append(_document_list, new_row);
 
     g_signal_connect(
@@ -68,9 +70,12 @@ void populate_rows(MbDocumentsPage *_self)
 
 /* Callback */
 
-static void open_row_cb(MbDocumentListRow *row, gpointer user_data)
+static void open_row_cb(MbDocumentListRow *_row, gpointer user_data)
 {
   MbDocumentsPage *_self = MB_DOCUMENTS_PAGE(user_data);
+  gint64 id;
+  g_object_get(G_OBJECT(_row), "id", &id, NULL);
+  g_print("Open id: %ld\n", id);
   open_doc_signal_source_func(_self);
 }
 
