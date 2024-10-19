@@ -2,27 +2,29 @@
 #include "./database.h"
 #include "./block.h"
 
-static int
-find_all_callback (
+static int find_all_callback(
 	void *data, 
 	int  column_count,
 	char **column_text,
 	char **column_name
 )
 {
+  g_print("find_all_callback\n");
 	GArray *blocks = (GArray*) data;
+  Block b;
 	for(gint i = 0; i < column_count; i++)
 	{
-		int compare = g_strcmp0 (column_name[i], "id");
-		if(compare != 0)
-		{
-			continue;
-		}
-		Block b;
-		b.id = g_ascii_strtoull(column_text[i], NULL, 10);
-		b.content = g_strdup(column_text[i+3]);
-		g_array_append_val(blocks, b);
+    const char *cn = column_name[i];
+    if(g_strcmp0(cn, "id") == 0)
+    {
+		  b.id = g_ascii_strtoull(column_text[i], NULL, 10);
+    }
+    else if(g_strcmp0(cn, "content") == 0)
+    {
+		  b.content = g_strdup(column_text[i]);
+    }
 	}
+	g_array_append_val(blocks, b);
 	return 0;
 }
 
@@ -52,14 +54,29 @@ Block* block_find_by_id(sqlite3_int64 id)
 {
   g_print("block_find_by_id\n");
   sqlite3 *db = db_get();
+  sqlite3_stmt *stmt;
+  const char* sql = "SELECT * FROM blocks WHERE id = ?;";
+  sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+  sqlite3_bind_int64(stmt, 1, id);
+  int rc;
+
+  if((rc = sqlite3_step(stmt)) == SQLITE_ROW)
+  {
+    int column_count = sqlite3_column_count(stmt);
+    for(int i=0; i < column_count; i++)
+    {
+      const char *column_name = sqlite3_column_name(stmt, i);
+      const unsigned char *column_value = sqlite3_column_text(stmt, i);
+      printf("%s: %s\n", column_name, column_value);
+    }
+  }
 }
 
 sqlite3_int64 block_new()
 {
+  g_print("block_new\n");
   sqlite3 *db = db_get();
-	const char *sql = "INSERT INTO blocks("
-    "creation_time, is_document, modification_time, content)" 
-	  " VALUES(0, 0, 'Untitled', 1);";
+	const char *sql = "INSERT INTO blocks(content) VALUES('Untitled');";
 	int rc = sqlite3_exec(db, sql, 0, 0, 0);
 	if(rc != 0)
 	{

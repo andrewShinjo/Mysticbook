@@ -56,6 +56,7 @@ void populate_rows(MbDocumentsPage *_self)
   for(guint i=0; i < blocks->len; i++)
   {
     Block b = g_array_index(blocks, Block, i);
+    g_print("b.content = %s, b.id = %lld\n", b.content, b.id);
     GtkWidget *new_row = mb_document_list_row_new(b.content, b.id);
     gtk_box_append(_document_list, new_row);
 
@@ -80,7 +81,8 @@ static void open_row_cb(MbDocumentListRow *_row, gpointer user_data)
 static void 
 new_document_button_clicked(GtkButton *self, gpointer user_data)
 {
-    
+  g_print("new_doc_button_clicked\n"); 
+  gint64 new_id = block_new();
 }
 
 static void mb_documents_page_init(MbDocumentsPage *self)
