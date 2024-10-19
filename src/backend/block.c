@@ -67,11 +67,14 @@ void block_find_by_id(sqlite3_int64 id, Block *b)
     {
       const char *cn = sqlite3_column_name(stmt, i);
       const unsigned char *ct = sqlite3_column_text(stmt, i);
-      if(g_strcmp0(cn, "id")) 
+
+      //g_print("column_name=%s, column_text=%s\n", cn, ct);
+
+      if(g_strcmp0(cn, "id") == 0) 
       {
 		    b->id = g_ascii_strtoull(ct, NULL, 10);
       }
-      else if(g_strcmp0(cn, "content")) 
+      else if(g_strcmp0(cn, "content") == 0) 
       {
 		    b->content = g_strdup(ct);
       }

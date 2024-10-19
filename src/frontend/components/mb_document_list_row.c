@@ -20,6 +20,7 @@ static guint signals[LAST_SIGNAL];
 struct _MbDocumentListRow
 {
 	GtkWidget parent;
+
   /* Widgets */
 	GtkWidget *id_label;
 	GtkWidget *creation_time_label;
@@ -116,6 +117,7 @@ delete_button_clicked(GtkButton *self, gpointer user_data)
 
 static void open_button_clicked(GtkButton *button, gpointer user_data)
 {
+  g_print("mb_doc_list_row: open_button_clicked\n");
   MbDocumentListRow *_self = MB_DOCUMENT_LIST_ROW(user_data);
   open_signal_source_func(_self);
 }
