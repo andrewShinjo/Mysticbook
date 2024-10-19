@@ -50,7 +50,7 @@ find_all_ids_callback(
   return 0;
 }
 
-Block* block_find_by_id(sqlite3_int64 id)
+void block_find_by_id(sqlite3_int64 id, Block *b)
 {
   g_print("block_find_by_id\n");
   sqlite3 *db = db_get();
@@ -65,16 +65,22 @@ Block* block_find_by_id(sqlite3_int64 id)
     int column_count = sqlite3_column_count(stmt);
     for(int i=0; i < column_count; i++)
     {
-      const char *column_name = sqlite3_column_name(stmt, i);
-      const unsigned char *column_value = sqlite3_column_text(stmt, i);
-      printf("%s: %s\n", column_name, column_value);
+      const char *cn = sqlite3_column_name(stmt, i);
+      const unsigned char *ct = sqlite3_column_text(stmt, i);
+      if(g_strcmp0(cn, "id")) 
+      {
+		    b->id = g_ascii_strtoull(ct, NULL, 10);
+      }
+      else if(g_strcmp0(cn, "content")) 
+      {
+		    b->content = g_strdup(ct);
+      }
     }
   }
 }
 
 sqlite3_int64 block_new()
 {
-  g_print("block_new\n");
   sqlite3 *db = db_get();
 	const char *sql = "INSERT INTO blocks(content) VALUES('Untitled');";
 	int rc = sqlite3_exec(db, sql, 0, 0, 0);

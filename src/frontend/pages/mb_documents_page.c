@@ -56,7 +56,6 @@ void populate_rows(MbDocumentsPage *_self)
   for(guint i=0; i < blocks->len; i++)
   {
     Block b = g_array_index(blocks, Block, i);
-    g_print("b.content = %s, b.id = %lld\n", b.content, b.id);
     GtkWidget *new_row = mb_document_list_row_new(b.content, b.id);
     gtk_box_append(_document_list, new_row);
 
