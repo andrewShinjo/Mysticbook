@@ -4,7 +4,7 @@
 
 enum property_types
 {
-  BLOCK_ID = 1,
+  PROP_ID = 1,
   N_PROPERTIES
 };
 
@@ -28,7 +28,7 @@ struct _MbBlockViewPage
   GtkWidget *layout;
   GtkWidget *root_block;
 
-  gint64 block_id;
+  gint64 id;
 
   // Drag
   GtkGesture *gesture_drag;
@@ -57,8 +57,7 @@ drag_begin(
   _self->y0 = start_y;
 }
 
-static void
-drag_update(
+static void drag_update(
   GtkGestureDrag *gesture_drag,
   gdouble offset_x,
   gdouble offset_y,
@@ -73,8 +72,7 @@ drag_update(
   gtk_widget_queue_draw(self);
 }
 
-static void
-drag_end(
+static void drag_end(
   GtkGestureDrag *gesture_drag,
   gdouble offset_x,
   gdouble offset_y,
@@ -91,14 +89,16 @@ drag_end(
   gtk_widget_queue_draw(self);
 }
 
-gboolean 
-prepend_block(MbBlockViewPage *self, GtkWidget *block)
+gboolean prepend_block(MbBlockViewPage *self, GtkWidget *block)
 {
   return TRUE;
 }
 
-gboolean 
-insert_block_after(MbBlockViewPage *self, GtkWidget *sibling, GtkWidget *insert)
+gboolean insert_block_after(
+  MbBlockViewPage *self, 
+  GtkWidget *sibling, 
+  GtkWidget *insert
+)
 {
   return TRUE;
 }
@@ -112,11 +112,12 @@ static void dispose(GObject *object)
   G_OBJECT_CLASS(mb_block_view_page_parent_class)->dispose(object);
 }
 
-static void 
-snapshot(GtkWidget *widget, GtkSnapshot *snapshot)
+static void snapshot(GtkWidget *widget, GtkSnapshot *snapshot)
 {
   MbBlockViewPage *_self = MB_BLOCK_VIEW_PAGE(widget);
-  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(mb_block_view_page_parent_class);
+  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(
+    mb_block_view_page_parent_class
+  );
 
   widget_class->snapshot(widget, snapshot);
 
@@ -134,8 +135,7 @@ snapshot(GtkWidget *widget, GtkSnapshot *snapshot)
   }
 }
 
-static void 
-finalize(GObject *object)
+static void finalize(GObject *object)
 {
   G_OBJECT_CLASS(mb_block_view_page_parent_class)->finalize(object);
 }
@@ -147,12 +147,14 @@ static void set_property(
   GParamSpec *pspec
 )
 {
+  g_print("block_view_page, set_property\n");
   MbBlockViewPage *_self = MB_BLOCK_VIEW_PAGE(object);
   switch(property_id)
   {
-    case BLOCK_ID:
+    case PROP_ID:
     {
-      _self->block_id = g_value_get_int64(value); 
+      _self->id = g_value_get_int64(value); 
+      break;
     }
     default:
     {
@@ -162,20 +164,20 @@ static void set_property(
   }
 }
 
-static void
-get_property(
+static void get_property(
   GObject *object,
   guint property_id,
   GValue *value,
   GParamSpec *pspec
 )
 {
+  g_print("mb_block_view_page, get_property\n");
   MbBlockViewPage *_self = MB_BLOCK_VIEW_PAGE(object);
   switch(property_id)
   {
-    case BLOCK_ID:
+    case PROP_ID:
     {
-      g_value_set_int64(value, _self->block_id);
+      g_value_set_int64(value, _self->id);
       break;
     }
     default:
@@ -229,17 +231,24 @@ static void mb_block_view_page_class_init(MbBlockViewPageClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS(klass);
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
-  GParamFlags default_flags = G_PARAM_READWRITE | 
-    G_PARAM_STATIC_STRINGS | G_PARAM_EXPLICIT_NOTIFY;
+  GParamFlags default_flags = 
+    G_PARAM_READWRITE | 
+    G_PARAM_EXPLICIT_NOTIFY;
 
-  properties[BLOCK_ID] = g_param_spec_int64(
-    "block_id", 
-    "block_id", 
-    "block_id",
-    0, 
+  object_class->dispose      = dispose;
+  object_class->finalize     = finalize;
+  object_class->get_property = get_property;
+  object_class->set_property = set_property;
+  widget_class->snapshot     = snapshot;
+
+  properties[PROP_ID] = g_param_spec_int64(
+    "id", 
+    "id nickname", 
+    "id blurb",
+    G_MININT64,
     G_MAXINT64, 
     0, 
-    default_flags
+    G_PARAM_READWRITE
   );
 
   g_object_class_install_properties(
@@ -248,12 +257,7 @@ static void mb_block_view_page_class_init(MbBlockViewPageClass *klass)
     properties
   );
   
-  object_class->dispose = dispose;
-  object_class->finalize = finalize;
-  object_class->get_property = get_property;
-  object_class->set_property = set_property;
-  widget_class->snapshot = snapshot;
-  gtk_widget_class_set_layout_manager_type(
+    gtk_widget_class_set_layout_manager_type(
     GTK_WIDGET_CLASS(klass), 
     GTK_TYPE_BOX_LAYOUT
   );
@@ -261,7 +265,12 @@ static void mb_block_view_page_class_init(MbBlockViewPageClass *klass)
 
 // Public
 
-GtkWidget *mb_block_view_page_new()
+GtkWidget *mb_block_view_page_new(gint64 id)
 {
-	return g_object_new(MB_TYPE_BLOCK_VIEW_PAGE, NULL);
+  g_print("mb_block_view_page_new, id=%ld\n", id);
+	return g_object_new(
+    MB_TYPE_BLOCK_VIEW_PAGE,
+    "id", id,
+    NULL
+  );
 }
