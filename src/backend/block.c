@@ -160,5 +160,29 @@ int block_delete_by_id(sqlite3_int64 id)
 
 int block_update_content(sqlite3_int64 id, gchar *content)
 {
+  sqlite3 *db = db_get();
+  sqlite3_stmt *stmt;
+  const char *sql = "UPDATE blocks SET content = ? WHERE id = ?;";
+  int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+
+  if(rc != SQLITE_OK)
+  {
+    fprintf(
+      stderr, 
+      "Failed to prepare statement: %s\n", sqlite3_errmsg(db)
+    );
+    return rc;
+  }
+
+  sqlite3_bind_text(stmt, 1, content, -1, SQLITE_STATIC);
+  sqlite3_bind_int64(stmt, 2, id);
+  rc = sqlite3_step(stmt);
+
+  if(rc != SQLITE_DONE)
+  {
+    fprintf(stderr, "Failed to update row: %s\n", sqlite3_errmsg(db));
+  }
+
+  sqlite3_finalize(stmt);
   return 0;
 }

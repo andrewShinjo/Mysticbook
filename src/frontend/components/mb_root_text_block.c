@@ -1,21 +1,42 @@
+#include "../pages/mb_block_view_page.h"
 #include "./mb_root_text_block.h"
 #include "./mb_text_block.h"
 
 struct _MbRootTextBlock
 {
   GtkWidget parent;
+
+  /* Widget */
   GtkWidget *layout;
   GtkWidget *hbox;
   GtkWidget *text_view;
   GtkWidget *children_blocks;
 
-  // Event listener.
+  /* Listener */
   GtkEventController *key_controller;
 };
 
 G_DEFINE_TYPE(MbRootTextBlock, mb_root_text_block, GTK_TYPE_WIDGET)
 
-// Private
+/* Callback */
+
+static void
+changed(
+  GtkTextBuffer *text_buffer,
+  gpointer user_data
+)
+{
+  g_print("text_buffer changed\n");
+  MbRootTextBlock *_self = MB_ROOT_TEXT_BLOCK(user_data);
+  GtkWidget *self = GTK_WIDGET(user_data);
+  GtkWidget *ancestor = gtk_widget_get_ancestor(
+    self,
+    MB_TYPE_BLOCK_VIEW_PAGE
+  );
+
+  MbBlockViewPage *block_view_page = MB_BLOCK_VIEW_PAGE(ancestor);
+  // get id from block_view_page
+}
 
 static gboolean
 key_pressed(
@@ -59,11 +80,23 @@ mb_root_text_block_init(MbRootTextBlock *self)
   self->children_blocks = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   self->key_controller = gtk_event_controller_key_new();
 
+  /* Callback */
   gtk_widget_add_controller(self->text_view, self->key_controller);
   g_signal_connect(
     self->key_controller,
     "key-pressed",
     G_CALLBACK(key_pressed),
+    self
+  );
+
+  GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(
+    GTK_TEXT_VIEW(self->text_view)
+  );
+
+  g_signal_connect(
+    text_buffer,
+    "changed",
+    G_CALLBACK(changed),
     self
   );
 
@@ -82,10 +115,13 @@ mb_root_text_block_class_init(MbRootTextBlockClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS(klass);
   object_class->dispose = mb_root_text_block_dispose;
   object_class->finalize = mb_root_text_block_finalize;
-  gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(klass), GTK_TYPE_BOX_LAYOUT);
+  gtk_widget_class_set_layout_manager_type(
+    GTK_WIDGET_CLASS(klass), 
+    GTK_TYPE_BOX_LAYOUT
+  );
 }
 
-// Public
+/* Public */
 
 void
 mb_root_text_block_append_content(
