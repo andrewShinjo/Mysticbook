@@ -52,13 +52,8 @@ on_id_changed(
 )
 {
   MbBlockViewPage *_self = MB_BLOCK_VIEW_PAGE(object);
-  g_print("Property '%s' changed. id is %ld\n", pspec->name, _self->id);
-
   Block b;
   block_find_by_id(_self->id, &b);
-  g_print("b.id=%lld, b.content=%s\n", b.id, b.content);
-
-  // RootTextBlock set text.
   mb_root_text_block_set_content(
     MB_ROOT_TEXT_BLOCK(_self->root_block),
     b.content
