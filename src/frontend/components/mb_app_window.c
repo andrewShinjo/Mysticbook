@@ -22,6 +22,7 @@ static void open_doc_cb(MbDocumentsPage *doc_page, gpointer user_data)
   gtk_widget_unparent(_self->active_page);
   _self->active_page = mb_block_view_page_new(id_to_open);
   gtk_window_set_child(GTK_WINDOW(self), _self->active_page);
+  gtk_widget_allocate(_self->active_page, 0, 0, 0, NULL);
 }
 
 static void mb_app_window_init(MbAppWindow *self)
