@@ -6,19 +6,8 @@ G_BEGIN_DECLS
 G_DECLARE_FINAL_TYPE(MbTextBlock, mb_text_block, MB, TEXT_BLOCK, GtkWidget)
 G_END_DECLS
 
-/* Goals:
- * - [ ] Append new sibling.
- *
- */
-
-// * Public
-
-// ** Constructor
-
 GtkWidget *
 mb_text_block_new();
-
-// ** Additional functions
 
 void 
 mb_text_block_grab_focus(MbTextBlock *self);

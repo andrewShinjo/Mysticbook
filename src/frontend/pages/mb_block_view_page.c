@@ -1,6 +1,7 @@
 #include "./mb_block_view_page.h"
 #include "../components/mb_text_block.h"
 #include "../components/mb_root_text_block.h"
+#include "../../backend/block.h"
 
 enum property_types
 {
@@ -41,7 +42,28 @@ struct _MbBlockViewPage
 
 G_DEFINE_TYPE(MbBlockViewPage, mb_block_view_page, GTK_TYPE_WIDGET)
 
-// Private
+/* Callback */
+
+static void 
+on_id_changed(
+  GObject *object, 
+  GParamSpec *pspec, 
+  gpointer user_data
+)
+{
+  MbBlockViewPage *_self = MB_BLOCK_VIEW_PAGE(object);
+  g_print("Property '%s' changed. id is %ld\n", pspec->name, _self->id);
+
+  Block b;
+  block_find_by_id(_self->id, &b);
+  g_print("b.id=%lld, b.content=%s\n", b.id, b.content);
+
+  // RootTextBlock set text.
+  mb_root_text_block_set_content(
+    MB_ROOT_TEXT_BLOCK(_self->root_block),
+    b.content
+  );
+}
 
 static void
 drag_begin(
@@ -188,25 +210,48 @@ static void get_property(
   }
 }
 
-static void 
-mb_block_view_page_init(MbBlockViewPage *self)
+static void mb_block_view_page_init(MbBlockViewPage *self)
 {
+  g_print("mb_block_view_page_init\n");
+
+  /* Initialize widgets */
   self->scrolled_window = gtk_scrolled_window_new();
   self->layout = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);  
   self->root_block = mb_root_text_block_new();
+
+  /* Get block data */
+  Block b;
+  block_find_by_id(self->id, &b);
+
+  /* Configure widgets */
   gtk_widget_set_hexpand(self->scrolled_window, TRUE);
-  gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(self->scrolled_window), self->layout);
+  gtk_scrolled_window_set_child(
+    GTK_SCROLLED_WINDOW(self->scrolled_window), 
+    self->layout
+  );
   gtk_box_append(GTK_BOX(self->layout), self->root_block);
   gtk_widget_set_parent(self->scrolled_window, GTK_WIDGET(self));
 
   self->gesture_drag = gtk_gesture_drag_new();
-  gtk_widget_add_controller(GTK_WIDGET(self), GTK_EVENT_CONTROLLER(self->gesture_drag));
+  gtk_widget_add_controller(
+    GTK_WIDGET(self), 
+    GTK_EVENT_CONTROLLER(self->gesture_drag)
+  );
   
   self->x0 = 0;
   self->x1 = 0;
   self->y0 = 0;
   self->y1 = 0;
   self->dragging = FALSE;
+
+  /* Signal */
+
+  g_signal_connect(
+    GTK_WIDGET(self),
+    "notify::id",
+    G_CALLBACK(on_id_changed),
+    NULL
+  );
 
   g_signal_connect(
     self->gesture_drag, 

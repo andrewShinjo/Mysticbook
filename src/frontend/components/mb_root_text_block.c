@@ -88,7 +88,10 @@ mb_root_text_block_class_init(MbRootTextBlockClass *klass)
 // Public
 
 void
-mb_root_text_block_append_content(MbRootTextBlock *_self, gchar *content)
+mb_root_text_block_append_content(
+  MbRootTextBlock *_self, 
+  gchar *content
+)
 {
   GtkTextView *text_view = GTK_TEXT_VIEW(_self->text_view);
   GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(text_view);
@@ -111,7 +114,8 @@ mb_root_text_block_insert_child_after(
   );
 }
 
-GtkWidget *mb_root_text_block_new()
+GtkWidget*
+mb_root_text_block_new()
 {
   return g_object_new(MB_TYPE_ROOT_TEXT_BLOCK, NULL);
 }
@@ -122,9 +126,11 @@ mb_root_text_block_grab_focus(MbRootTextBlock *self)
   gtk_widget_grab_focus(self->text_view);
 }
 
-// Removes child from self's list of children blocks.
 void
-mb_root_text_block_remove_child(MbRootTextBlock *_self, MbTextBlock *_child)
+mb_root_text_block_remove_child(
+  MbRootTextBlock *_self, 
+  MbTextBlock *_child
+)
 {
   GtkBox *_children_blocks = GTK_BOX(_self->children_blocks);
   GtkWidget *child = GTK_WIDGET(_child);
@@ -139,4 +145,15 @@ mb_root_text_block_remove_child(MbRootTextBlock *_self, MbTextBlock *_child)
   }
 
   gtk_box_remove(_children_blocks, child);
+}
+
+void
+mb_root_text_block_set_content(
+  MbRootTextBlock *_self,
+  const gchar *content
+)
+{
+  GtkTextView *text_view = GTK_TEXT_VIEW(_self->text_view);
+  GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(text_view);
+  gtk_text_buffer_set_text(text_buffer, content, -1);
 }
