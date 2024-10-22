@@ -1,6 +1,7 @@
 #include "../pages/mb_block_view_page.h"
 #include "./mb_root_text_block.h"
 #include "./mb_text_block.h"
+#include "../../backend/block.h"
 
 struct _MbRootTextBlock
 {
@@ -35,7 +36,21 @@ changed(
   );
 
   MbBlockViewPage *block_view_page = MB_BLOCK_VIEW_PAGE(ancestor);
-  // get id from block_view_page
+  gint64 id;
+  g_object_get(block_view_page, "id", &id, NULL);
+  
+  GtkTextIter start, end;
+  gtk_text_buffer_get_start_iter(text_buffer, &start);
+  gtk_text_buffer_get_end_iter(text_buffer, &end);
+  gchar *content = gtk_text_buffer_get_text(
+    text_buffer,
+    &start,
+    &end,
+    FALSE
+  );
+
+  block_update_content(id, content);
+  g_free(content);
 }
 
 static gboolean

@@ -195,6 +195,7 @@ static void get_property(
     case PROP_ID:
     {
       g_value_set_int64(value, _self->id);
+      g_print("block_view_page, get_property=%ld\n", _self->id);
       break;
     }
     default:
