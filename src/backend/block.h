@@ -26,6 +26,9 @@ block_get_all_ids();
 int
 block_get_children_count(gint64 id);
 
+void
+block_increment_all_position();
+
 sqlite3_int64 
 block_new();
 

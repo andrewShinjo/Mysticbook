@@ -78,6 +78,20 @@ void block_find_by_id(sqlite3_int64 id, Block *b)
   }
 }
 
+void
+block_increment_all_position()
+{
+  sqlite3 *db = db_get();
+  sqlite3_stmt *stmt;
+  const char *sql = "UPDATE blocks SET position = position + 1;";
+  char *error_message = 0;
+  if(sqlite3_exec(db, sql, NULL, 0, &error_message) != SQLITE_OK)
+  {
+    fprintf(stderr, "Failed to execute: %s\n", error_message);
+    sqlite3_free(error_message);
+  }
+}
+
 sqlite3_int64
 block_new_all_fields(
   gint64 *creation_time,
