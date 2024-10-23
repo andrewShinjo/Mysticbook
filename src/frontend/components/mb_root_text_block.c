@@ -27,7 +27,6 @@ changed(
   gpointer user_data
 )
 {
-  g_print("text_buffer changed\n");
   MbRootTextBlock *_self = MB_ROOT_TEXT_BLOCK(user_data);
   GtkWidget *self = GTK_WIDGET(user_data);
   GtkWidget *ancestor = gtk_widget_get_ancestor(
@@ -68,12 +67,33 @@ key_pressed(
     GtkWidget *child = mb_text_block_new();
     gtk_box_prepend(GTK_BOX(root->children_blocks), child);
     mb_text_block_grab_focus(MB_TEXT_BLOCK(child));
+    // Add the new block to SQL database.
+    gint64 new_id = block_new();
+
+    gint64 is_document = 0;
+    gint64 position = 1;
+    GtkWidget *ancestor = gtk_widget_get_ancestor(
+      GTK_WIDGET(root),
+      MB_TYPE_BLOCK_VIEW_PAGE
+    );
+    MbBlockViewPage *block_view_page = MB_BLOCK_VIEW_PAGE(ancestor);
+    gint64 parent_id;
+    g_object_get(block_view_page, "id", &parent_id, NULL);
+    gchar *content = "";
+
+    block_new_all_fields(
+      NULL,
+      &is_document,
+      NULL,
+      &position,
+      &parent_id,
+      content
+    );
+
     return TRUE;
   }
   return FALSE;
 }
-
-// Widget lifecycle
 
 static void 
 mb_root_text_block_dispose(GObject *object) 

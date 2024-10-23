@@ -11,15 +11,22 @@ enum property_types
 
 static GParamSpec *properties[N_PROPERTIES];
 
-static void dispose(GObject *object);
-static void finalize(GObject *object);
-static void set_property(
+static void 
+dispose(GObject *object);
+
+static void 
+finalize(GObject *object);
+
+static void 
+set_property(
   GObject *object,
   guint property_id,
   const GValue *value,
   GParamSpec *pspec
 );
-static void snapshot(GtkWidget *widget, GtkSnapshot *snapshot);
+
+static void 
+snapshot(GtkWidget *widget, GtkSnapshot *snapshot);
 
 struct _MbBlockViewPage
 {

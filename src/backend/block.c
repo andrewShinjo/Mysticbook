@@ -9,7 +9,6 @@ static int find_all_callback(
 	char **column_name
 )
 {
-  g_print("find_all_callback\n");
 	GArray *blocks = (GArray*) data;
   Block b;
 	for(gint i = 0; i < column_count; i++)
@@ -67,9 +66,6 @@ void block_find_by_id(sqlite3_int64 id, Block *b)
     {
       const char *cn = sqlite3_column_name(stmt, i);
       const unsigned char *ct = sqlite3_column_text(stmt, i);
-
-      //g_print("column_name=%s, column_text=%s\n", cn, ct);
-
       if(g_strcmp0(cn, "id") == 0) 
       {
 		    b->id = g_ascii_strtoull(ct, NULL, 10);
@@ -81,6 +77,99 @@ void block_find_by_id(sqlite3_int64 id, Block *b)
     }
   }
 }
+
+sqlite3_int64
+block_new_all_fields(
+  gint64 *creation_time,
+  gint64 *is_document,
+  gint64 *modification_time,
+  gint64 *position,
+  gint64 *parent_id,
+  gchar  *content
+)
+{
+  sqlite3 *db = db_get();
+  sqlite3_stmt *stmt;
+  const char *sql = 
+    "INSERT INTO blocks("
+      "creation_time,"
+      "is_document,"
+      "modification_time,"
+      "position,"
+      "parent_id,"
+      "content"
+    ")"
+    "VALUES(?,?,?,?,?,?)";
+
+  int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+  if(rc != SQLITE_OK)
+  {
+    fprintf(
+      stderr,
+      "Failed to prepare statement: %s\n", sqlite3_errmsg(db)
+    );
+  }
+
+  if(creation_time != NULL) 
+  {
+    sqlite3_bind_int64(stmt, *creation_time, 1);
+  }
+  else
+  {
+    sqlite3_bind_null(stmt, 1);
+  }
+  if(is_document != NULL) 
+  {
+    sqlite3_bind_int64(stmt, 2, *is_document);
+  }
+  else
+  {
+    sqlite3_bind_null(stmt, 2);
+  }
+  if(modification_time != NULL) 
+  {
+    sqlite3_bind_int64(stmt, 3, *modification_time);
+  }
+  else
+  {
+    sqlite3_bind_null(stmt, 3);
+  }
+  if(position != NULL) 
+  {
+    sqlite3_bind_int64(stmt, 4, *position);
+  }
+  else
+  {
+    sqlite3_bind_null(stmt, 4);
+  }
+  if(parent_id != NULL) 
+  {
+    sqlite3_bind_int64(stmt, 5, *parent_id);
+  }
+  else
+  {
+    sqlite3_bind_null(stmt, 5);
+  }
+  if(content != NULL) 
+  {
+    sqlite3_bind_text(stmt, 6, content, -1, SQLITE_STATIC);
+  }
+  else
+  {
+    sqlite3_bind_text(stmt, 6, "TEST", 0, SQLITE_STATIC);
+  }
+
+  rc = sqlite3_step(stmt);
+  if(rc != SQLITE_DONE)
+  {
+    fprintf(
+      stderr,
+      "Failed to execute statement: %s\n", sqlite3_errmsg(db)
+    );
+  }
+  sqlite3_finalize(stmt);
+}
+
 
 sqlite3_int64 block_new()
 {

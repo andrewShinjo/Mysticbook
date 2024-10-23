@@ -11,9 +11,30 @@ typedef struct
 	int                 is_document;
 } Block;
 
-int           block_delete_by_id(sqlite3_int64 id);
-void          block_find_by_id(sqlite3_int64 id, Block *b);
-GArray*       block_get_all();
-GArray*       block_get_all_ids();
-sqlite3_int64 block_new();
-int           block_update_content(sqlite3_int64 id, gchar *content);
+int           
+block_delete_by_id(sqlite3_int64 id);
+
+void          
+block_find_by_id(sqlite3_int64 id, Block *b);
+
+GArray*       
+block_get_all();
+
+GArray*       
+block_get_all_ids();
+
+sqlite3_int64 
+block_new();
+
+sqlite3_int64
+block_new_all_fields(
+  gint64 *creation_time,
+  gint64 *is_document,
+  gint64 *modification_time,
+  gint64 *position,
+  gint64 *parent_id,
+  gchar *content
+);
+
+int           
+block_update_content(sqlite3_int64 id, gchar *content);
