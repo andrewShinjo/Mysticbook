@@ -67,11 +67,9 @@ key_pressed(
     GtkWidget *child = mb_text_block_new();
     gtk_box_prepend(GTK_BOX(root->children_blocks), child);
     mb_text_block_grab_focus(MB_TEXT_BLOCK(child));
-    // Add the new block to SQL database.
-    gint64 new_id = block_new();
 
+    // Add the new block to SQL database.
     gint64 is_document = 0;
-    gint64 position = 1;
     GtkWidget *ancestor = gtk_widget_get_ancestor(
       GTK_WIDGET(root),
       MB_TYPE_BLOCK_VIEW_PAGE
@@ -79,7 +77,15 @@ key_pressed(
     MbBlockViewPage *block_view_page = MB_BLOCK_VIEW_PAGE(ancestor);
     gint64 parent_id;
     g_object_get(block_view_page, "id", &parent_id, NULL);
+    gint64 position = block_get_children_count(parent_id);
     gchar *content = "";
+
+    if(position == -1)
+    {
+      fprintf(stderr, "root_text_block: children_count is -1");
+    }
+
+    position++;
 
     block_new_all_fields(
       NULL,
@@ -89,7 +95,6 @@ key_pressed(
       &parent_id,
       content
     );
-
     return TRUE;
   }
   return FALSE;

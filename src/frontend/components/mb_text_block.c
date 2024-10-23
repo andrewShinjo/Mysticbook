@@ -1,7 +1,7 @@
 #include "./mb_text_block.h"
 #include "./mb_root_text_block.h"
 
-enum
+enum property_types
 {
   ID = 1,
   N_PROPERTIES
@@ -26,15 +26,27 @@ G_DEFINE_TYPE(MbTextBlock, mb_text_block, GTK_TYPE_WIDGET)
 
 /* private interface */
 
-static void append_content(MbTextBlock *_self, gchar *content);
-static void append_sibling_after_self(
+static void 
+append_content(MbTextBlock *_self, gchar *content);
+
+static void 
+append_sibling_after_self(
   MbTextBlock *self,
   MbTextBlock *sibling
 );
-static void force_redraw_cursor(MbTextBlock *self);
-static gchar * get_content(MbTextBlock *_self);
-static GtkWidget * get_first_child(MbTextBlock *_self);
-static MbTextBlock * get_last_child(MbTextBlock *_self);
+
+static void 
+force_redraw_cursor(MbTextBlock *self);
+
+static gchar* 
+get_content(MbTextBlock *_self);
+
+static GtkWidget* 
+get_first_child(MbTextBlock *_self);
+
+static MbTextBlock* 
+get_last_child(MbTextBlock *_self);
+
 static GtkWidget * get_parent(MbTextBlock *_self);
 static void get_property(
   GObject *object, 

@@ -156,7 +156,7 @@ block_new_all_fields(
   }
   else
   {
-    sqlite3_bind_text(stmt, 6, "TEST", 0, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 6, "", 0, SQLITE_STATIC);
   }
 
   rc = sqlite3_step(stmt);
@@ -210,6 +210,33 @@ GArray* block_get_all_ids()
     ids,
     NULL
   );
+}
+
+int
+block_get_children_count(gint64 id)
+{
+  sqlite3 *db = db_get();
+  sqlite3_stmt *stmt;
+  const char *sql = "SELECT COUNT(*) FROM blocks WHERE parent_id = ?";
+  int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+  if(rc != SQLITE_OK)
+  {
+    fprintf(
+      stderr,
+      "Failed to prepare statement: %s\n", sqlite3_errmsg(db)
+    );
+  }
+  sqlite3_bind_int64(stmt, id, 1);
+
+  rc = sqlite3_step(stmt);
+  if(rc == SQLITE_ROW)
+  {
+    int count = sqlite3_column_int(stmt, 0);
+    sqlite3_finalize(stmt);
+    return count;
+  }
+  sqlite3_finalize(stmt);
+  return -1;
 }
 
 int block_delete_by_id(sqlite3_int64 id)

@@ -23,6 +23,9 @@ block_get_all();
 GArray*       
 block_get_all_ids();
 
+int
+block_get_children_count(gint64 id);
+
 sqlite3_int64 
 block_new();
 
