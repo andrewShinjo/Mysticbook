@@ -3,29 +3,25 @@
 #include "../pages/mb_block_view_page.h"
 #include "../../backend/block.h"
 
+/* WIDGET DEFINITION */
 struct _MbRootTextBlock
 {
   GtkWidget parent;
-
-  /* Widget */
+  /* WIDGETS */
   GtkWidget *layout;
   GtkWidget *hbox;
   GtkWidget *text_view;
   GtkWidget *children_blocks;
-
-  /* Listener */
+  /* EVENT LISTENERS */
   GtkEventController *key_controller;
+  /* PROPERTIES */
 };
-
 G_DEFINE_TYPE(MbRootTextBlock, mb_root_text_block, GTK_TYPE_WIDGET)
-
-/* Callback */
+/* FORWARD DECLARATION */
+/* CALLBACK */
 
 static void
-changed(
-  GtkTextBuffer *text_buffer,
-  gpointer user_data
-)
+changed(GtkTextBuffer *text_buffer, gpointer user_data)
 {
   MbRootTextBlock *_self = MB_ROOT_TEXT_BLOCK(user_data);
   GtkWidget *self = GTK_WIDGET(user_data);
@@ -100,16 +96,7 @@ key_pressed(
   return FALSE;
 }
 
-static void 
-mb_root_text_block_dispose(GObject *object) 
-{
-  MbRootTextBlock *self = MB_ROOT_TEXT_BLOCK(object);
-  g_clear_pointer(&self->layout, gtk_widget_unparent);
-  G_OBJECT_CLASS(mb_root_text_block_parent_class)->dispose(object);
-}
-
-static void 
-mb_root_text_block_finalize(GObject *object) {}
+/* WIDGET LIFECYCLE */
 
 static void
 mb_root_text_block_init(MbRootTextBlock *self) 
@@ -148,6 +135,17 @@ mb_root_text_block_init(MbRootTextBlock *self)
   gtk_widget_set_hexpand(self->text_view, TRUE);
   gtk_widget_set_parent(self->layout, GTK_WIDGET(self));
 }
+
+static void 
+mb_root_text_block_dispose(GObject *object) 
+{
+  MbRootTextBlock *self = MB_ROOT_TEXT_BLOCK(object);
+  g_clear_pointer(&self->layout, gtk_widget_unparent);
+  G_OBJECT_CLASS(mb_root_text_block_parent_class)->dispose(object);
+}
+
+static void 
+mb_root_text_block_finalize(GObject *object) {}
 
 static void 
 mb_root_text_block_class_init(MbRootTextBlockClass *klass) 

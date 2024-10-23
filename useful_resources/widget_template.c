@@ -1,8 +1,8 @@
 #include "./mb_xxx.h"
 
-/* FORWARD DECLARATION */
-
 /* WIDGET DEFINITION */
+/* FORWARD DECLARATION */
+/* CALLBACK */
 
 struct _MbXXX
 {
@@ -105,8 +105,6 @@ signal_name_source_func(gpointer user_data)
 {
   return G_SOURCE_CONTINUE;
 }
-
-/* CALLBACK */
 
 /* PUBLIC IMPLEMENTATION */
 
