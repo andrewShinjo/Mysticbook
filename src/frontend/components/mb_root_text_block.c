@@ -1,6 +1,6 @@
-#include "../pages/mb_block_view_page.h"
 #include "./mb_root_text_block.h"
 #include "./mb_text_block.h"
+#include "../pages/mb_block_view_page.h"
 #include "../../backend/block.h"
 
 struct _MbRootTextBlock
