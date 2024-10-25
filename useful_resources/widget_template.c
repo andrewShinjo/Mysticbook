@@ -1,9 +1,6 @@
 #include "./mb_xxx.h"
 
 /* WIDGET DEFINITION */
-/* FORWARD DECLARATION */
-/* CALLBACK */
-
 struct _MbXXX
 {
   GtkWidget parent;
@@ -14,6 +11,8 @@ struct _MbXXX
 
 G_DEFINE_TYPE(MbXXX, mb_xxx, GTK_TYPE_WIDGET)
 
+/* FORWARD DECLARATION */
+/* CALLBACK */
 /* WIDGET LIFECYCLE */
 
 static void

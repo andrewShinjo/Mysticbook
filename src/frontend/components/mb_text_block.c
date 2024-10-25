@@ -1,6 +1,176 @@
 #include "./mb_text_block.h"
 #include "./mb_root_text_block.h"
 
+/* WIDGET DEFINITION */
+
+struct _MbTextBlock
+{
+  GtkWidget parent;
+  /* WIDGETS */
+  GtkWidget *layout;
+  GtkWidget *hbox;
+  GtkWidget *bullet_point;
+  GtkWidget *text_view;
+  GtkWidget *children_blocks;
+  /* EVENT LISTENERS */
+  GtkEventController *key_controller;
+  GtkEventController *focus_controller;
+  gboolean selected;
+  /* PROPERTIES */
+  gint64 id;
+};
+
+G_DEFINE_TYPE(MbTextBlock, mb_text_block, GTK_TYPE_WIDGET)
+
+/* FORWARD DECLARATION */
+static void append_sibling_after_self(MbTextBlock *self, MbTextBlock *sibling);
+static void dispose(GObject *object);
+static void finalize(GObject *object);
+static gboolean has_child(MbTextBlock *_self);
+static void indent_self(MbTextBlock *_self);
+static gboolean is_all_text_highlighted(MbTextBlock *_self);
+static gboolean is_empty(MbTextBlock *_self);
+static gboolean is_insert_at_start(MbTextBlock *_self);
+static void prepend_child(MbTextBlock *_self, MbTextBlock *_child);
+static void remove_self(MbTextBlock *_self);
+static void snapshot(GtkWidget *widget, GtkSnapshot *snapshot);
+static void leave(GtkEventControllerFocus *focus, gpointer user_data);
+static void unindent_self(MbTextBlock *_self);
+/* CALLBACK */
+
+static gboolean key_pressed(GtkEventControllerKey *event_controller_key, guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
+{
+  MbTextBlock *_self = MB_TEXT_BLOCK(user_data);
+  GtkWidget *self = GTK_WIDGET(user_data);
+
+  if(keyval == GDK_KEY_a)
+  {
+    if(state & GDK_CONTROL_MASK)
+    {
+      gboolean should_highlight_block = is_all_text_highlighted(_self) || is_empty(_self);
+      if(should_highlight_block)
+      {
+        //_self->selected = TRUE;
+        //gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(_self->text_view), FALSE);
+        //gtk_text_view_set_editable(GTK_TEXT_VIEW(_self->text_view), FALSE);
+        //gtk_widget_queue_draw(GTK_WIDGET(_self));
+      }
+    }
+  }
+  else if(keyval == GDK_KEY_BackSpace)
+  {
+    if(is_insert_at_start(_self) && ! is_all_text_highlighted(_self))
+    {
+      remove_self(_self);
+    }
+  }
+  else if(keyval == GDK_KEY_ISO_Left_Tab && state && GDK_SHIFT_MASK)
+  {
+    unindent_self(_self);
+    mb_text_block_grab_focus(_self);
+    return TRUE;
+  }
+  else if(keyval == GDK_KEY_Tab)
+  {
+    indent_self(_self);
+    mb_text_block_grab_focus(_self);
+    return TRUE;
+  }
+  else if(keyval == GDK_KEY_Return)
+  {
+    _self->selected = FALSE;
+    gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(_self->text_view), TRUE);
+    gtk_text_view_set_editable(GTK_TEXT_VIEW(_self->text_view), TRUE);
+    gtk_widget_queue_draw(self);
+    if(! (state && GDK_SHIFT_MASK) )
+    {
+      if(has_child(_self))
+      {
+        GtkWidget *child = mb_text_block_new();
+        MbTextBlock *_child = MB_TEXT_BLOCK(child);
+        prepend_child(_self, _child);
+        mb_text_block_grab_focus(_child);
+      }
+      else
+      {
+        GtkWidget *sibling = mb_text_block_new();
+        MbTextBlock *_sibling = MB_TEXT_BLOCK(sibling);
+        append_sibling_after_self(_self, _sibling);
+        mb_text_block_grab_focus(_sibling);
+      }
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+/* WIDGET LIFECYCLE */
+
+static void mb_text_block_init(MbTextBlock *self) 
+{
+  self->layout = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+  self->hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+  self->bullet_point = gtk_label_new("  •  ");
+  self->text_view = gtk_text_view_new();
+  self->children_blocks = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+  self->key_controller = gtk_event_controller_key_new();
+  self->focus_controller = gtk_event_controller_focus_new();
+  self->selected = FALSE;
+
+  gtk_widget_add_controller(self->text_view, self->key_controller);
+  g_signal_connect(
+    self->key_controller,
+    "key-pressed",
+    G_CALLBACK(key_pressed),
+    self
+  );
+
+  gtk_widget_add_controller(self->text_view, self->focus_controller);
+  g_signal_connect(self->focus_controller, "leave", G_CALLBACK(leave), self);
+
+  gtk_widget_set_hexpand(self->layout, TRUE);
+  gtk_widget_set_vexpand(self->layout, TRUE);
+  gtk_widget_set_hexpand(self->hbox, TRUE);
+  gtk_widget_set_vexpand(self->hbox, TRUE);
+
+  gtk_widget_allocate(self->text_view, 0, 0, 0, NULL);
+  gtk_widget_set_hexpand(self->text_view, TRUE);
+
+  gtk_widget_set_valign(self->bullet_point, GTK_ALIGN_START);
+
+  gtk_box_append(GTK_BOX(self->hbox), self->bullet_point);
+  gtk_box_append(GTK_BOX(self->hbox), self->text_view);
+
+  gtk_widget_set_margin_start(self->children_blocks, 32);
+
+  gtk_box_append(GTK_BOX(self->layout), self->hbox);
+  gtk_box_append(GTK_BOX(self->layout), self->children_blocks);
+  gtk_widget_set_parent(self->layout, GTK_WIDGET(self));
+}
+
+static void mb_text_block_class_init(MbTextBlockClass *klass) 
+{
+  GObjectClass *object_class = G_OBJECT_CLASS(klass);
+  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
+  object_class->dispose = dispose;
+  object_class->finalize = finalize;
+  widget_class->snapshot = snapshot;
+  gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(klass), GTK_TYPE_BOX_LAYOUT);
+}
+
+static void dispose(GObject *object) 
+{
+  MbTextBlock *self = MB_TEXT_BLOCK(object);
+  g_clear_pointer(&self->layout, gtk_widget_unparent);
+  G_OBJECT_CLASS(mb_text_block_parent_class)->dispose(object);
+}
+
+static void finalize(GObject *object) 
+{
+
+}
+
+/* PROPERTIES */
+
 enum property_types
 {
   ID = 1,
@@ -9,31 +179,39 @@ enum property_types
 
 static GParamSpec *properties[N_PROPERTIES];
 
-struct _MbTextBlock
+/* SIGNALS */
+
+/* PUBLIC IMPLEMENTATION */
+
+GtkWidget* mb_text_block_new()
 {
-  GtkWidget parent;
-  GtkWidget *layout;
-  GtkWidget *hbox;
-  GtkWidget *bullet_point;
-  GtkWidget *text_view;
-  GtkWidget *children_blocks;
-  GtkEventController *key_controller;
-  GtkEventController *focus_controller;
-  gboolean selected;
-};
+  return g_object_new(MB_TYPE_TEXT_BLOCK, NULL);
+}
 
-G_DEFINE_TYPE(MbTextBlock, mb_text_block, GTK_TYPE_WIDGET)
+void mb_text_block_grab_focus(MbTextBlock *self)
+{
+  gtk_widget_grab_focus(self->text_view);
+}
 
-/* private interface */
+void
+mb_text_block_add_child(MbTextBlock *self, GtkWidget *child)
+{
+  gtk_box_append(GTK_BOX(self->children_blocks), child);
+}
+
+void
+mb_text_block_remove_child(MbTextBlock *self, GtkWidget *child)
+{
+  GtkBox *_children_blocks = GTK_BOX(self->children_blocks);
+  gtk_box_remove(_children_blocks, child);
+}
+
+
+/* PRIVATE IMPLEMENTATION */
 
 static void 
 append_content(MbTextBlock *_self, gchar *content);
 
-static void 
-append_sibling_after_self(
-  MbTextBlock *self,
-  MbTextBlock *sibling
-);
 
 static void 
 force_redraw_cursor(MbTextBlock *self);
@@ -55,16 +233,11 @@ static void get_property(
   GParamSpec *pspec
 );
 static GtkWidget * get_root(MbTextBlock *_self);
-static gboolean has_child(MbTextBlock *_self);
 static void insert_child_after(
   MbTextBlock *_self,
   MbTextBlock *_child,
   MbTextBlock *_sibling
 );
-static gboolean is_all_text_highlighted(MbTextBlock *_self);
-static gboolean is_empty(MbTextBlock *_self);
-static gboolean is_insert_at_start(MbTextBlock *_self);
-static void leave(GtkEventControllerFocus *focus, gpointer user_data);
 static void remove_child(MbTextBlock *self, MbTextBlock *_child);
 static void set_property(
   GObject *object, 
@@ -72,9 +245,6 @@ static void set_property(
   const GValue *value, 
   GParamSpec *pspec
 );
-static void snapshot(GtkWidget *widget, GtkSnapshot *snapshot);
-
-/* PRIVATE IMPLEMENTATION */
 
 static void
 append_content(MbTextBlock *_self, gchar *content)
@@ -99,8 +269,7 @@ force_redraw_cursor(MbTextBlock *_self)
   gtk_text_buffer_set_text(text_buffer, "", -1);
 }
 
-static gchar *
-get_content(MbTextBlock *_self)
+static gchar* get_content(MbTextBlock *_self)
 {
   GtkTextView *text_view = GTK_TEXT_VIEW(_self->text_view);
   GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(text_view);
@@ -117,8 +286,7 @@ get_first_child(MbTextBlock *_self)
   return gtk_widget_get_first_child(_self->children_blocks);
 }
 
-static MbTextBlock *
-get_last_child(MbTextBlock *_self)
+static MbTextBlock* get_last_child(MbTextBlock *_self)
 {
   GtkWidget *last_child = gtk_widget_get_last_child(_self->children_blocks);
   return MB_TEXT_BLOCK(last_child);
@@ -136,14 +304,12 @@ get_parent(MbTextBlock *_self)
   return parent;
 }
 
-static GtkWidget *
-get_root(MbTextBlock *self)
+static GtkWidget* get_root(MbTextBlock *self)
 {
   return gtk_widget_get_ancestor(GTK_WIDGET(self), MB_TYPE_ROOT_TEXT_BLOCK);
 }
 
-static gboolean
-has_child(MbTextBlock *_self)
+static gboolean has_child(MbTextBlock *_self)
 {
   return gtk_widget_get_first_child(_self->children_blocks) != NULL;
 }
@@ -160,7 +326,6 @@ insert_child_after(
   GtkWidget *child = GTK_WIDGET(_child);
   GtkWidget *sibling = GTK_WIDGET(_sibling);
   gtk_box_insert_child_after(_children_blocks, child, sibling);
-
 }
 
 static gboolean
@@ -212,8 +377,7 @@ leave(GtkEventControllerFocus *focus, gpointer user_data)
   gtk_widget_queue_draw(self);
 }
 
-static void
-prepend_child(MbTextBlock *_self, MbTextBlock *_child)
+static void prepend_child(MbTextBlock *_self, MbTextBlock *_child)
 {
   GtkBox *_children_blocks = GTK_BOX(_self->children_blocks);
   GtkWidget *child = GTK_WIDGET(_child);
@@ -241,8 +405,7 @@ snapshot(GtkWidget *widget, GtkSnapshot *snapshot)
   }
 }
 
-static void
-unindent_self(MbTextBlock *_self) 
+static void unindent_self(MbTextBlock *_self) 
 {
   GtkWidget *parent = get_parent(_self);
   if(MB_IS_ROOT_TEXT_BLOCK(parent))
@@ -302,8 +465,7 @@ remove_child(MbTextBlock *self, MbTextBlock *_child)
   gtk_widget_unparent(child); 
 }
 
-static void
-indent_self(MbTextBlock *_self)
+static void indent_self(MbTextBlock *_self)
 {
   GtkWidget *self = GTK_WIDGET(_self);
   GtkWidget *parent = get_parent(_self);
@@ -332,8 +494,7 @@ indent_self(MbTextBlock *_self)
   append_child(_previous_sibling, _self);
 }
 
-static void
-remove_self(MbTextBlock *_self)
+static void remove_self(MbTextBlock *_self)
 {
   GtkWidget *parent = get_parent(_self);
   GtkWidget *self = GTK_WIDGET(_self);
@@ -408,165 +569,4 @@ remove_self(MbTextBlock *_self)
     mb_root_text_block_grab_focus(_parent);
   }
   g_free(content);
-}
-
-static gboolean 
-key_pressed(
-  GtkEventControllerKey *event_controller_key,
-  guint keyval,
-  guint keycode,
-  GdkModifierType state,
-  gpointer user_data
-)
-{
-  MbTextBlock *_self = MB_TEXT_BLOCK(user_data);
-  GtkWidget *self = GTK_WIDGET(user_data);
-
-  if(keyval == GDK_KEY_a)
-  {
-    if(state & GDK_CONTROL_MASK)
-    {
-      gboolean should_highlight_block = is_all_text_highlighted(_self) || is_empty(_self);
-      if(should_highlight_block)
-      {
-        //_self->selected = TRUE;
-        //gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(_self->text_view), FALSE);
-        //gtk_text_view_set_editable(GTK_TEXT_VIEW(_self->text_view), FALSE);
-        //gtk_widget_queue_draw(GTK_WIDGET(_self));
-      }
-    }
-  }
-  else if(keyval == GDK_KEY_BackSpace)
-  {
-    if(is_insert_at_start(_self) && ! is_all_text_highlighted(_self))
-    {
-      remove_self(_self);
-    }
-  }
-  else if(keyval == GDK_KEY_ISO_Left_Tab && state && GDK_SHIFT_MASK)
-  {
-    unindent_self(_self);
-    mb_text_block_grab_focus(_self);
-    return TRUE;
-  }
-  else if(keyval == GDK_KEY_Tab)
-  {
-    indent_self(_self);
-    mb_text_block_grab_focus(_self);
-    return TRUE;
-  }
-  else if(keyval == GDK_KEY_Return)
-  {
-    _self->selected = FALSE;
-    gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(_self->text_view), TRUE);
-    gtk_text_view_set_editable(GTK_TEXT_VIEW(_self->text_view), TRUE);
-    gtk_widget_queue_draw(self);
-    if(! (state && GDK_SHIFT_MASK) )
-    {
-      if(has_child(_self))
-      {
-        GtkWidget *child = mb_text_block_new();
-        MbTextBlock *_child = MB_TEXT_BLOCK(child);
-        prepend_child(_self, _child);
-        mb_text_block_grab_focus(_child);
-      }
-      else
-      {
-        GtkWidget *sibling = mb_text_block_new();
-        MbTextBlock *_sibling = MB_TEXT_BLOCK(sibling);
-        append_sibling_after_self(_self, _sibling);
-        mb_text_block_grab_focus(_sibling);
-      }
-      return TRUE;
-    }
-  }
-  return FALSE;
-}
-
-static void mb_text_block_dispose(GObject *object) 
-{
-  MbTextBlock *self = MB_TEXT_BLOCK(object);
-  g_clear_pointer(&self->layout, gtk_widget_unparent);
-  G_OBJECT_CLASS(mb_text_block_parent_class)->dispose(object);
-}
-
-static void mb_text_block_finalize(GObject *object) 
-{}
-
-static void mb_text_block_init(MbTextBlock *self) 
-{
-  self->layout = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-  self->hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-  self->bullet_point = gtk_label_new("  •  ");
-  self->text_view = gtk_text_view_new();
-  self->children_blocks = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-  self->key_controller = gtk_event_controller_key_new();
-  self->focus_controller = gtk_event_controller_focus_new();
-  self->selected = FALSE;
-
-  gtk_widget_add_controller(self->text_view, self->key_controller);
-  g_signal_connect(
-    self->key_controller,
-    "key-pressed",
-    G_CALLBACK(key_pressed),
-    self
-  );
-
-  gtk_widget_add_controller(self->text_view, self->focus_controller);
-  g_signal_connect(self->focus_controller, "leave", G_CALLBACK(leave), self);
-
-  gtk_widget_set_hexpand(self->layout, TRUE);
-  gtk_widget_set_vexpand(self->layout, TRUE);
-  gtk_widget_set_hexpand(self->hbox, TRUE);
-  gtk_widget_set_vexpand(self->hbox, TRUE);
-
-  gtk_widget_allocate(self->text_view, 0, 0, 0, NULL);
-  gtk_widget_set_hexpand(self->text_view, TRUE);
-
-  gtk_widget_set_valign(self->bullet_point, GTK_ALIGN_START);
-
-  gtk_box_append(GTK_BOX(self->hbox), self->bullet_point);
-  gtk_box_append(GTK_BOX(self->hbox), self->text_view);
-
-  gtk_widget_set_margin_start(self->children_blocks, 32);
-
-  gtk_box_append(GTK_BOX(self->layout), self->hbox);
-  gtk_box_append(GTK_BOX(self->layout), self->children_blocks);
-  gtk_widget_set_parent(self->layout, GTK_WIDGET(self));
-}
-
-static void mb_text_block_class_init(MbTextBlockClass *klass) 
-{
-  GObjectClass *object_class = G_OBJECT_CLASS(klass);
-  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
-  object_class->dispose = mb_text_block_dispose;
-  object_class->finalize = mb_text_block_finalize;
-  widget_class->snapshot = snapshot;
-  gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(klass), GTK_TYPE_BOX_LAYOUT);
-}
-
-// Public
-
-GtkWidget*
-mb_text_block_new()
-{
-  return g_object_new(MB_TYPE_TEXT_BLOCK, NULL);
-}
-
-void mb_text_block_grab_focus(MbTextBlock *self)
-{
-  gtk_widget_grab_focus(self->text_view);
-}
-
-void
-mb_text_block_add_child(MbTextBlock *self, GtkWidget *child)
-{
-  gtk_box_append(GTK_BOX(self->children_blocks), child);
-}
-
-void
-mb_text_block_remove_child(MbTextBlock *self, GtkWidget *child)
-{
-  GtkBox *_children_blocks = GTK_BOX(self->children_blocks);
-  gtk_box_remove(_children_blocks, child);
 }

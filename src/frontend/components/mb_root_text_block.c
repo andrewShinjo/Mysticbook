@@ -22,21 +22,15 @@ struct _MbRootTextBlock
 G_DEFINE_TYPE(MbRootTextBlock, mb_root_text_block, GTK_TYPE_WIDGET)
 
 /* FORWARD DECLARATION */
-static gint64
-get_id(MbRootTextBlock* _self);
+static gint64 get_id(MbRootTextBlock* _self);
 
 /* CALLBACK */
 
-static void
-changed(GtkTextBuffer *text_buffer, gpointer user_data)
+static void changed(GtkTextBuffer *text_buffer, gpointer user_data)
 {
   MbRootTextBlock *_self = MB_ROOT_TEXT_BLOCK(user_data);
   GtkWidget *self = GTK_WIDGET(user_data);
-  GtkWidget *ancestor = gtk_widget_get_ancestor(
-    self,
-    MB_TYPE_BLOCK_VIEW_PAGE
-  );
-
+  GtkWidget *ancestor = gtk_widget_get_ancestor(self, MB_TYPE_BLOCK_VIEW_PAGE);
   MbBlockViewPage *block_view_page = MB_BLOCK_VIEW_PAGE(ancestor);
   gint64 id;
   g_object_get(block_view_page, "id", &id, NULL);
@@ -44,28 +38,16 @@ changed(GtkTextBuffer *text_buffer, gpointer user_data)
   GtkTextIter start, end;
   gtk_text_buffer_get_start_iter(text_buffer, &start);
   gtk_text_buffer_get_end_iter(text_buffer, &end);
-  gchar *content = gtk_text_buffer_get_text(
-    text_buffer,
-    &start,
-    &end,
-    FALSE
-  );
-
+  gchar *content = gtk_text_buffer_get_text(text_buffer, &start, &end, FALSE);
   block_update_content(id, content);
   g_free(content);
 }
 
-static gboolean
-key_pressed(
-  GtkEventControllerKey *key,
-  guint keyval,
-  guint keycode,
-  GdkModifierType state,
-  gpointer user_data
-)
+static gboolean key_pressed(GtkEventControllerKey *key, guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
 {
   MbRootTextBlock *_self = MB_ROOT_TEXT_BLOCK(user_data);
   GtkWidget *self = GTK_WIDGET(user_data);
+
   if(keyval == GDK_KEY_Return)
   {
     block_increment_all_position();
@@ -82,15 +64,7 @@ key_pressed(
     gint64 parent_id = get_id(_self);
     gint64 position = 1;
     gchar *content = "";
-
-    block_new_all_fields(
-      &creation_time,
-      &is_document,
-      NULL,
-      &position,
-      &parent_id,
-      content
-    );
+    block_new_all_fields(&creation_time, &is_document, NULL, &position, &parent_id, content);
     return TRUE;
   }
   return FALSE;
@@ -119,23 +93,9 @@ mb_root_text_block_init(MbRootTextBlock *self)
 
   /* CONNECT TO SIGNALS */
   gtk_widget_add_controller(self->text_view, self->key_controller);
-  g_signal_connect(
-    self->key_controller,
-    "key-pressed",
-    G_CALLBACK(key_pressed),
-    self
-  );
-
-  GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(
-    GTK_TEXT_VIEW(self->text_view)
-  );
-
-  g_signal_connect(
-    text_buffer,
-    "changed",
-    G_CALLBACK(changed),
-    self
-  );
+  g_signal_connect(self->key_controller, "key-pressed", G_CALLBACK(key_pressed), self);
+  GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(self->text_view));
+  g_signal_connect(text_buffer, "changed", G_CALLBACK(changed), self);
  }
 
 static void 
@@ -244,14 +204,10 @@ mb_root_text_block_set_content(
 
 /* PRIVATE IMPLEMENTATION */
 
-static gint64
-get_id(MbRootTextBlock* _self)
+static gint64 get_id(MbRootTextBlock* _self)
 {
   GtkWidget *self = GTK_WIDGET(_self);
-  GtkWidget *ancestor = gtk_widget_get_ancestor(
-    self,
-    MB_TYPE_BLOCK_VIEW_PAGE
-  );
+  GtkWidget *ancestor = gtk_widget_get_ancestor(self, MB_TYPE_BLOCK_VIEW_PAGE);
   MbBlockViewPage *block_view_page = MB_BLOCK_VIEW_PAGE(ancestor);
   gint64 id;
   g_object_get(block_view_page, "id", &id, NULL);
