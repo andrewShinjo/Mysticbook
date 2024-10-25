@@ -18,6 +18,7 @@ GArray* block_get_all();
 GArray* block_get_all_ids();
 GArray* block_get_all_children_ids(gint64 parent_id);
 int block_get_children_count(gint64 id);
+const gchar* block_get_content(gint64 id);
 void block_increment_all_position();
 sqlite3_int64 block_new();
 sqlite3_int64 block_new_all_fields(

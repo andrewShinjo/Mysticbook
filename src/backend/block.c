@@ -116,6 +116,7 @@ void block_find_by_id(sqlite3_int64 id, Block *b)
 
 GArray* block_get_all_children_ids(gint64 parent_id)
 {
+  GArray *ids = g_array_new(FALSE, FALSE, sizeof(gint64));
   sqlite3 *db = db_get();
   sqlite3_stmt *stmt;
   const char *sql = "SELECT id FROM blocks WHERE parent_id = ?;";
@@ -127,7 +128,7 @@ GArray* block_get_all_children_ids(gint64 parent_id)
       "Failed to prepare statement: %s\n", 
       sqlite3_errmsg(db)
     );
-    return NULL;
+    return ids;
   }
   sqlite3_bind_int64(stmt, 1, parent_id);
   while((rc = sqlite3_step(stmt)) == SQLITE_ROW)
@@ -135,12 +136,12 @@ GArray* block_get_all_children_ids(gint64 parent_id)
     int column_count = sqlite3_column_count(stmt);
     for(int i = 0; i < column_count; i++)
     {
-      const char *column_name = sqlite3_column_name(stmt, i);
       const char *column_value = sqlite3_column_text(stmt, i);
-      g_print("%s: %s\n", column_name, column_value);
+      gint64 id = g_ascii_strtoll(column_value, NULL, 10);
+      g_array_append_val(ids, id);
     }
   }
-  return NULL;
+  return ids;
 }
 
 void block_increment_all_position()
@@ -290,8 +291,7 @@ GArray* block_get_all_ids()
   );
 }
 
-int
-block_get_children_count(gint64 id)
+int block_get_children_count(gint64 id)
 {
   sqlite3 *db = db_get();
   sqlite3_stmt *stmt;
@@ -305,7 +305,6 @@ block_get_children_count(gint64 id)
     );
   }
   sqlite3_bind_int64(stmt, id, 1);
-
   rc = sqlite3_step(stmt);
   if(rc == SQLITE_ROW)
   {
@@ -315,6 +314,29 @@ block_get_children_count(gint64 id)
   }
   sqlite3_finalize(stmt);
   return -1;
+}
+
+const gchar* block_get_content(gint64 id)
+{
+  sqlite3 *db = db_get();
+  sqlite3_stmt *stmt;
+  const char *sql = "SELECT content FROM blocks WHERE id = ?;";
+  int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+  if(rc != SQLITE_OK)
+  {
+    fprintf(
+      stderr,
+      "Failed to prepare statement: %s\n",
+      sqlite3_errmsg(db)
+    );
+    return NULL;
+  }
+  sqlite3_bind_int64(stmt, 1, id);
+  if((rc = sqlite3_step(stmt)) == SQLITE_ROW)
+  {
+    return sqlite3_column_text(stmt, 0);
+  }
+  return NULL;
 }
 
 int block_update_content(sqlite3_int64 id, gchar *content)
