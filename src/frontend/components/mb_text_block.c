@@ -32,6 +32,7 @@ static gboolean is_all_text_highlighted(MbTextBlock *_self);
 static gboolean is_empty(MbTextBlock *_self);
 static gboolean is_insert_at_start(MbTextBlock *_self);
 static void prepend_child(MbTextBlock *_self, MbTextBlock *_child);
+static void remove_child(MbTextBlock *self, MbTextBlock *_child);
 static void remove_self(MbTextBlock *_self);
 static void snapshot(GtkWidget *widget, GtkSnapshot *snapshot);
 static void leave(GtkEventControllerFocus *focus, gpointer user_data);
@@ -206,48 +207,9 @@ mb_text_block_remove_child(MbTextBlock *self, GtkWidget *child)
   gtk_box_remove(_children_blocks, child);
 }
 
-
 /* PRIVATE IMPLEMENTATION */
 
-static void 
-append_content(MbTextBlock *_self, gchar *content);
-
-
-static void 
-force_redraw_cursor(MbTextBlock *self);
-
-static gchar* 
-get_content(MbTextBlock *_self);
-
-static GtkWidget* 
-get_first_child(MbTextBlock *_self);
-
-static MbTextBlock* 
-get_last_child(MbTextBlock *_self);
-
-static GtkWidget * get_parent(MbTextBlock *_self);
-static void get_property(
-  GObject *object, 
-  guint property_id, 
-  const GValue *value, 
-  GParamSpec *pspec
-);
-static GtkWidget * get_root(MbTextBlock *_self);
-static void insert_child_after(
-  MbTextBlock *_self,
-  MbTextBlock *_child,
-  MbTextBlock *_sibling
-);
-static void remove_child(MbTextBlock *self, MbTextBlock *_child);
-static void set_property(
-  GObject *object, 
-  guint property_id, 
-  const GValue *value, 
-  GParamSpec *pspec
-);
-
-static void
-append_content(MbTextBlock *_self, gchar *content)
+static void append_content(MbTextBlock *_self, gchar *content)
 {
   GtkTextView *text_view = GTK_TEXT_VIEW(_self->text_view);
   GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(text_view);
@@ -256,8 +218,7 @@ append_content(MbTextBlock *_self, gchar *content)
   gtk_text_buffer_insert(text_buffer, &end, content, -1);
 }
 
-static void
-force_redraw_cursor(MbTextBlock *_self)
+static void force_redraw_cursor(MbTextBlock *_self)
 {
   if(!is_empty(_self))
   {
@@ -280,8 +241,7 @@ static gchar* get_content(MbTextBlock *_self)
   return content;
 }
 
-static GtkWidget *
-get_first_child(MbTextBlock *_self)
+static GtkWidget* get_first_child(MbTextBlock *_self)
 {
   return gtk_widget_get_first_child(_self->children_blocks);
 }
@@ -292,8 +252,7 @@ static MbTextBlock* get_last_child(MbTextBlock *_self)
   return MB_TEXT_BLOCK(last_child);
 }
 
-static GtkWidget *
-get_parent(MbTextBlock *_self)
+static GtkWidget* get_parent(MbTextBlock *_self)
 {
   GtkWidget *self = GTK_WIDGET(_self);
   GtkWidget *parent = gtk_widget_get_parent(self);
@@ -314,12 +273,7 @@ static gboolean has_child(MbTextBlock *_self)
   return gtk_widget_get_first_child(_self->children_blocks) != NULL;
 }
 
-static void
-insert_child_after(
-  MbTextBlock *_self,
-  MbTextBlock *_child,
-  MbTextBlock *_sibling
-)
+static void insert_child_after(MbTextBlock *_self, MbTextBlock *_child, MbTextBlock *_sibling)
 {
   // gtk_widget_insert_after
   GtkBox *_children_blocks = GTK_BOX(_self->children_blocks);
@@ -328,8 +282,7 @@ insert_child_after(
   gtk_box_insert_child_after(_children_blocks, child, sibling);
 }
 
-static gboolean
-is_all_text_highlighted(MbTextBlock *_self)
+static gboolean is_all_text_highlighted(MbTextBlock *_self)
 {
   GtkTextView *_text_view = GTK_TEXT_VIEW(_self->text_view);
   GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(_text_view);
@@ -337,13 +290,11 @@ is_all_text_highlighted(MbTextBlock *_self)
   gtk_text_buffer_get_start_iter(text_buffer, &start);
   gtk_text_buffer_get_end_iter(text_buffer, &end);
   gtk_text_buffer_get_selection_bounds(text_buffer, &highlight_start, &highlight_end);
-  return gtk_text_iter_equal(&start, &highlight_start) 
-    && gtk_text_iter_equal(&end, &highlight_end)
+  return gtk_text_iter_equal(&start, &highlight_start) && gtk_text_iter_equal(&end, &highlight_end) 
     && !gtk_text_iter_equal(&highlight_start, &highlight_end);
 }
 
-static gboolean
-is_empty(MbTextBlock *_self)
+static gboolean is_empty(MbTextBlock *_self)
 {
   GtkTextView *_text_view = GTK_TEXT_VIEW(_self->text_view);
   GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(_text_view);
@@ -353,23 +304,17 @@ is_empty(MbTextBlock *_self)
   return gtk_text_iter_equal(&start, &end);
 }
 
-static gboolean
-is_insert_at_start(MbTextBlock *_self)
+static gboolean is_insert_at_start(MbTextBlock *_self)
 {
   GtkTextView *text_view = GTK_TEXT_VIEW(_self->text_view);
   GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(text_view);
   GtkTextIter insert, start;
   gtk_text_buffer_get_start_iter(text_buffer, &start);
-  gtk_text_buffer_get_iter_at_mark(
-    text_buffer, 
-    &insert, 
-    gtk_text_buffer_get_insert(text_buffer)
-  );
+  gtk_text_buffer_get_iter_at_mark(text_buffer, &insert, gtk_text_buffer_get_insert(text_buffer));
   return gtk_text_iter_equal(&start, &insert);
 }
 
-static void
-leave(GtkEventControllerFocus *focus, gpointer user_data)
+static void leave(GtkEventControllerFocus *focus, gpointer user_data)
 {
   MbTextBlock *_self = MB_TEXT_BLOCK(user_data);
   GtkWidget *self = GTK_WIDGET(user_data);
@@ -384,8 +329,7 @@ static void prepend_child(MbTextBlock *_self, MbTextBlock *_child)
   gtk_box_prepend(_children_blocks, child);
 }
 
-static void
-snapshot(GtkWidget *widget, GtkSnapshot *snapshot)
+static void snapshot(GtkWidget *widget, GtkSnapshot *snapshot)
 {
   MbTextBlock* _self = MB_TEXT_BLOCK(widget);
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(mb_text_block_parent_class);
@@ -417,16 +361,14 @@ static void unindent_self(MbTextBlock *_self)
   append_sibling_after_self(_parent, _self);
 }
 
-static void
-append_child(MbTextBlock* self, MbTextBlock *_child)
+static void append_child(MbTextBlock* self, MbTextBlock *_child)
 {
   GtkBox *_children_blocks = GTK_BOX(self->children_blocks);
   GtkWidget *child = GTK_WIDGET(_child);
   gtk_box_append(_children_blocks, child);
 }
 
-static void
-append_sibling_after_self(MbTextBlock *_self, MbTextBlock *_sibling)
+static void append_sibling_after_self(MbTextBlock *_self, MbTextBlock *_sibling)
 {
   GtkWidget *parent = get_parent(_self);
   
@@ -450,8 +392,7 @@ append_sibling_after_self(MbTextBlock *_self, MbTextBlock *_sibling)
   }
 }
 
-static void
-remove_child(MbTextBlock *self, MbTextBlock *_child)
+static void remove_child(MbTextBlock *self, MbTextBlock *_child)
 {
   GtkBox *_children_blocks = GTK_BOX(self->children_blocks);
   GtkWidget *child = GTK_WIDGET(_child);
