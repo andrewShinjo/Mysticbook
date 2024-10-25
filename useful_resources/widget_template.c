@@ -13,36 +13,6 @@ G_DEFINE_TYPE(MbXXX, mb_xxx, GTK_TYPE_WIDGET)
 
 /* FORWARD DECLARATION */
 /* CALLBACK */
-/* WIDGET LIFECYCLE */
-
-static void
-mb_xxx_init(MbXxx *_self) 
-{
-  /* INSTANTIATE WIDGETS */
-  /* CONFIGURE WIDGETS */
-  /* CONNECT TO SIGNALS */
-}
-
-static void
-mb_xxx_class_init(MbXxxClass *klass) 
-{
-  /* MAP VFUNC */
-  /* PROPERTY */
-  /* SIGNAL */
-  /* LAYOUT MANAGER */
-}
-
-static void 
-mb_xxx_dispose(GObject *object) 
-{
-
-}
-
-static void
-mb_xxx_finalize(GObject *object)
-{
-
-}
 
 /* PROPERTIES */
 
@@ -105,6 +75,37 @@ signal_name_source_func(gpointer user_data)
   return G_SOURCE_CONTINUE;
 }
 
+
+/* WIDGET LIFECYCLE */
+
+static void
+mb_xxx_init(MbXxx *_self) 
+{
+  /* INSTANTIATE WIDGETS */
+  /* CONFIGURE WIDGETS */
+  /* CONNECT TO SIGNALS */
+}
+
+static void
+mb_xxx_class_init(MbXxxClass *klass) 
+{
+  /* MAP VFUNC */
+  /* PROPERTY */
+  /* SIGNAL */
+  /* LAYOUT MANAGER */
+}
+
+static void 
+mb_xxx_dispose(GObject *object) 
+{
+
+}
+
+static void
+mb_xxx_finalize(GObject *object)
+{
+
+}
 /* PUBLIC IMPLEMENTATION */
 
 /* PRIVATE IMPLEMENTATION */

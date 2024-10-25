@@ -26,6 +26,12 @@ G_DEFINE_TYPE(MbTextBlock, mb_text_block, GTK_TYPE_WIDGET)
 static void append_sibling_after_self(MbTextBlock *self, MbTextBlock *sibling);
 static void dispose(GObject *object);
 static void finalize(GObject *object);
+static void get_property(
+  GObject *object, 
+  guint property_id, 
+  GValue *value, 
+  GParamSpec *pspec
+);
 static gboolean has_child(MbTextBlock *_self);
 static void indent_self(MbTextBlock *_self);
 static gboolean is_all_text_highlighted(MbTextBlock *_self);
@@ -34,9 +40,72 @@ static gboolean is_insert_at_start(MbTextBlock *_self);
 static void prepend_child(MbTextBlock *_self, MbTextBlock *_child);
 static void remove_child(MbTextBlock *self, MbTextBlock *_child);
 static void remove_self(MbTextBlock *_self);
+static void set_property(
+  GObject *object, 
+  guint property_id, 
+  const GValue *value, 
+  GParamSpec *pspec
+);
 static void snapshot(GtkWidget *widget, GtkSnapshot *snapshot);
 static void leave(GtkEventControllerFocus *focus, gpointer user_data);
 static void unindent_self(MbTextBlock *_self);
+
+/* PROPERTIES */
+
+enum property_types
+{
+  PROP_ID = 1,
+  N_PROPERTIES
+};
+
+static GParamSpec *properties[N_PROPERTIES];
+
+static void get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
+{
+  MbTextBlock *_self = MB_TEXT_BLOCK(object);
+
+  switch(property_id)
+  {
+    case PROP_ID:
+    {
+      g_value_set_int64(value, _self->id);
+      break;
+    }
+    default:
+    {
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+      break;
+    }
+  }
+}
+
+static void set_property(
+  GObject *object, 
+  guint property_id, 
+  const GValue *value, 
+  GParamSpec *pspec
+)
+{
+  MbTextBlock *_self = MB_TEXT_BLOCK(object);
+
+  switch(property_id)
+  {
+    case PROP_ID:
+    {
+      _self->id = g_value_get_int64(value);
+      break;
+    }
+    default:
+    {
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+      break;
+    }
+  }
+}
+
+/* SIGNALS */
+
+
 /* CALLBACK */
 
 static gboolean key_pressed(GtkEventControllerKey *event_controller_key, guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
@@ -152,10 +221,35 @@ static void mb_text_block_class_init(MbTextBlockClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS(klass);
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
-  object_class->dispose = dispose;
-  object_class->finalize = finalize;
-  widget_class->snapshot = snapshot;
-  gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(klass), GTK_TYPE_BOX_LAYOUT);
+
+  /* MAP VIRTUAL FUNCTIONS */
+  object_class->dispose      = dispose;
+  object_class->finalize     = finalize;
+  object_class->get_property = get_property;
+  object_class->set_property = set_property;
+  widget_class->snapshot     = snapshot;
+
+  /* PROPERTY */
+  properties[PROP_ID] = g_param_spec_int64(
+    "id",
+    "id nickname",
+    "id description",
+    0,
+    G_MAXINT64,
+    0,
+    G_PARAM_READWRITE
+  );
+  g_object_class_install_properties(
+    object_class, 
+    N_PROPERTIES,
+    properties
+  );
+  /* SIGNALS */
+  /* LAYOUT MANAGER */
+  gtk_widget_class_set_layout_manager_type(
+    widget_class,
+    GTK_TYPE_BOX_LAYOUT
+  );
 }
 
 static void dispose(GObject *object) 
@@ -169,56 +263,6 @@ static void finalize(GObject *object)
 {
 
 }
-
-/* PROPERTIES */
-
-enum property_types
-{
-  PROP_ID = 1,
-  N_PROPERTIES
-};
-
-static GParamSpec *properties[N_PROPERTIES];
-
-static void mb_text_block_get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
-{
-  MbTextBlock *_self = MB_TEXT_BLOCK(object);
-
-  switch(property_id)
-  {
-    case PROP_ID:
-    {
-      g_value_set_int64(value, _self->id);
-      break;
-    }
-    default:
-    {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
-      break;
-    }
-  }
-}
-
-static void mb_text_block_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
-{
-  MbTextBlock *_self = MB_TEXT_BLOCK(object);
-
-  switch(property_id)
-  {
-    case PROP_ID:
-    {
-      _self->id = g_value_get_int64(value);
-      break;
-    }
-    default:
-    {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
-      break;
-    }
-  }
-}
-
-/* SIGNALS */
 
 /* PUBLIC IMPLEMENTATION */
 
