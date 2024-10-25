@@ -59,7 +59,10 @@ mb_document_list_row_set_property(
 		{
 			g_free(self->content);
 			self->content = g_value_dup_string(value);
-			gtk_label_set_text(GTK_LABEL(self->content_label), self->content);
+			gtk_label_set_text(
+        GTK_LABEL(self->content_label), 
+        self->content
+      );
 			break;
 		}
     case PROP_ID:
@@ -69,7 +72,6 @@ mb_document_list_row_set_property(
     }
 		default:
 		{
-			/* No valid property */
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);	
 			break;
 		} 

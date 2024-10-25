@@ -3,9 +3,7 @@
 #include "../pages/mb_block_view_page.h"
 #include "../../backend/block.h"
 #include "../../backend/util.h"
-
 /* WIDGET DEFINITION */
-
 struct _MbRootTextBlock
 {
   GtkWidget parent;
@@ -17,17 +15,26 @@ struct _MbRootTextBlock
   /* EVENT LISTENERS */
   GtkEventController *key_controller;
   /* PROPERTIES */
+  gint64 id;
 };
-
 G_DEFINE_TYPE(MbRootTextBlock, mb_root_text_block, GTK_TYPE_WIDGET)
-
 /* FORWARD DECLARATION */
 static void dispose(GObject *object);
 static void finalize(GObject *object);
 static gint64 get_id(MbRootTextBlock* _self);
-
+static void get_property(
+  GObject *object,
+  guint property_id,
+  GValue *value,
+  GParamSpec *pspec
+);
+static void set_property(
+  GObject *object,
+  guint property_id,
+  const GValue *value,
+  GParamSpec *pspec
+);
 /* CALLBACK */
-
 static void changed(GtkTextBuffer *text_buffer, gpointer user_data)
 {
   MbRootTextBlock *_self = MB_ROOT_TEXT_BLOCK(user_data);
@@ -39,7 +46,6 @@ static void changed(GtkTextBuffer *text_buffer, gpointer user_data)
   MbBlockViewPage *block_view_page = MB_BLOCK_VIEW_PAGE(ancestor);
   gint64 id;
   g_object_get(block_view_page, "id", &id, NULL);
-  
   // Update block's content in SQL.
   GtkTextIter start, end;
   gtk_text_buffer_get_start_iter(text_buffer, &start);
@@ -53,7 +59,6 @@ static void changed(GtkTextBuffer *text_buffer, gpointer user_data)
   block_update_content(id, content);
   g_free(content);
 }
-
 static gboolean key_pressed(
   GtkEventControllerKey *key, 
   guint keyval, 
@@ -68,12 +73,10 @@ static gboolean key_pressed(
   if(keyval == GDK_KEY_Return)
   {
     block_increment_all_position();
-
     // Create new block in GUI.
     GtkWidget *child = mb_text_block_new();
     gtk_box_prepend(GTK_BOX(_self->children_blocks), child);
     mb_text_block_grab_focus(MB_TEXT_BLOCK(child));
-
     // Create new block in SQL.
     gint64 creation_time = get_current_timestamp();
     gint64 is_document = 0;
@@ -93,11 +96,62 @@ static gboolean key_pressed(
   }
   return FALSE;
 }
+/* PROPERTIES */
+enum property_types
+{
+  PROP_ID = 1,
+  N_PROPERTIES
+};
+static GParamSpec *properties[N_PROPERTIES];
+static void get_property(
+  GObject *object,
+  guint property_id,
+  GValue *value,
+  GParamSpec *pspec
+)
+{
+  MbRootTextBlock *_self = MB_ROOT_TEXT_BLOCK(object);
+  switch(property_id)
+  {
+    case PROP_ID:
+    {
+      _self->id = g_value_get_int64(value);
+      break;
+    }
+    default:
+    {
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+      break;
+    }
+  }
+}
+static void set_property(
+  GObject *object,
+  guint property_id,
+  const GValue *value,
+  GParamSpec *pspec
+)
+{
+  MbRootTextBlock *_self = MB_ROOT_TEXT_BLOCK(object);
+  switch(property_id)
+  {
+    case PROP_ID:
+    {
+      _self->id = g_value_get_int64(value);
+      break;
+    }
+    default:
+    {
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+      break;
+    }
+  }
+}
 
 /* WIDGET LIFECYCLE */
-
 static void mb_root_text_block_init(MbRootTextBlock *self) 
 {
+  g_print("mb_root_text_block_init\n");
   /* INSTANTIATE WIDGETS */
   self->layout = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   self->hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
@@ -113,6 +167,7 @@ static void mb_root_text_block_init(MbRootTextBlock *self)
   gtk_widget_set_hexpand(self->text_view, TRUE);
   gtk_widget_set_parent(self->layout, GTK_WIDGET(self));
   /** GET CHILDREN BLOCKS **/
+  g_print("mb_root_text_block: get_all_children_ids\n");
   /* CONNECT TO SIGNALS */
   gtk_widget_add_controller(self->text_view, self->key_controller);
   g_signal_connect(
@@ -131,7 +186,6 @@ static void mb_root_text_block_init(MbRootTextBlock *self)
     self
   );
 }
-
 static void mb_root_text_block_class_init(MbRootTextBlockClass *klass) 
 {
   GObjectClass *object_class = G_OBJECT_CLASS(klass);
@@ -139,7 +193,23 @@ static void mb_root_text_block_class_init(MbRootTextBlockClass *klass)
   /* MAP VIRTUAL FUNCTIONS */
   object_class->dispose = dispose;
   object_class->finalize = finalize;
+  object_class->get_property = get_property;
+  object_class->set_property = set_property;
   /* PROPERTY */
+  properties[PROP_ID] = g_param_spec_int64(
+    "id",
+    "id",
+    "id",
+    0,
+    G_MAXINT64,
+    0,
+    G_PARAM_READWRITE
+  );
+  g_object_class_install_properties(
+    object_class,
+    N_PROPERTIES,
+    properties
+  );
   /* SIGNAL */
   /* LAYOUT MANAGER */
   gtk_widget_class_set_layout_manager_type(
@@ -147,23 +217,19 @@ static void mb_root_text_block_class_init(MbRootTextBlockClass *klass)
     GTK_TYPE_BOX_LAYOUT
   );
 }
-
-
 static void dispose(GObject *object) 
 {
   MbRootTextBlock *self = MB_ROOT_TEXT_BLOCK(object);
   g_clear_pointer(&self->layout, gtk_widget_unparent);
   G_OBJECT_CLASS(mb_root_text_block_parent_class)->dispose(object);
 }
+static void finalize(GObject *object) 
+{
 
-static void finalize(GObject *object) {}
-
-/* PROPERTIES */
+}
 /* SIGNALS */
 /* PUBLIC IMPLEMENTATION */
-
-void
-mb_root_text_block_append_content(
+void mb_root_text_block_append_content(
   MbRootTextBlock *_self, 
   gchar *content
 )
@@ -175,8 +241,7 @@ mb_root_text_block_append_content(
   gtk_text_buffer_insert(text_buffer, &end, content, -1);
 }
 
-void
-mb_root_text_block_insert_child_after(
+void mb_root_text_block_insert_child_after(
   MbRootTextBlock *self,
   MbTextBlock *child,
   MbTextBlock *sibling
@@ -189,20 +254,17 @@ mb_root_text_block_insert_child_after(
   );
 }
 
-GtkWidget*
-mb_root_text_block_new()
+GtkWidget* mb_root_text_block_new()
 {
   return g_object_new(MB_TYPE_ROOT_TEXT_BLOCK, NULL);
 }
 
-void
-mb_root_text_block_grab_focus(MbRootTextBlock *self)
+void mb_root_text_block_grab_focus(MbRootTextBlock *self)
 {
   gtk_widget_grab_focus(self->text_view);
 }
 
-void
-mb_root_text_block_remove_child(
+void mb_root_text_block_remove_child(
   MbRootTextBlock *_self, 
   MbTextBlock *_child
 )
@@ -212,13 +274,8 @@ mb_root_text_block_remove_child(
 
   if(_self->children_blocks != gtk_widget_get_parent(child))
   {
-    g_print(
-      "mb_root_text_block.c, mb_root_text_block_remove_child(): "
-      "child is not in self->children_blocks.\n"
-    );
     return;
   }
-
   gtk_box_remove(_children_blocks, child);
 }
 
@@ -236,6 +293,7 @@ void mb_root_text_block_set_content(
 
 static gint64 get_id(MbRootTextBlock* _self)
 {
+  g_print("mb_root_text_block: get_id\n");
   GtkWidget *self = GTK_WIDGET(_self);
   GtkWidget *ancestor = gtk_widget_get_ancestor(
     self, 
