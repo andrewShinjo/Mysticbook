@@ -177,6 +177,7 @@ static gboolean key_pressed(GtkEventControllerKey *event_controller_key, guint k
 
 static void mb_text_block_init(MbTextBlock *self) 
 {
+  /* INSTANTIATE WIDGETS */
   self->layout = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   self->hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
   self->bullet_point = gtk_label_new("  •  ");
@@ -185,41 +186,40 @@ static void mb_text_block_init(MbTextBlock *self)
   self->key_controller = gtk_event_controller_key_new();
   self->focus_controller = gtk_event_controller_focus_new();
   self->selected = FALSE;
-
+  /* CONFIGURE WIDGETS */
+  gtk_widget_set_hexpand(self->layout, TRUE);
+  gtk_widget_set_vexpand(self->layout, TRUE);
+  gtk_widget_set_hexpand(self->hbox, TRUE);
+  gtk_widget_set_vexpand(self->hbox, TRUE);
+  gtk_widget_allocate(self->text_view, 0, 0, 0, NULL);
+  gtk_widget_set_hexpand(self->text_view, TRUE);
+  gtk_widget_set_valign(self->bullet_point, GTK_ALIGN_START);
+  gtk_box_append(GTK_BOX(self->hbox), self->bullet_point);
+  gtk_box_append(GTK_BOX(self->hbox), self->text_view);
+  gtk_widget_set_margin_start(self->children_blocks, 32);
+  gtk_box_append(GTK_BOX(self->layout), self->hbox);
+  gtk_box_append(GTK_BOX(self->layout), self->children_blocks);
+  gtk_widget_set_parent(self->layout, GTK_WIDGET(self));
+  /* CONNECT TO SIGNALS */
   gtk_widget_add_controller(self->text_view, self->key_controller);
+  gtk_widget_add_controller(self->text_view, self->focus_controller);
   g_signal_connect(
     self->key_controller,
     "key-pressed",
     G_CALLBACK(key_pressed),
     self
   );
-
-  gtk_widget_add_controller(self->text_view, self->focus_controller);
-  g_signal_connect(self->focus_controller, "leave", G_CALLBACK(leave), self);
-
-  gtk_widget_set_hexpand(self->layout, TRUE);
-  gtk_widget_set_vexpand(self->layout, TRUE);
-  gtk_widget_set_hexpand(self->hbox, TRUE);
-  gtk_widget_set_vexpand(self->hbox, TRUE);
-
-  gtk_widget_allocate(self->text_view, 0, 0, 0, NULL);
-  gtk_widget_set_hexpand(self->text_view, TRUE);
-
-  gtk_widget_set_valign(self->bullet_point, GTK_ALIGN_START);
-
-  gtk_box_append(GTK_BOX(self->hbox), self->bullet_point);
-  gtk_box_append(GTK_BOX(self->hbox), self->text_view);
-
-  gtk_widget_set_margin_start(self->children_blocks, 32);
-
-  gtk_box_append(GTK_BOX(self->layout), self->hbox);
-  gtk_box_append(GTK_BOX(self->layout), self->children_blocks);
-  gtk_widget_set_parent(self->layout, GTK_WIDGET(self));
+  g_signal_connect(
+    self->focus_controller, 
+    "leave", 
+    G_CALLBACK(leave), 
+    self
+  );
 }
 
 static void mb_text_block_class_init(MbTextBlockClass *klass) 
 {
-  GObjectClass *object_class = G_OBJECT_CLASS(klass);
+  GObjectClass   *object_class = G_OBJECT_CLASS(klass);
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 
   /* MAP VIRTUAL FUNCTIONS */
