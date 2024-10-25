@@ -196,6 +196,7 @@ static gboolean key_pressed(
     gtk_text_view_set_cursor_visible(text_view, TRUE);
     gtk_text_view_set_editable(text_view, TRUE);
     gtk_widget_queue_draw(self);
+    // Add new block.
     if(!state || !GDK_SHIFT_MASK)
     {
       if(has_child(_self))
@@ -207,6 +208,8 @@ static gboolean key_pressed(
       }
       else
       {
+        // Add block to SQL.
+        // Add block to GUI.
         GtkWidget *sibling = mb_text_block_new();
         MbTextBlock *_sibling = MB_TEXT_BLOCK(sibling);
         append_sibling_after_self(_self, _sibling);

@@ -72,10 +72,6 @@ static gboolean key_pressed(
   if(keyval == GDK_KEY_Return)
   {
     block_increment_all_position();
-    // Create new block in GUI.
-    GtkWidget *child = mb_text_block_new();
-    gtk_box_prepend(GTK_BOX(_self->children_blocks), child);
-    mb_text_block_grab_focus(MB_TEXT_BLOCK(child));
     // Create new block in SQL.
     gint64 creation_time = get_current_timestamp();
     gint64 is_document = 0;
@@ -83,7 +79,7 @@ static gboolean key_pressed(
     gint64 parent_id = _self->id;
     gint64 position = 1;
     gchar *content = "";
-    block_new_all_fields(
+    gint64 new_id = block_new_all_fields(
       &creation_time, 
       &is_document, 
       NULL, 
@@ -91,6 +87,10 @@ static gboolean key_pressed(
       &parent_id, 
       content
     );
+    // Create new block in GUI.
+    GtkWidget *child = mb_text_block_new(new_id);
+    gtk_box_prepend(GTK_BOX(_self->children_blocks), child);
+    mb_text_block_grab_focus(MB_TEXT_BLOCK(child));
     return TRUE;
   }
   return FALSE;

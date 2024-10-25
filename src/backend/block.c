@@ -2,7 +2,8 @@
 #include "./database.h"
 #include "./block.h"
 
-static int find_all_callback(
+static int
+find_all_callback(
 	void *data, 
 	int  column_count,
 	char **column_text,
@@ -119,7 +120,8 @@ GArray* block_get_all_children_ids(gint64 parent_id)
   GArray *ids = g_array_new(FALSE, FALSE, sizeof(gint64));
   sqlite3 *db = db_get();
   sqlite3_stmt *stmt;
-  const char *sql = "SELECT id FROM blocks WHERE parent_id = ?;";
+  const char *sql = 
+    "SELECT id FROM blocks WHERE parent_id = ? ORDER BY position DESC;";
   int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
   if(rc != SQLITE_OK)
   {
@@ -179,16 +181,16 @@ block_new_all_fields(
       "content"
     ")"
     "VALUES(?,?,?,?,?,?)";
-
   int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
   if(rc != SQLITE_OK)
   {
     fprintf(
       stderr,
-      "Failed to prepare statement: %s\n", sqlite3_errmsg(db)
+      "Failed to prepare statement: %s\n", 
+      sqlite3_errmsg(db)
     );
+    return -1;
   }
-
   if(creation_time != NULL) 
   {
     sqlite3_bind_int64(stmt, *creation_time, 1);
@@ -237,7 +239,6 @@ block_new_all_fields(
   {
     sqlite3_bind_text(stmt, 6, "", 0, SQLITE_STATIC);
   }
-
   rc = sqlite3_step(stmt);
   if(rc != SQLITE_DONE)
   {
@@ -245,8 +246,10 @@ block_new_all_fields(
       stderr,
       "Failed to execute statement: %s\n", sqlite3_errmsg(db)
     );
+    return -1;
   }
   sqlite3_finalize(stmt);
+	return sqlite3_last_insert_rowid(db);
 }
 
 
