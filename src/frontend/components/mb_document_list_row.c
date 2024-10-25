@@ -221,9 +221,6 @@ static void mb_document_list_row_finalize(GObject *object)
 
 GtkWidget* mb_document_list_row_new(gchar *content, gint64 id)
 {
-  g_print("content = %s\n", content);
-  g_print("id = %ld\n", id);
-
 	return g_object_new(
 		MB_TYPE_DOCUMENT_LIST_ROW,
 		"content", content,

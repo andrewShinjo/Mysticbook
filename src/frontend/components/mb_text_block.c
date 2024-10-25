@@ -108,28 +108,41 @@ static void set_property(
 
 /* CALLBACK */
 
-static gboolean key_pressed(GtkEventControllerKey *event_controller_key, guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
+static gboolean key_pressed(
+  GtkEventControllerKey *event_controller_key,
+  guint keyval, 
+  guint keycode, 
+  GdkModifierType state, 
+  gpointer user_data
+)
 {
   MbTextBlock *_self = MB_TEXT_BLOCK(user_data);
-  GtkWidget *self = GTK_WIDGET(user_data);
+  GtkWidget   *self  = GTK_WIDGET(user_data);
 
   if(keyval == GDK_KEY_a)
   {
     if(state & GDK_CONTROL_MASK)
     {
-      gboolean should_highlight_block = is_all_text_highlighted(_self) || is_empty(_self);
+      gboolean should_highlight_block = 
+        is_all_text_highlighted(_self) || is_empty(_self);
       if(should_highlight_block)
       {
-        //_self->selected = TRUE;
-        //gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(_self->text_view), FALSE);
-        //gtk_text_view_set_editable(GTK_TEXT_VIEW(_self->text_view), FALSE);
+        // _self->selected = TRUE;
+        // gtk_text_view_set_cursor_visible(
+        //   GTK_TEXT_VIEW(_self->text_view), 
+        //   FALSE
+        // );
+        // gtk_text_view_set_editable(
+        //   GTK_TEXT_VIEW(_self->text_view), 
+        //   FALSE
+        // );
         //gtk_widget_queue_draw(GTK_WIDGET(_self));
       }
     }
   }
   else if(keyval == GDK_KEY_BackSpace)
   {
-    if(is_insert_at_start(_self) && ! is_all_text_highlighted(_self))
+    if(is_insert_at_start(_self) && !is_all_text_highlighted(_self))
     {
       remove_self(_self);
     }
@@ -149,10 +162,11 @@ static gboolean key_pressed(GtkEventControllerKey *event_controller_key, guint k
   else if(keyval == GDK_KEY_Return)
   {
     _self->selected = FALSE;
-    gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(_self->text_view), TRUE);
-    gtk_text_view_set_editable(GTK_TEXT_VIEW(_self->text_view), TRUE);
+    GtkTextView *text_view = GTK_TEXT_VIEW(_self->text_view);
+    gtk_text_view_set_cursor_visible(text_view, TRUE);
+    gtk_text_view_set_editable(text_view, TRUE);
     gtk_widget_queue_draw(self);
-    if(! (state && GDK_SHIFT_MASK) )
+    if(!state || !GDK_SHIFT_MASK)
     {
       if(has_child(_self))
       {
@@ -266,9 +280,9 @@ static void finalize(GObject *object)
 
 /* PUBLIC IMPLEMENTATION */
 
-GtkWidget* mb_text_block_new()
+GtkWidget* mb_text_block_new(gint64 id)
 {
-  return g_object_new(MB_TYPE_TEXT_BLOCK, NULL);
+  return g_object_new(MB_TYPE_TEXT_BLOCK, "id", id, NULL);
 }
 
 void mb_text_block_grab_focus(MbTextBlock *self)
@@ -543,7 +557,11 @@ static void remove_self(MbTextBlock *_self)
       MbTextBlock *_first_child = MB_TEXT_BLOCK(first_child);
       g_object_ref(first_child);
       remove_child(_self, _first_child);
-      mb_root_text_block_insert_child_after(_parent, _first_child, _self);
+      mb_root_text_block_insert_child_after(
+        _parent, 
+        _first_child, 
+        _self
+      );
       g_object_unref(first_child);
       first_child = get_first_child(_self);
     }
