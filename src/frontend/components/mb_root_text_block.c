@@ -30,11 +30,15 @@ static void changed(GtkTextBuffer *text_buffer, gpointer user_data)
 {
   MbRootTextBlock *_self = MB_ROOT_TEXT_BLOCK(user_data);
   GtkWidget *self = GTK_WIDGET(user_data);
-  GtkWidget *ancestor = gtk_widget_get_ancestor(self, MB_TYPE_BLOCK_VIEW_PAGE);
+  GtkWidget *ancestor = gtk_widget_get_ancestor(
+    self, 
+    MB_TYPE_BLOCK_VIEW_PAGE
+  );
   MbBlockViewPage *block_view_page = MB_BLOCK_VIEW_PAGE(ancestor);
   gint64 id;
   g_object_get(block_view_page, "id", &id, NULL);
   
+  // Update block's content in SQL.
   GtkTextIter start, end;
   gtk_text_buffer_get_start_iter(text_buffer, &start);
   gtk_text_buffer_get_end_iter(text_buffer, &end);
@@ -191,8 +195,7 @@ mb_root_text_block_remove_child(
   gtk_box_remove(_children_blocks, child);
 }
 
-void
-mb_root_text_block_set_content(
+void mb_root_text_block_set_content(
   MbRootTextBlock *_self,
   const gchar *content
 )
@@ -207,7 +210,10 @@ mb_root_text_block_set_content(
 static gint64 get_id(MbRootTextBlock* _self)
 {
   GtkWidget *self = GTK_WIDGET(_self);
-  GtkWidget *ancestor = gtk_widget_get_ancestor(self, MB_TYPE_BLOCK_VIEW_PAGE);
+  GtkWidget *ancestor = gtk_widget_get_ancestor(
+    self, 
+    MB_TYPE_BLOCK_VIEW_PAGE
+  );
   MbBlockViewPage *block_view_page = MB_BLOCK_VIEW_PAGE(ancestor);
   gint64 id;
   g_object_get(block_view_page, "id", &id, NULL);

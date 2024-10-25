@@ -11,17 +11,15 @@ typedef struct
 	int                 is_document;
 } Block;
 
-int           
+int
 block_delete_by_id(sqlite3_int64 id);
 
 void          
 block_find_by_id(sqlite3_int64 id, Block *b);
 
-GArray*       
-block_get_all();
-
-GArray*       
-block_get_all_ids();
+GArray* block_get_all();
+GArray* block_get_all_ids();
+GArray* block_get_all_children_ids(gint64 parent_id);
 
 int
 block_get_children_count(gint64 id);

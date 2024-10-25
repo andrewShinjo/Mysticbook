@@ -213,7 +213,7 @@ static void mb_text_block_init(MbTextBlock *self)
   gtk_widget_set_margin_start(self->children_blocks, 32);
   gtk_box_append(GTK_BOX(self->layout), self->hbox);
   gtk_box_append(GTK_BOX(self->layout), self->children_blocks);
-  gtk_widget_set_parent(self->layout, GTK_WIDGET(self));
+  gtk_widget_set_parent(self->layout, GTK_WIDGET(self)); 
   /* CONNECT TO SIGNALS */
   gtk_widget_add_controller(self->text_view, self->key_controller);
   gtk_widget_add_controller(self->text_view, self->focus_controller);
