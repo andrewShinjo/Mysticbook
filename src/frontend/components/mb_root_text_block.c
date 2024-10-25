@@ -99,7 +99,6 @@ static void
 notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
 {
   MbRootTextBlock *_self = MB_ROOT_TEXT_BLOCK(object);
-  g_print("MbRootTextBlock notify_id: id=%ld\n", _self->id);
 
   // Get block content.
   const gchar *content = block_get_content(_self->id);
@@ -112,7 +111,8 @@ notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
   for(guint i = 0; i < children_ids->len; i++)
   {
     gint64 child_id = g_array_index(children_ids, gint64, i);
-    g_print("child_id=%ld\n", child_id);
+    GtkWidget *child_block = mb_text_block_new(child_id);
+    gtk_box_append(GTK_BOX(_self->children_blocks), child_block);
   }
 }
 /* PROPERTIES */
@@ -305,7 +305,8 @@ void mb_root_text_block_remove_child(
   gtk_box_remove(_children_blocks, child);
 }
 
-void mb_root_text_block_set_content(
+void 
+mb_root_text_block_set_content(
   MbRootTextBlock *_self,
   const gchar *content
 )
