@@ -174,11 +174,49 @@ static void finalize(GObject *object)
 
 enum property_types
 {
-  ID = 1,
+  PROP_ID = 1,
   N_PROPERTIES
 };
 
 static GParamSpec *properties[N_PROPERTIES];
+
+static void mb_text_block_get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
+{
+  MbTextBlock *_self = MB_TEXT_BLOCK(object);
+
+  switch(property_id)
+  {
+    case PROP_ID:
+    {
+      g_value_set_int64(value, _self->id);
+      break;
+    }
+    default:
+    {
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+      break;
+    }
+  }
+}
+
+static void mb_text_block_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
+{
+  MbTextBlock *_self = MB_TEXT_BLOCK(object);
+
+  switch(property_id)
+  {
+    case PROP_ID:
+    {
+      _self->id = g_value_get_int64(value);
+      break;
+    }
+    default:
+    {
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+      break;
+    }
+  }
+}
 
 /* SIGNALS */
 
@@ -194,14 +232,12 @@ void mb_text_block_grab_focus(MbTextBlock *self)
   gtk_widget_grab_focus(self->text_view);
 }
 
-void
-mb_text_block_add_child(MbTextBlock *self, GtkWidget *child)
+void mb_text_block_add_child(MbTextBlock *self, GtkWidget *child)
 {
   gtk_box_append(GTK_BOX(self->children_blocks), child);
 }
 
-void
-mb_text_block_remove_child(MbTextBlock *self, GtkWidget *child)
+void mb_text_block_remove_child(MbTextBlock *self, GtkWidget *child)
 {
   GtkBox *_children_blocks = GTK_BOX(self->children_blocks);
   gtk_box_remove(_children_blocks, child);
