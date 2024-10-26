@@ -16,10 +16,29 @@ struct _MbDocumentsPage
 };
 G_DEFINE_TYPE(MbDocumentsPage, mb_documents_page, GTK_TYPE_WIDGET)
 /* FORWARD DECLARATION */
-static void dispose(GObject *object);
-static void finalize(GObject *object);
+static void 
+dispose(GObject *object);
+static void 
+finalize(GObject *object);
+static gboolean
+open_doc_signal_source_func(gpointer user_data);
 /* CALLBACK */
-static void open_row_cb(MbDocumentListRow *_row, gpointer user_data);
+static void
+open_row_cb(MbDocumentListRow *_row, gpointer user_data)
+{
+  MbDocumentsPage *_self = MB_DOCUMENTS_PAGE(user_data);
+  gint64 id;
+  g_object_get(G_OBJECT(_row), "id", id, NULL);
+  g_object_set(G_OBJECT(_self), "id", id, NULL);
+  open_doc_signal_source_func(_self);
+}
+static void 
+new_document_button_clicked(GtkButton *self, gpointer user_data)
+{
+  g_print("new_doc_button_clicked\n"); 
+  gint64 new_id = block_new();
+}
+
 /* PROPERTIES */
 enum property_types
 {
@@ -107,24 +126,6 @@ void populate_rows(MbDocumentsPage *_self)
     );
   }
 }
-
-static void
-open_row_cb(MbDocumentListRow *_row, gpointer user_data)
-{
-  MbDocumentsPage *_self = MB_DOCUMENTS_PAGE(user_data);
-  gint64 id;
-  g_object_get(G_OBJECT(_row), "id", id, NULL);
-  g_object_set(G_OBJECT(_self), "id", id, NULL);
-  open_doc_signal_source_func(_self);
-}
-
-static void 
-new_document_button_clicked(GtkButton *self, gpointer user_data)
-{
-  g_print("new_doc_button_clicked\n"); 
-  gint64 new_id = block_new();
-}
-
 static void 
 mb_documents_page_init(MbDocumentsPage *self)
 {
