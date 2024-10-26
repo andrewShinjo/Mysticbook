@@ -1,5 +1,4 @@
 #include "./mb_xxx.h"
-
 /* WIDGET DEFINITION */
 struct _MbXXX
 {
@@ -8,12 +7,9 @@ struct _MbXXX
   /* EVENT LISTENERS */
   /* PROPERTIES */
 };
-
 G_DEFINE_TYPE(MbXXX, mb_xxx, GTK_TYPE_WIDGET)
-
 /* FORWARD DECLARATION */
 /* CALLBACK */
-
 /* PROPERTIES */
 enum property_types
 {
@@ -57,21 +53,16 @@ mb_xxx_set_property(
 }
 
 /* SIGNALS */
-
 enum signal_types
 {
   LAST_SIGNAL
 };
-
 static guint signals[LAST_SIGNAL];
-
 static gboolean
 signal_name_source_func(gpointer user_data)
 {
   return G_SOURCE_CONTINUE;
 }
-
-
 /* WIDGET LIFECYCLE */
 
 static void
