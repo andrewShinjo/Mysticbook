@@ -43,7 +43,37 @@ static gboolean open_signal_source_func(gpointer user_data)
   g_signal_emit(_self, signals[OPEN], 0);
   return G_SOURCE_CONTINUE;
 }
+static void
+mb_document_list_row_get_property(
+	GObject *object,
+	guint property_id,
+	GValue *value,
+	GParamSpec *pspec
+)
+{
+	MbDocumentListRow *_self = MB_DOCUMENT_LIST_ROW(object);
 
+	switch(property_id)
+	{
+		case PROP_CONTENT:
+		{
+      GtkLabel *content_label = GTK_LABEL(_self->content_label);
+			g_value_set_string(value, _self->content);
+			gtk_label_set_text(content_label, _self->content);
+			break;
+		}
+    case PROP_ID:
+    {
+      g_value_set_int64(value, _self->id);
+      break;
+    }
+		default:
+		{
+			G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+			break;
+		}
+	}	
+}
 static void
 mb_document_list_row_set_property(
 	GObject *object,
@@ -77,39 +107,6 @@ mb_document_list_row_set_property(
 		} 
 	}
 }
-
-static void
-mb_document_list_row_get_property(
-	GObject *object,
-	guint property_id,
-	GValue *value,
-	GParamSpec *pspec
-)
-{
-	MbDocumentListRow *_self = MB_DOCUMENT_LIST_ROW(object);
-
-	switch(property_id)
-	{
-		case PROP_CONTENT:
-		{
-      GtkLabel *content_label = GTK_LABEL(_self->content_label);
-			g_value_set_string(value, _self->content);
-			gtk_label_set_text(content_label, _self->content);
-			break;
-		}
-    case PROP_ID:
-    {
-      g_value_set_int64(value, _self->id);
-      break;
-    }
-		default:
-		{
-			G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
-			break;
-		}
-	}	
-}
-
 /* Callbacks */
 static void
 delete_button_clicked(GtkButton *self, gpointer user_data)

@@ -15,15 +15,12 @@ G_DEFINE_TYPE(MbXXX, mb_xxx, GTK_TYPE_WIDGET)
 /* CALLBACK */
 
 /* PROPERTIES */
-
 enum property_types
 {
   FIRST_PROPERTY = 1,
   N_PROPERTIES
 };
-
 static GParamSpec *properties[N_PROPERTIES];
-
 static void
 mb_xxx_get_property(
   GObject *object,
@@ -41,7 +38,6 @@ mb_xxx_get_property(
     }
   }
 }
-
 static void
 mb_xxx_set_property(
   GObject *object,
