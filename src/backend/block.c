@@ -2,6 +2,10 @@
 #include "./database.h"
 #include "./block.h"
 
+/* FORWARD DECLARATION */
+static void 
+block_increment_positions(gint64 parent_id, gint64 start);
+
 static int
 find_all_callback(
 	void *data, 
@@ -51,8 +55,8 @@ find_all_ids_callback(
 }
 
 /* PUBLIC IMPLEMENTATION */
-
-int block_delete_by_id(sqlite3_int64 id)
+int 
+block_delete_by_id(sqlite3_int64 id)
 {
   sqlite3 *db = db_get();
 	sqlite3_stmt *stmt;
@@ -86,9 +90,8 @@ int block_delete_by_id(sqlite3_int64 id)
 	sqlite3_finalize (stmt);
 	return 0;
 }
-
-
-void block_find_by_id(sqlite3_int64 id, Block *b)
+void
+block_find_by_id(sqlite3_int64 id, Block *b)
 {
   sqlite3 *db = db_get();
   sqlite3_stmt *stmt;
@@ -114,14 +117,14 @@ void block_find_by_id(sqlite3_int64 id, Block *b)
     }
   }
 }
-
-GArray* block_get_all_children_ids(gint64 parent_id)
+GArray*
+block_get_all_children_ids(gint64 parent_id)
 {
   GArray *ids = g_array_new(FALSE, FALSE, sizeof(gint64));
   sqlite3 *db = db_get();
   sqlite3_stmt *stmt;
   const char *sql = 
-    "SELECT id FROM blocks WHERE parent_id = ? ORDER BY position DESC;";
+    "SELECT id FROM blocks WHERE parent_id = ? ORDER BY position;";
   int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
   if(rc != SQLITE_OK)
   {
@@ -158,7 +161,34 @@ void block_increment_all_position()
     sqlite3_free(error_message);
   }
 }
-
+static void 
+block_increment_positions(gint64 parent_id, gint64 position)
+{
+  sqlite3 *db = db_get();
+  sqlite3_stmt *stmt;
+  const char *sql = "UPDATE blocks SET position = position + 1 " 
+    "WHERE parent_id = ? AND position >= ?";
+  int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+  if(rc != SQLITE_OK)
+  {
+    fprintf(
+      stderr, 
+      "Failed to prepare statement: %s\n", 
+      sqlite3_errmsg(db)
+    );
+    return;
+  }
+  sqlite3_bind_int64(stmt, 1, parent_id);
+  sqlite3_bind_int64(stmt, 2, position);
+  if(sqlite3_step(stmt) != SQLITE_DONE)
+  {
+    fprintf(
+      stderr, 
+      "Failed to execute statement: %s\n", 
+      sqlite3_errmsg(db)
+    );
+  }
+}
 sqlite3_int64
 block_new_all_fields(
   gint64 *creation_time,
@@ -251,9 +281,47 @@ block_new_all_fields(
   sqlite3_finalize(stmt);
 	return sqlite3_last_insert_rowid(db);
 }
-
-
-sqlite3_int64 block_new()
+sqlite3_int64
+block_new_sibling(gint64 sibling_id)
+{
+  sqlite3 *db = db_get(); 
+  sqlite3_stmt *stmt;
+  const char *sql =
+    "SELECT parent_id, position FROM blocks WHERE id = ?;";
+  int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+  if(rc != SQLITE_OK)
+  {
+    fprintf(
+      stderr,
+      "Failed to prepare statement: %s\n", 
+      sqlite3_errmsg(db)
+    );
+    return -1;
+  }
+  sqlite3_bind_int64(stmt, 1, sibling_id);
+  if((rc = sqlite3_step(stmt)) == SQLITE_ROW)
+  {
+    gint64 parent_id = sqlite3_column_int64(stmt, 0);
+    gint64 start = sqlite3_column_int64(stmt, 1);
+    block_increment_positions(parent_id, start);
+    gint64 creation_time = 0;
+    gint64 is_document = 0;
+    gint64 modification_time = 0;
+    gchar *content = "";
+    gint64 new_id = block_new_all_fields(
+      &creation_time,
+      &is_document,
+      &modification_time,
+      &start,
+      &parent_id,
+      content
+    );
+    return new_id;
+  }
+  return -1;
+}
+sqlite3_int64
+block_new()
 {
   sqlite3 *db = db_get();
 	const char *sql = "INSERT INTO blocks(content) VALUES('Untitled');";
@@ -264,8 +332,8 @@ sqlite3_int64 block_new()
 	}
 	return sqlite3_last_insert_rowid(db);
 }
-
-GArray* block_get_all()
+GArray*
+block_get_all()
 {
   sqlite3 *db = db_get();
 	const char *sql = "SELECT * FROM blocks;";
@@ -279,8 +347,8 @@ GArray* block_get_all()
 	);
 	return blocks;
 }
-
-GArray* block_get_all_ids()
+GArray*
+block_get_all_ids()
 {
   sqlite3 *db = db_get();
   const char *sql = "SELECT id FROM blocks;";
@@ -293,8 +361,8 @@ GArray* block_get_all_ids()
     NULL
   );
 }
-
-int block_get_children_count(gint64 id)
+int
+block_get_children_count(gint64 id)
 {
   sqlite3 *db = db_get();
   sqlite3_stmt *stmt;
@@ -318,8 +386,8 @@ int block_get_children_count(gint64 id)
   sqlite3_finalize(stmt);
   return -1;
 }
-
-const gchar* block_get_content(gint64 id)
+const
+gchar* block_get_content(gint64 id)
 {
   sqlite3 *db = db_get();
   sqlite3_stmt *stmt;
@@ -341,8 +409,8 @@ const gchar* block_get_content(gint64 id)
   }
   return NULL;
 }
-
-int block_update_content(sqlite3_int64 id, gchar *content)
+int
+block_update_content(sqlite3_int64 id, gchar *content)
 {
   sqlite3 *db = db_get();
   sqlite3_stmt *stmt;

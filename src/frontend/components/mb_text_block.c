@@ -70,13 +70,16 @@ enum property_types
   PROP_ID = 1,
   N_PROPERTIES
 };
-
 static GParamSpec *properties[N_PROPERTIES];
-
-static void get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
+static void 
+get_property(
+  GObject *object, 
+  guint property_id, 
+  GValue *value, 
+  GParamSpec *pspec
+)
 {
   MbTextBlock *_self = MB_TEXT_BLOCK(object);
-
   switch(property_id)
   {
     case PROP_ID:
@@ -91,8 +94,8 @@ static void get_property(GObject *object, guint property_id, GValue *value, GPar
     }
   }
 }
-
-static void set_property(
+static void
+set_property(
   GObject *object, 
   guint property_id, 
   const GValue *value, 
@@ -100,7 +103,6 @@ static void set_property(
 )
 {
   MbTextBlock *_self = MB_TEXT_BLOCK(object);
-
   switch(property_id)
   {
     case PROP_ID:
@@ -115,12 +117,8 @@ static void set_property(
     }
   }
 }
-
 /* SIGNALS */
-
-
 /* CALLBACK */
-
 static void
 notify_id(
   GObject *object,
@@ -129,7 +127,6 @@ notify_id(
 )
 {
   MbTextBlock *_self = MB_TEXT_BLOCK(object);
-
   // Get block content.
   const gchar *content = block_get_content(_self->id);
   if(content != NULL)
@@ -208,9 +205,16 @@ static gboolean key_pressed(
       }
       else
       {
-        // Add block to SQL.
-        // Add block to GUI.
-        GtkWidget *sibling = mb_text_block_new();
+        // Create a new block in SQL.
+        gint64 creation_time = 0;
+        gint64 is_document = 0;
+        gint64 modification_time = creation_time;
+        gint64 parent_id;
+        gint64 position;
+        gchar *content = "";
+        gint64 new_id = block_new_sibling(_self->id);
+        // Create a new block in GUI.
+        GtkWidget *sibling = mb_text_block_new(new_id);
         MbTextBlock *_sibling = MB_TEXT_BLOCK(sibling);
         append_sibling_after_self(_self, _sibling);
         mb_text_block_grab_focus(_sibling);

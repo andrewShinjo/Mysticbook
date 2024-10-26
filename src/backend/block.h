@@ -4,11 +4,11 @@
 
 typedef struct
 {
-	sqlite3_int64       id;	
-	sqlite3_int64       creation_time;
-	sqlite3_int64       modification_time;
+	sqlite3_int64 id;	
+	sqlite3_int64 creation_time;
+	sqlite3_int64 modification_time;
 	const unsigned char *content;
-	int                 is_document;
+	int is_document;
 } Block;
 
 /* PUBLIC INTERFACE */
@@ -29,4 +29,5 @@ sqlite3_int64 block_new_all_fields(
   gint64 *parent_id,
   gchar *content
 );
+sqlite3_int64 block_new_sibling(gint64 sibling_id);
 int block_update_content(sqlite3_int64 id, gchar *content);
