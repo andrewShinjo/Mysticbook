@@ -1,5 +1,6 @@
 #include "./mb_app_window.h"
 #include "./mb_document_list_row.h"
+#include "../../backend/block.h"
 /* WIDGET DEFINITION */
 struct _MbDocumentListRow
 {
@@ -29,6 +30,21 @@ static void
 delete_button_clicked(GtkButton *self, gpointer user_data)
 {
 	g_print("Delete button clicked.\n");
+}
+static void
+notify_id(
+  GObject *object,
+  GParamSpec *pspec,
+  gpointer user_data
+)
+{
+  MbDocumentListRow *_self = MB_DOCUMENT_LIST_ROW(object);
+  const gchar *content = read_block_content(_self->id);  
+  g_print("listrow notify_id: content=%s\n", content);
+  if(content != NULL)
+  {
+    g_object_set(G_OBJECT(_self), "content", content, NULL); 
+  }
 }
 static void 
 open_button_clicked(GtkButton *button, gpointer user_data)
@@ -138,6 +154,12 @@ mb_document_list_row_init(MbDocumentListRow *self)
 	gtk_widget_set_halign(self->content_label, GTK_ALIGN_START);
 	gtk_widget_set_hexpand(self->content_label, TRUE);
   /* CONNECT TO SIGNALS */
+  g_signal_connect(
+    self,
+    "notify::id",
+    G_CALLBACK(notify_id),
+    self
+  );
 	g_signal_connect(
 		self->delete_button,
 		"clicked",
@@ -216,12 +238,10 @@ mb_document_list_row_finalize(GObject *object)
 }
 /* PUBLIC IMPLEMENTATION */
 GtkWidget* 
-mb_document_list_row_new(gint64 id, gchar *content)
+mb_document_list_row_new(gint64 id)
 {
 	return g_object_new(
 		MB_TYPE_DOCUMENT_LIST_ROW,
-		"content", 
-    content,
     "id", 
     id,
 		NULL

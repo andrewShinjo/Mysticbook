@@ -36,10 +36,12 @@ open_row_cb(MbDocumentListRow *_row, gpointer user_data)
 static void 
 new_document_button_clicked(GtkButton *self, gpointer user_data)
 {
-  g_print("new_doc_button_clicked\n"); 
+  GtkBox *document_list = GTK_BOX(user_data);
   // Create document in SQL.
   gint64 new_id = create_document();
   // Create document list row in GUI.
+  GtkWidget *new_document_list_row = mb_document_list_row_new(new_id);
+  gtk_box_append(document_list, new_document_list_row);
 }
 /* PROPERTIES */
 enum property_types

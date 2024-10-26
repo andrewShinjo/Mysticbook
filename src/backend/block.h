@@ -24,8 +24,6 @@ GArray*
 block_get_all_children_ids(gint64 parent_id);
 int 
 block_get_children_count(gint64 id);
-const gchar* 
-block_get_content(gint64 id);
 void 
 block_increment_all_position();
 sqlite3_int64 
@@ -50,5 +48,7 @@ create_document();
 /** READ **/
 void
 read_all_document_id_and_content(GArray *documents);
+const gchar*
+read_block_content(gint64 id);
 /** UPDATE **/
 /** DELETE **/

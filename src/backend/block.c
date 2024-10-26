@@ -386,29 +386,6 @@ block_get_children_count(gint64 id)
   sqlite3_finalize(stmt);
   return -1;
 }
-const
-gchar* block_get_content(gint64 id)
-{
-  sqlite3 *db = db_get();
-  sqlite3_stmt *stmt;
-  const char *sql = "SELECT content FROM blocks WHERE id = ?;";
-  int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
-  if(rc != SQLITE_OK)
-  {
-    fprintf(
-      stderr,
-      "Failed to prepare statement: %s\n",
-      sqlite3_errmsg(db)
-    );
-    return NULL;
-  }
-  sqlite3_bind_int64(stmt, 1, id);
-  if((rc = sqlite3_step(stmt)) == SQLITE_ROW)
-  {
-    return sqlite3_column_text(stmt, 0);
-  }
-  return NULL;
-}
 int
 block_update_content(sqlite3_int64 id, gchar *content)
 {
@@ -482,5 +459,29 @@ read_all_document_id_and_content(GArray *documents)
     g_array_append_val(documents, document);
   }
 }
+const gchar* 
+read_block_content(gint64 id)
+{
+  sqlite3 *db = db_get();
+  sqlite3_stmt *stmt;
+  const char *sql = "SELECT content FROM blocks WHERE id = ?;";
+  int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+  if(rc != SQLITE_OK)
+  {
+    fprintf(
+      stderr,
+      "Failed to prepare statement: %s\n",
+      sqlite3_errmsg(db)
+    );
+    return NULL;
+  }
+  sqlite3_bind_int64(stmt, 1, id);
+  if((rc = sqlite3_step(stmt)) == SQLITE_ROW)
+  {
+    return sqlite3_column_text(stmt, 0);
+  }
+  return NULL;
+}
+
 /** UPDATE **/
 /** DELETE **/

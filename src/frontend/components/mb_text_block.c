@@ -127,8 +127,7 @@ notify_id(
 )
 {
   MbTextBlock *_self = MB_TEXT_BLOCK(object);
-  // Get block content.
-  const gchar *content = block_get_content(_self->id);
+  const gchar *content = read_block_content(_self->id);
   if(content != NULL)
   {
     set_content(_self, content);     

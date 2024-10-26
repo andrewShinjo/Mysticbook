@@ -101,7 +101,7 @@ notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
   MbRootTextBlock *_self = MB_ROOT_TEXT_BLOCK(object);
 
   // Get block content.
-  const gchar *content = block_get_content(_self->id);
+  const gchar *content = read_block_content(_self->id);
   if(content != NULL)
   {
     mb_root_text_block_set_content(_self, content);
