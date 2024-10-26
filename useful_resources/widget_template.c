@@ -76,9 +76,9 @@ mb_xxx_init(MbXxx *_self)
 static void
 mb_xxx_class_init(MbXxxClass *klass) 
 {
-  /* MAP VFUNC */
-  /* PROPERTY */
-  /* SIGNAL */
+  /* MAP VIRTUAL FUNCTIONS */
+  /* PROPERTIES */
+  /* SIGNALS */
   /* LAYOUT MANAGER */
 }
 

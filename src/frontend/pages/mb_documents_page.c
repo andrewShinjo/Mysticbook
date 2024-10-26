@@ -130,32 +130,41 @@ mb_documents_page_init(MbDocumentsPage *self)
 	gtk_widget_set_hexpand(self->document_list, TRUE);
 	gtk_widget_set_vexpand(self->document_list, TRUE);
 	gtk_widget_set_halign(self->document_label, GTK_ALIGN_START);
-
+	gtk_widget_set_parent(self->vertical_box, GTK_WIDGET(self));
   populate_rows(self);
-
-  /* Callback */
+  /* CONNECT TO SIGNALS */
 	g_signal_connect(
 		self->new_document_button, 
 		"clicked", 
 		G_CALLBACK(new_document_button_clicked), 
 		self->document_list
 	);
-
-	gtk_widget_set_parent(self->vertical_box, GTK_WIDGET(self));
 }
-
 static void
 mb_documents_page_class_init(MbDocumentsPageClass *klass) 
 {
 	GObjectClass *object_class = G_OBJECT_CLASS(klass);
-
-  /* Map vfunc */
+  /* MAP VIRTUAL FUNCTIONS */
 	object_class->dispose =  dispose;
 	object_class->finalize = finalize;
-
-  /* Properties */
-
-  /* Signals */
+  object_class->get_property = get_property;
+  object_class->set_property = set_property;
+  /* PROPERTIES */
+  properties[PROP_ID] = g_param_spec_int64(
+    "id",
+    "id of block to open",
+    "id of block to open",
+    G_MININT64,
+    G_MAXINT64,
+    0,
+    G_PARAM_READWRITE
+  );
+  g_object_class_install_properties(
+    object_class,
+    N_PROPERTIES,
+    properties
+  );    
+  /* SIGNALS */
   signals[OPEN_DOC] = g_signal_new_class_handler(
     "open_doc",
     G_OBJECT_CLASS_TYPE(object_class),

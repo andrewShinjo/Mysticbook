@@ -155,14 +155,12 @@ static void
 mb_document_list_row_class_init(MbDocumentListRowClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS(klass);
-
-  /* Map vfunc */
+  /* MAP VIRTUAL FUNCTIONS */
 	object_class->dispose      = mb_document_list_row_dispose;
 	object_class->finalize     = mb_document_list_row_finalize;
 	object_class->set_property = mb_document_list_row_set_property;
 	object_class->get_property = mb_document_list_row_get_property;
-
-  /* Property */
+  /* PROPERTIES */
 	properties[PROP_CONTENT] = g_param_spec_string(
 		"content",                /* Name of property        */
 		"Content",                /* Nickname of property    */
@@ -184,8 +182,7 @@ mb_document_list_row_class_init(MbDocumentListRowClass *klass)
 		N_PROPERTIES,
 		properties
 	);
-
-  /* Signal */
+  /* SIGNALS */
   signals[OPEN] = g_signal_new_class_handler(
     "opened",
     G_OBJECT_CLASS_TYPE(object_class),
@@ -197,7 +194,7 @@ mb_document_list_row_class_init(MbDocumentListRowClass *klass)
     G_TYPE_NONE,
     0
   );
-  /* Layout Manager */
+  /* LAYOUT MANAGER */
 	gtk_widget_class_set_layout_manager_type(
 		GTK_WIDGET_CLASS(klass), 
 		GTK_TYPE_BOX_LAYOUT
