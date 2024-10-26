@@ -37,8 +37,9 @@ static void
 new_document_button_clicked(GtkButton *self, gpointer user_data)
 {
   g_print("new_doc_button_clicked\n"); 
+  // Create document in SQL.
   gint64 new_id = create_document();
-  g_print("new_id=%ld\n", new_id);
+  // Create document list row in GUI.
 }
 /* PROPERTIES */
 enum property_types

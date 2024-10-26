@@ -1,48 +1,51 @@
 #include "./mb_app_window.h"
 #include "./mb_document_list_row.h"
-
-enum property_types
-{
-	PROP_CONTENT = 1,
-  PROP_ID,
-	N_PROPERTIES
-};
-
-enum signal_types
-{
-  OPEN,
-  LAST_SIGNAL
-};
-
-static GParamSpec *properties[N_PROPERTIES];
-static guint signals[LAST_SIGNAL];
-
+/* WIDGET DEFINITION */
 struct _MbDocumentListRow
 {
 	GtkWidget parent;
-
-  /* Widgets */
+  /* WIDGETS */
 	GtkWidget *id_label;
 	GtkWidget *creation_time_label;
 	GtkWidget *modification_time_label;
 	GtkWidget *content_label;
 	GtkWidget *open_button;
 	GtkWidget *delete_button;
-
-  /* Properties */
-	gchar  *content;
+  /* EVENT LISTENERS */
+  /* PROPERTIES */
   guint64 id;
+	gchar  *content;
 };
-
 G_DEFINE_TYPE(MbDocumentListRow, mb_document_list_row, GTK_TYPE_WIDGET)
-
-/* Properties */
-static gboolean open_signal_source_func(gpointer user_data)
+/* FORWARD DECLARATION */
+static void 
+mb_document_list_row_dispose(GObject *object);
+static void
+mb_document_list_row_finalize(GObject *object);
+static gboolean 
+open_signal_source_func(gpointer user_data);
+/* CALLBACK */
+static void
+delete_button_clicked(GtkButton *self, gpointer user_data)
 {
-  MbDocumentListRow *_self = MB_DOCUMENT_LIST_ROW(user_data);
-  g_signal_emit(_self, signals[OPEN], 0);
-  return G_SOURCE_CONTINUE;
+	g_print("Delete button clicked.\n");
 }
+static void 
+open_button_clicked(GtkButton *button, gpointer user_data)
+{
+  g_print("mb_doc_list_row: open_button_clicked\n");
+  MbDocumentListRow *_self = MB_DOCUMENT_LIST_ROW(user_data);
+  open_signal_source_func(_self);
+}
+
+/* PROPERTIES */
+enum property_types
+{
+  PROP_ID = 1,
+	PROP_CONTENT,
+	N_PROPERTIES
+};
+static GParamSpec *properties[N_PROPERTIES];
 static void
 mb_document_list_row_get_property(
 	GObject *object,
@@ -52,7 +55,6 @@ mb_document_list_row_get_property(
 )
 {
 	MbDocumentListRow *_self = MB_DOCUMENT_LIST_ROW(object);
-
 	switch(property_id)
 	{
 		case PROP_CONTENT:
@@ -107,36 +109,35 @@ mb_document_list_row_set_property(
 		} 
 	}
 }
-/* Callbacks */
-static void
-delete_button_clicked(GtkButton *self, gpointer user_data)
+/* SIGNALS */
+enum signal_types
 {
-	g_print("Delete button clicked.\n");
-}
-
-static void open_button_clicked(GtkButton *button, gpointer user_data)
+  OPEN,
+  LAST_SIGNAL
+};
+static guint signals[LAST_SIGNAL];
+static gboolean 
+open_signal_source_func(gpointer user_data)
 {
-  g_print("mb_doc_list_row: open_button_clicked\n");
   MbDocumentListRow *_self = MB_DOCUMENT_LIST_ROW(user_data);
-  open_signal_source_func(_self);
+  g_signal_emit(_self, signals[OPEN], 0);
+  return G_SOURCE_CONTINUE;
 }
-
-static void mb_document_list_row_dispose(GObject *object);
-static void mb_document_list_row_finalize(GObject *object);
-
-static void mb_document_list_row_init(MbDocumentListRow *self)
+/* WIDGET LIFECYCLE */
+static void 
+mb_document_list_row_init(MbDocumentListRow *self)
 {
-  /* Initialize Widgets */
+  /* INSTANTIATE WIDGETS */
 	self->content_label = gtk_label_new(NULL);
-	gtk_widget_set_halign(self->content_label, GTK_ALIGN_START);
-	gtk_widget_set_hexpand(self->content_label, TRUE);
 	self->open_button = gtk_button_new_with_label("Open");
 	self->delete_button = gtk_button_new_with_label("Delete");
+  /* CONFIGURE WIDGETS */
 	gtk_widget_set_parent(self->content_label, GTK_WIDGET(self));
 	gtk_widget_set_parent(self->open_button, GTK_WIDGET(self));
 	gtk_widget_set_parent(self->delete_button, GTK_WIDGET(self));
-
-  /* Signal Connect */
+	gtk_widget_set_halign(self->content_label, GTK_ALIGN_START);
+	gtk_widget_set_hexpand(self->content_label, TRUE);
+  /* CONNECT TO SIGNALS */
 	g_signal_connect(
 		self->delete_button,
 		"clicked",
@@ -150,7 +151,6 @@ static void mb_document_list_row_init(MbDocumentListRow *self)
     self
 	);
 }
-
 static void 
 mb_document_list_row_class_init(MbDocumentListRowClass *klass)
 {
@@ -200,8 +200,8 @@ mb_document_list_row_class_init(MbDocumentListRowClass *klass)
 		GTK_TYPE_BOX_LAYOUT
 	);
 }
-
-static void mb_document_list_row_dispose(GObject *object)
+static void 
+mb_document_list_row_dispose(GObject *object)
 {
 	MbDocumentListRow *self = MB_DOCUMENT_LIST_ROW(object);
 	g_clear_pointer(&self->content_label, gtk_widget_unparent);
@@ -209,18 +209,22 @@ static void mb_document_list_row_dispose(GObject *object)
 	g_clear_pointer(&self->delete_button, gtk_widget_unparent);
 	G_OBJECT_CLASS(mb_document_list_row_parent_class)->dispose(object);
 }
-
-static void mb_document_list_row_finalize(GObject *object)
+static void 
+mb_document_list_row_finalize(GObject *object)
 {
 	G_OBJECT_CLASS(mb_document_list_row_parent_class)->finalize(object);
 }
-
-GtkWidget* mb_document_list_row_new(gchar *content, gint64 id)
+/* PUBLIC IMPLEMENTATION */
+GtkWidget* 
+mb_document_list_row_new(gint64 id, gchar *content)
 {
 	return g_object_new(
 		MB_TYPE_DOCUMENT_LIST_ROW,
-		"content", content,
-    "id", id,
+		"content", 
+    content,
+    "id", 
+    id,
 		NULL
 	);
 }
+/* PRIVATE IMPLEMENTATION */
