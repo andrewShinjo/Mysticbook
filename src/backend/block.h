@@ -44,6 +44,11 @@ block_new_sibling(gint64 sibling_id);
 int 
 block_update_content(sqlite3_int64 id, gchar *content);
 
-/** GET **/
+/** CREATE **/
+gint64
+create_document();
+/** READ **/
 void
-get_all_document_id_and_content(GArray *documents);
+read_all_document_id_and_content(GArray *documents);
+/** UPDATE **/
+/** DELETE **/

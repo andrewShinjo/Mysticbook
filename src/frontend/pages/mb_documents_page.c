@@ -13,6 +13,7 @@ struct _MbDocumentsPage
   /* EVENT LISTENERS */
   /* PROPERTIES */
   gint64 id;
+  /* OTHER */
 };
 G_DEFINE_TYPE(MbDocumentsPage, mb_documents_page, GTK_TYPE_WIDGET)
 /* FORWARD DECLARATION */
@@ -36,7 +37,8 @@ static void
 new_document_button_clicked(GtkButton *self, gpointer user_data)
 {
   g_print("new_doc_button_clicked\n"); 
-  gint64 new_id = block_new();
+  gint64 new_id = create_document();
+  g_print("new_id=%ld\n", new_id);
 }
 /* PROPERTIES */
 enum property_types

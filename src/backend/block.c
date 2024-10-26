@@ -425,22 +425,38 @@ block_update_content(sqlite3_int64 id, gchar *content)
     );
     return rc;
   }
-
   sqlite3_bind_text(stmt, 1, content, -1, SQLITE_STATIC);
   sqlite3_bind_int64(stmt, 2, id);
   rc = sqlite3_step(stmt);
-
   if(rc != SQLITE_DONE)
   {
     fprintf(stderr, "Failed to update row: %s\n", sqlite3_errmsg(db));
   }
-
   sqlite3_finalize(stmt);
   return 0;
 }
-/** GET **/
+/** CREATE **/
+gint64
+create_document()
+{
+  sqlite3 *db = db_get();
+  const char *query = 
+    "INSERT INTO blocks(is_document, content) "
+    "VALUES(1, 'Untitled');";
+  if(sqlite3_exec(db, query, 0, 0, 0) != SQLITE_OK)
+  {
+    fprintf(
+      stderr,
+      "create_document, insert failed: %s\n",
+      sqlite3_errmsg(db)
+    );
+    return -1;
+  }
+  return sqlite3_last_insert_rowid(db);
+}
+/** READ **/
 void
-get_all_document_id_and_content(GArray *documents)
+read_all_document_id_and_content(GArray *documents)
 {
   sqlite3 *db = db_get();
   sqlite3_stmt *stmt;
@@ -466,3 +482,5 @@ get_all_document_id_and_content(GArray *documents)
     g_array_append_val(documents, document);
   }
 }
+/** UPDATE **/
+/** DELETE **/
