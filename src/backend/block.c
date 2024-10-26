@@ -438,3 +438,31 @@ block_update_content(sqlite3_int64 id, gchar *content)
   sqlite3_finalize(stmt);
   return 0;
 }
+/** GET **/
+void
+get_all_document_id_and_content(GArray *documents)
+{
+  sqlite3 *db = db_get();
+  sqlite3_stmt *stmt;
+  const char *query = 
+    "SELECT id, content FROM blocks WHERE is_document = 1;";
+  int rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL); 
+  if(rc != SQLITE_OK)
+  {
+    fprintf(
+      stderr,
+      "Failed to prepare statement: %s\n",
+      sqlite3_errmsg(db)
+    );
+    return;
+  }
+  while(sqlite3_step(stmt) == SQLITE_ROW)
+  {
+    gint64 id = sqlite3_column_int64(stmt, 0);
+    const gchar *content = sqlite3_column_text(stmt, 1);
+    Block document;
+    document.id = id;
+    document.content = content;
+    g_array_append_val(documents, document);
+  }
+}

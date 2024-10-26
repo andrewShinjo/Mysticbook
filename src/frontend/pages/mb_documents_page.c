@@ -22,8 +22,6 @@ static void
 finalize(GObject *object);
 static gboolean
 open_doc_signal_source_func(gpointer user_data);
-static void 
-populate_rows(MbDocumentsPage *_self);
 /* CALLBACK */
 static void
 open_row_cb(MbDocumentListRow *_row, gpointer user_data)
@@ -131,7 +129,6 @@ mb_documents_page_init(MbDocumentsPage *self)
 	gtk_widget_set_vexpand(self->document_list, TRUE);
 	gtk_widget_set_halign(self->document_label, GTK_ALIGN_START);
 	gtk_widget_set_parent(self->vertical_box, GTK_WIDGET(self));
-  populate_rows(self);
   /* CONNECT TO SIGNALS */
 	g_signal_connect(
 		self->new_document_button, 
@@ -201,20 +198,3 @@ mb_documents_page_new()
   return g_object_new(MB_TYPE_DOCUMENTS_PAGE, NULL);
 }
 /* PRIVATE IMPLEMENTATION */
-static void populate_rows(MbDocumentsPage *_self)
-{
-  GtkBox *_document_list = GTK_BOX(_self->document_list);
-  GArray *blocks = block_get_all();
-  for(guint i=0; i < blocks->len; i++)
-  {
-    Block b = g_array_index(blocks, Block, i);
-    GtkWidget *new_row = mb_document_list_row_new(b.content, b.id);
-    gtk_box_append(_document_list, new_row);
-    g_signal_connect(
-      new_row,
-      "opened",
-      G_CALLBACK(open_row_cb),
-      _self
-    );
-  }
-}
