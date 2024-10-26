@@ -182,7 +182,6 @@ mb_documents_page_class_init(MbDocumentsPageClass *klass)
     GTK_TYPE_BOX_LAYOUT
   );
 }
-
 static void 
 dispose(GObject *object)
 {
@@ -190,24 +189,27 @@ dispose(GObject *object)
 	g_clear_pointer(&self->vertical_box, gtk_widget_unparent);
 	G_OBJECT_CLASS(mb_documents_page_parent_class)->dispose(object);
 }
-
 static void 
 finalize(GObject *object)
 {
 	G_OBJECT_CLASS(mb_documents_page_parent_class)->finalize(object);
 }
-
+/* PUBLIC IMPLEMENTATION */
+GtkWidget* 
+mb_documents_page_new()
+{
+  return g_object_new(MB_TYPE_DOCUMENTS_PAGE, NULL);
+}
+/* PRIVATE IMPLEMENTATION */
 static void populate_rows(MbDocumentsPage *_self)
 {
   GtkBox *_document_list = GTK_BOX(_self->document_list);
-  GArray *blocks         = block_get_all();
-
+  GArray *blocks = block_get_all();
   for(guint i=0; i < blocks->len; i++)
   {
     Block b = g_array_index(blocks, Block, i);
     GtkWidget *new_row = mb_document_list_row_new(b.content, b.id);
     gtk_box_append(_document_list, new_row);
-
     g_signal_connect(
       new_row,
       "opened",
@@ -215,10 +217,4 @@ static void populate_rows(MbDocumentsPage *_self)
       _self
     );
   }
-}
-
-GtkWidget* 
-mb_documents_page_new()
-{
-  return g_object_new(MB_TYPE_DOCUMENTS_PAGE, NULL);
 }
