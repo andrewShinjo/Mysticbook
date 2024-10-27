@@ -49,7 +49,7 @@ notify_id(
 static void 
 open_button_clicked(GtkButton *button, gpointer user_data)
 {
-  g_print("mb_doc_list_row: open_button_clicked\n");
+  g_print("document_list_row, open_button_clicked\n");
   MbDocumentListRow *_self = MB_DOCUMENT_LIST_ROW(user_data);
   open_signal_source_func(_self);
 }

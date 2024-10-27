@@ -48,6 +48,8 @@ create_document();
 /** READ **/
 void
 read_all_document_id_and_content(GArray *documents);
+void
+read_all_document_ids(GArray *document_ids);
 const gchar*
 read_block_content(gint64 id);
 /** UPDATE **/

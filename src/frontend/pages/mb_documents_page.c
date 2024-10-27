@@ -13,7 +13,6 @@ struct _MbDocumentsPage
   /* EVENT LISTENERS */
   /* PROPERTIES */
   gint64 id;
-  /* OTHER */
 };
 G_DEFINE_TYPE(MbDocumentsPage, mb_documents_page, GTK_TYPE_WIDGET)
 /* FORWARD DECLARATION */
@@ -22,26 +21,34 @@ dispose(GObject *object);
 static void 
 finalize(GObject *object);
 static gboolean
-open_doc_signal_source_func(gpointer user_data);
+open_document_signal_source_func(gpointer user_data);
 /* CALLBACK */
 static void
 open_row_cb(MbDocumentListRow *_row, gpointer user_data)
 {
   MbDocumentsPage *_self = MB_DOCUMENTS_PAGE(user_data);
   gint64 id;
-  g_object_get(G_OBJECT(_row), "id", id, NULL);
+  gint64 set_id;
+  g_object_get(G_OBJECT(_row), "id", &id, NULL);
   g_object_set(G_OBJECT(_self), "id", id, NULL);
-  open_doc_signal_source_func(_self);
+  open_document_signal_source_func(_self);
 }
 static void 
-new_document_button_clicked(GtkButton *self, gpointer user_data)
+new_document_button_clicked(GtkButton *button, gpointer user_data)
 {
-  GtkBox *document_list = GTK_BOX(user_data);
+  MbDocumentsPage *_self = MB_DOCUMENTS_PAGE(user_data);
+  GtkBox *document_list = GTK_BOX(_self->document_list);
   // Create document in SQL.
   gint64 new_id = create_document();
   // Create document list row in GUI.
   GtkWidget *new_document_list_row = mb_document_list_row_new(new_id);
   gtk_box_append(document_list, new_document_list_row);
+  g_signal_connect(
+    new_document_list_row,
+    "opened",
+    G_CALLBACK(open_row_cb),
+    _self
+  );
 }
 /* PROPERTIES */
 enum property_types
@@ -87,6 +94,7 @@ set_property(
     case PROP_ID:
     {
       _self->id = g_value_get_int64(value);
+      g_print("documents_page, set_property: %ld\n", _self->id);
       break;
     }
     default:
@@ -104,7 +112,7 @@ enum signal_types
 };
 static guint signals[LAST_SIGNAL];
 static gboolean
-open_doc_signal_source_func(gpointer user_data)
+open_document_signal_source_func(gpointer user_data)
 {
   MbDocumentsPage *_self = MB_DOCUMENTS_PAGE(user_data);
   g_signal_emit(_self, signals[OPEN_DOC], 0);
@@ -120,6 +128,24 @@ mb_documents_page_init(MbDocumentsPage *self)
 	self->document_list = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
 	self->document_label = gtk_label_new("Documents");
 	self->vertical_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+  /** Get document ids to populate list rows. **/
+  GtkBox *document_list = GTK_BOX(self->document_list);
+  GArray *document_ids = g_array_new(FALSE, FALSE, sizeof(gint64));
+  read_all_document_ids(document_ids);
+  for(int i = 0; i < document_ids->len; i++)
+  {
+    gint64 id = g_array_index(document_ids, gint64, i);
+    // Create document list row in GUI.
+    GtkWidget *new_document_list_row = mb_document_list_row_new(id);
+    gtk_box_append(document_list, new_document_list_row);
+    g_signal_connect(
+      new_document_list_row,
+      "opened",
+      G_CALLBACK(open_row_cb),
+      self
+    );
+  }
+  g_array_free(document_ids, TRUE);
   /* CONFIGURE WIDGETS */
   GtkBox *vertical_box = GTK_BOX(self->vertical_box);
 	gtk_widget_set_hexpand(self->vertical_box, TRUE);
@@ -139,7 +165,7 @@ mb_documents_page_init(MbDocumentsPage *self)
 		self->new_document_button, 
 		"clicked", 
 		G_CALLBACK(new_document_button_clicked), 
-		self->document_list
+		self
 	);
 }
 static void

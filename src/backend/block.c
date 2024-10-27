@@ -459,6 +459,28 @@ read_all_document_id_and_content(GArray *documents)
     g_array_append_val(documents, document);
   }
 }
+void
+read_all_document_ids(GArray *document_ids)
+{
+  sqlite3 *db = db_get();
+  sqlite3_stmt *stmt;
+  const char *query = "SELECT id FROM blocks WHERE is_document = 1;";
+  int rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+  if(rc != SQLITE_OK)
+  {
+    fprintf(
+      stderr,
+      "Failed to prepare statement: %s\n",
+      sqlite3_errmsg(db)
+    );
+    return;
+  }
+  while(sqlite3_step(stmt) == SQLITE_ROW)
+  {
+    gint64 id = sqlite3_column_int64(stmt, 0);
+    g_array_append_val(document_ids, id);
+  }
+}
 const gchar* 
 read_block_content(gint64 id)
 {

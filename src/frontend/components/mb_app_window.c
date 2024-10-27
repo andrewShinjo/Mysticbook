@@ -10,16 +10,19 @@ struct _MbAppWindow
 };
 
 G_DEFINE_TYPE(MbAppWindow, mb_app_window, GTK_TYPE_APPLICATION_WINDOW)
-
-/* Callback */
-
-static void open_doc_cb(MbDocumentsPage *doc_page, gpointer user_data)
+/* CALLBACK */
+static void 
+open_document_cb(
+  MbDocumentsPage *documents_page, 
+  gpointer user_data
+)
 {
   GtkWidget *self = GTK_WIDGET(user_data);
   MbAppWindow *_self = MB_APP_WINDOW(user_data);
-  g_print("mb_app_window: open_doc_cb\n");
-  gint64 id;
-  g_object_get(G_OBJECT(doc_page), "id", id, NULL);
+  g_print("mb_app_window: open_document_cb\n");
+  gint64 id = 0;
+  g_object_get(G_OBJECT(documents_page), "id", &id, NULL);
+  g_print("id=%ld\n", id);
   gtk_widget_unparent(_self->active_page);
   _self->active_page = mb_block_view_page_new(id);
   gtk_window_set_child(GTK_WINDOW(self), _self->active_page);
@@ -35,7 +38,7 @@ static void mb_app_window_init(MbAppWindow *self)
   g_signal_connect(
     self->active_page,
     "open_doc",
-    G_CALLBACK(open_doc_cb),
+    G_CALLBACK(open_document_cb),
     self
   );
 }
