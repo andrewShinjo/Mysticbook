@@ -120,6 +120,23 @@ set_property(
 /* SIGNALS */
 /* CALLBACK */
 static void
+changed(GtkTextBuffer *text_buffer, gpointer user_data)
+{
+  MbTextBlock *_self = MB_TEXT_BLOCK(user_data);
+  // Update block's content in SQL.
+  GtkTextIter start, end;
+  gtk_text_buffer_get_start_iter(text_buffer, &start);
+  gtk_text_buffer_get_end_iter(text_buffer, &end);
+  gchar *content = gtk_text_buffer_get_text(
+    text_buffer,
+    &start,
+    &end,
+    FALSE
+  );
+  block_update_content(_self->id, content);
+  g_free(content);
+}
+static void
 notify_id(
   GObject *object,
   GParamSpec *pspec,
@@ -257,18 +274,29 @@ static void mb_text_block_init(MbTextBlock *self)
     G_CALLBACK(notify_id),
     self
   );
+  /** Key controller **/
   gtk_widget_add_controller(self->text_view, self->key_controller);
-  gtk_widget_add_controller(self->text_view, self->focus_controller);
   g_signal_connect(
     self->key_controller,
     "key-pressed",
     G_CALLBACK(key_pressed),
     self
   );
+  /** Focus controller **/
+  gtk_widget_add_controller(self->text_view, self->focus_controller);
   g_signal_connect(
     self->focus_controller, 
     "leave", 
     G_CALLBACK(leave), 
+    self
+  );
+  /** Text buffer **/
+  GtkTextView *text_view = GTK_TEXT_VIEW(self->text_view);
+  GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(text_view);
+  g_signal_connect(
+    text_buffer,
+    "changed",
+    G_CALLBACK(changed),
     self
   );
 }

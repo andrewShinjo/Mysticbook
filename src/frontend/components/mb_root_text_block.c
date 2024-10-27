@@ -34,7 +34,8 @@ static void set_property(
   GParamSpec *pspec
 );
 /* CALLBACK */
-static void changed(GtkTextBuffer *text_buffer, gpointer user_data)
+static void 
+changed(GtkTextBuffer *text_buffer, gpointer user_data)
 {
   MbRootTextBlock *_self = MB_ROOT_TEXT_BLOCK(user_data);
   GtkWidget *self = GTK_WIDGET(user_data);
@@ -58,7 +59,8 @@ static void changed(GtkTextBuffer *text_buffer, gpointer user_data)
   block_update_content(id, content);
   g_free(content);
 }
-static gboolean key_pressed(
+static gboolean 
+key_pressed(
   GtkEventControllerKey *key, 
   guint keyval, 
   guint keycode, 
@@ -68,7 +70,6 @@ static gboolean key_pressed(
 {
   MbRootTextBlock *_self = MB_ROOT_TEXT_BLOCK(user_data);
   GtkWidget *self = GTK_WIDGET(user_data);
-
   if(keyval == GDK_KEY_Return)
   {
     block_increment_all_position();
@@ -99,21 +100,22 @@ static void
 notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
 {
   MbRootTextBlock *_self = MB_ROOT_TEXT_BLOCK(object);
-
   // Get block content.
   const gchar *content = read_block_content(_self->id);
   if(content != NULL)
   {
     mb_root_text_block_set_content(_self, content);
   }
-  // Get list of children ids.
+  // Get block children.
   GArray *children_ids = block_get_all_children_ids(_self->id);
-  for(guint i = 0; i < children_ids->len; i++)
+  guint length = children_ids->len;
+  for(guint i = 0; i < length; i++)
   {
     gint64 child_id = g_array_index(children_ids, gint64, i);
     GtkWidget *child_block = mb_text_block_new(child_id);
     gtk_box_append(GTK_BOX(_self->children_blocks), child_block);
   }
+  g_array_free(children_ids, TRUE);
 }
 /* PROPERTIES */
 enum property_types
@@ -186,8 +188,6 @@ static void mb_root_text_block_init(MbRootTextBlock *_self)
   gtk_widget_set_vexpand(_self->layout, TRUE);
   gtk_widget_set_hexpand(_self->text_view, TRUE);
   gtk_widget_set_parent(_self->layout, self);
-  /** GET CHILDREN BLOCKS **/
-  g_print("mb_root_text_block: get_all_children_ids\n");
   /* CONNECT TO SIGNALS */
   g_signal_connect(self, "notify::id", G_CALLBACK(notify_id), NULL);
   gtk_widget_add_controller(_self->text_view, _self->key_controller);
@@ -207,7 +207,8 @@ static void mb_root_text_block_init(MbRootTextBlock *_self)
     _self
   );
 }
-static void mb_root_text_block_class_init(MbRootTextBlockClass *klass) 
+static void 
+mb_root_text_block_class_init(MbRootTextBlockClass *klass) 
 {
   GObjectClass *object_class = G_OBJECT_CLASS(klass);
 

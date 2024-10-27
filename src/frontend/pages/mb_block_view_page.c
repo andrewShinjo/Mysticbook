@@ -226,7 +226,6 @@ static void mb_block_view_page_init(MbBlockViewPage *self)
   /* Get block data */
   Block b;
   block_find_by_id(self->id, &b);
-
   /* CONFIGURE WIDGETS */
   gtk_widget_set_hexpand(self->scrolled_window, TRUE);
   gtk_scrolled_window_set_child(
