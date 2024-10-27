@@ -64,7 +64,6 @@ signal_name_source_func(gpointer user_data)
   return G_SOURCE_CONTINUE;
 }
 /* WIDGET LIFECYCLE */
-
 static void
 mb_xxx_init(MbXxx *_self) 
 {
@@ -94,5 +93,4 @@ mb_xxx_finalize(GObject *object)
 
 }
 /* PUBLIC IMPLEMENTATION */
-
 /* PRIVATE IMPLEMENTATION */
