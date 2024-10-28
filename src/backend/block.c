@@ -302,7 +302,7 @@ block_new_sibling(gint64 sibling_id)
   if((rc = sqlite3_step(stmt)) == SQLITE_ROW)
   {
     gint64 parent_id = sqlite3_column_int64(stmt, 0);
-    gint64 start = sqlite3_column_int64(stmt, 1);
+    gint64 start = sqlite3_column_int64(stmt, 1) + 1;
     block_increment_positions(parent_id, start);
     gint64 creation_time = 0;
     gint64 is_document = 0;
