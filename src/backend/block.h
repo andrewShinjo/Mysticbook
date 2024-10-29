@@ -47,12 +47,28 @@ gint64
 create_document();
 /** READ **/
 void
+read_all_block_ids_by_parent_id_and_gt_position(
+  GArray *block_ids,
+  gint64 parent_id,
+  gint64 position
+);
+void
 read_all_document_id_and_content(GArray *documents);
 void
 read_all_document_ids(GArray *document_ids);
 const gchar*
 read_block_content(gint64 id);
+gint64
+read_block_position(gint64 id);
+gint64
+read_block_last_child_position(gint64 id);
+gint64
+read_block_parent_id(gint64 id);
 /** UPDATE **/
+void
+decrement_block_position(gint64 id);
+void
+increment_block_position(gint64 id);
 void
 update_block_parent(gint64 id, gint64 new_parent_id);
 /** DELETE **/

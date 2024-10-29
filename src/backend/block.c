@@ -433,6 +433,37 @@ create_document()
 }
 /** READ **/
 void
+read_all_block_ids_by_parent_id_and_gt_position(
+  GArray *block_ids,
+  gint64 parent_id,
+  gint64 position
+)
+{
+  g_print("read_all_block_ids_by_parent_id_and_gt_position\n");
+  sqlite3 *db = db_get();
+  sqlite3_stmt *stmt;
+  const char *query = 
+    "SELECT id FROM blocks WHERE parent_id = ? AND position > ?;";
+  int rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+  if(rc != SQLITE_OK)
+  {
+    fprintf(
+      stderr,
+      "Failed to prepare statement: %s\n",
+      sqlite3_errmsg(db)
+    );
+    return;
+  }
+  sqlite3_bind_int64(stmt, 1, parent_id);
+  sqlite3_bind_int64(stmt, 2, position);
+  while(sqlite3_step(stmt) == SQLITE_ROW)
+  {
+    gint64 id = sqlite3_column_int64(stmt, 0);
+    g_print("POSITION=%ld\n", id);
+    g_array_append_val(block_ids, id);
+  }
+}
+void
 read_all_document_id_and_content(GArray *documents)
 {
   sqlite3 *db = db_get();
@@ -504,8 +535,92 @@ read_block_content(gint64 id)
   }
   return NULL;
 }
-
+gint64
+read_block_position(gint64 id)
+{
+  sqlite3 *db = db_get();
+  sqlite3_stmt *stmt;
+  const char *query = "SELECT position FROM blocks WHERE id = ?;";
+  int rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+  if(rc != SQLITE_OK)
+  {
+    fprintf(
+      stderr, 
+      "Failed to prepare statement: %s\n",
+      sqlite3_errmsg(db)
+    );
+    return -1;
+  }
+  sqlite3_bind_int64(stmt, 1, id);
+  if((rc = sqlite3_step(stmt)) == SQLITE_ROW)
+  {
+    return sqlite3_column_int64(stmt, 0);
+  }
+  return -1;
+}
+gint64
+read_block_last_child_position(gint64 id)
+{
+  sqlite3 *db = db_get();
+  sqlite3_stmt *stmt;
+  const char *query = 
+  "SELECT IFNULL(MAX(position), -1) FROM blocks WHERE parent_id = ?;";
+  int rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+  if(rc != SQLITE_OK)
+  {
+    fprintf(
+      stderr,
+      "Failed to prepare statement: %s\n",
+      sqlite3_errmsg(db)
+    );
+    return -1;
+  }
+  sqlite3_bind_int64(stmt, 1, id);
+  if((rc = sqlite3_step(stmt)) == SQLITE_ROW)
+  {
+    return sqlite3_column_int64(stmt, 0);
+  }
+  return -1;
+}
+gint64
+read_block_parent_id(gint64 id)
+{
+  sqlite3 *db = db_get();
+  sqlite3_stmt *stmt;
+  const char *query = "SELECT parent_id FROM blocks WHERE id = ?;";
+  sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+  sqlite3_bind_int64(stmt, 1, id);
+  sqlite3_step(stmt);
+  return sqlite3_column_int64(stmt, 0);
+}
 /** UPDATE **/
+void 
+decrement_block_position(gint64 id)
+{
+  g_print("decrement_block_position\n");
+  sqlite3 *db = db_get();
+  sqlite3_stmt *stmt;
+  const char *query = "UPDATE blocks SET position = position - 1 " 
+    "WHERE id = ?;";
+  sqlite3_prepare_v2(db, query, -1, &stmt, 0);
+  sqlite3_bind_int64(stmt, 1, id);
+  sqlite3_step(stmt);
+}
+void 
+increment_block_position(gint64 id)
+{
+  sqlite3 *db = db_get();
+  sqlite3_stmt *stmt;
+  const char *query = "UPDATE blocks SET position = position + 1 " 
+    "WHERE id = ?;";
+  char *error_message = 0;
+  int rc = sqlite3_exec(db, query, 0, 0, &error_message);
+  if(rc != SQLITE_OK)
+  {
+    fprintf(stderr, "SQLite Error: %s\n", error_message);
+    sqlite3_free(error_message);
+  }
+}
 void
 update_block_parent(gint64 id, gint64 new_parent_id)
 {
@@ -550,6 +665,7 @@ update_block_parent(gint64 id, gint64 new_parent_id)
   sqlite3_bind_int64(stmt2, 2, new_position);
   sqlite3_bind_int64(stmt2, 3, id);
   sqlite3_step(stmt2);
+  // update later sibling position
   return;
 }
 /** DELETE **/

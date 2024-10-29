@@ -637,11 +637,27 @@ indent_self(MbTextBlock *_self)
     mb_root_text_block_remove_child(_parent, _self);
   }
   append_child(_previous_sibling, _self);
-  // Do indent in SQL
+
+  gint64 parent_id = read_block_parent_id(_self->id);
+  gint64 start_pos = read_block_position(_self->id);
+
   gint64 id = _self->id;
   gint64 new_parent_id;
   g_object_get(previous_sibling, "id", &new_parent_id, NULL);
+  // Do indent in SQL
   update_block_parent(id, new_parent_id);
+  // Update other positions
+  GArray *block_ids = g_array_new(FALSE, FALSE, sizeof(gint64));
+  read_all_block_ids_by_parent_id_and_gt_position(
+    block_ids,
+    parent_id,
+    start_pos
+  );
+  for(guint i = 0; i < block_ids->len; i++)
+  {
+    gint64 id_dec = g_array_index(block_ids, gint64, i);
+    decrement_block_position(id_dec);
+  }
 }
 static void 
 remove_self(MbTextBlock *_self)
