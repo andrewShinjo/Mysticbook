@@ -90,10 +90,21 @@ notify_id(
 )
 {
   MbTextBlock *_self = MB_TEXT_BLOCK(object);
+  // Get block content.
   const gchar *content = read_block_content(_self->id);
   if(content != NULL)
   {
     set_content(_self, content);     
+  }
+  // Get block children.
+  GtkBox *_children_blocks = GTK_BOX(_self->children_blocks);
+  GArray *children_ids = block_get_all_children_ids(_self->id);
+  guint length = children_ids->len;
+  for(guint i = 0; i < length; i++)
+  {
+    gint64 child_id = g_array_index(children_ids, gint64, i);
+    GtkWidget *child_block = mb_text_block_new(child_id);
+    gtk_box_append(_children_blocks, child_block); 
   }
 }
 
@@ -144,6 +155,8 @@ static gboolean key_pressed(
   }
   else if(keyval == GDK_KEY_Tab)
   {
+    // Indent block in SQL.
+    // Indent block in GUI.
     indent_self(_self);
     mb_text_block_grab_focus(_self);
     return TRUE;
@@ -589,17 +602,14 @@ append_sibling_after_self(MbTextBlock *_self, MbTextBlock *_sibling)
   }
 }
 static void 
-remove_child(MbTextBlock *self, MbTextBlock *_child)
+remove_child(MbTextBlock *_self, MbTextBlock *_child)
 {
-  GtkBox *_children_blocks = GTK_BOX(self->children_blocks);
+  GtkBox *_children_blocks = GTK_BOX(_self->children_blocks);
   GtkWidget *child = GTK_WIDGET(_child);
-
-  if(self->children_blocks != gtk_widget_get_parent(child))
+  if(_self->children_blocks != gtk_widget_get_parent(child))
   {
-    g_print("mb_text_block.c, remove_child(): child is not in _children_blocks.\n");
     return;
   }
-  
   gtk_widget_unparent(child); 
 }
 static void 
@@ -608,16 +618,13 @@ indent_self(MbTextBlock *_self)
   GtkWidget *self = GTK_WIDGET(_self);
   GtkWidget *parent = get_parent(_self);
   GtkWidget *previous_sibling = gtk_widget_get_prev_sibling(self);
-
   if(previous_sibling == NULL)
   {
     return;
   }
-
   assert(MB_IS_TEXT_BLOCK(previous_sibling));
-
   MbTextBlock *_previous_sibling = MB_TEXT_BLOCK(previous_sibling);
-
+  // Do indent in GUI.
   if(MB_IS_TEXT_BLOCK(previous_sibling) && MB_IS_TEXT_BLOCK(parent)) 
   {
     MbTextBlock *_parent = MB_TEXT_BLOCK(parent);
@@ -630,6 +637,11 @@ indent_self(MbTextBlock *_self)
     mb_root_text_block_remove_child(_parent, _self);
   }
   append_child(_previous_sibling, _self);
+  // Do indent in SQL
+  gint64 id = _self->id;
+  gint64 new_parent_id;
+  g_object_get(previous_sibling, "id", &new_parent_id, NULL);
+  update_block_parent(id, new_parent_id);
 }
 static void 
 remove_self(MbTextBlock *_self)

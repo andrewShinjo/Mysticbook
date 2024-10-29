@@ -506,4 +506,50 @@ read_block_content(gint64 id)
 }
 
 /** UPDATE **/
+void
+update_block_parent(gint64 id, gint64 new_parent_id)
+{
+  sqlite3 *db = db_get();
+  sqlite3_stmt *stmt;
+  // get the highest position number where new_parent_id is parent_id
+  const char *query = "SELECT IFNULL(MAX(position), 0) FROM blocks "
+    "WHERE parent_id = ?;";
+  int rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+  if(rc != SQLITE_OK)
+  {
+    fprintf(
+      stderr,
+      "Failed to prepare statement: %s\n",
+      sqlite3_errmsg(db)
+    );
+    return;
+  }
+  sqlite3_bind_int64(stmt, 1, new_parent_id);
+  int new_position;
+  if((rc = sqlite3_step(stmt)) == SQLITE_ROW)
+  {
+    new_position = sqlite3_column_int(stmt, 0) + 1;
+    g_print("new_position=%d\n", new_position);
+  }
+
+  // update parent_id and position
+  sqlite3_stmt *stmt2;
+  const char *query2 = "UPDATE blocks "
+    "SET parent_id = ?, position = ? WHERE id = ?;";
+  rc = sqlite3_prepare_v2(db, query2, -1, &stmt2, NULL);
+  if(rc != SQLITE_OK)
+  {
+    fprintf(
+      stderr,
+      "Failed to prepare statement: %s\n",
+      sqlite3_errmsg(db)
+    );
+    return;
+  }
+  sqlite3_bind_int64(stmt2, 1, new_parent_id);
+  sqlite3_bind_int64(stmt2, 2, new_position);
+  sqlite3_bind_int64(stmt2, 3, id);
+  sqlite3_step(stmt2);
+  return;
+}
 /** DELETE **/

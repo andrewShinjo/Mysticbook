@@ -53,4 +53,6 @@ read_all_document_ids(GArray *document_ids);
 const gchar*
 read_block_content(gint64 id);
 /** UPDATE **/
+void
+update_block_parent(gint64 id, gint64 new_parent_id);
 /** DELETE **/
