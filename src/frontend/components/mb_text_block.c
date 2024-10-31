@@ -144,7 +144,43 @@ static gboolean key_pressed(
   {
     if(is_insert_at_start(_self) && !is_all_text_highlighted(_self))
     {
+      g_print("Remove self.\n");
+      // Remove self in GUI.
       remove_self(_self);
+      // Remove self in SQL.
+      gint64 id = _self->id;
+      gint64 parent_id = read_block_parent_id(id);
+      gint64 start_position = read_block_position(id);
+      gint64 sibling_start_position = start_position + 1;
+      GArray *children_ids = g_array_new(FALSE, FALSE, sizeof(gint64));
+      read_block_children_ids(id, children_ids);
+      guint children_count = children_ids->len;
+      // Get siblings positioned after this block.
+      GArray *sibling_ids = g_array_new(FALSE, FALSE, sizeof(gint64));
+      read_all_block_ids_by_parent_id_and_gt_position(
+        sibling_ids,
+        parent_id,
+        sibling_start_position
+      );
+      // Reposition siblings.
+      for(guint i=0; i < sibling_ids->len; i++)
+      {
+        gint64 sibling_id = g_array_index(sibling_ids, gint64, i);
+        update_block_position(
+          sibling_id,
+          start_position + children_count + i
+        );
+      }
+      // Reposition children.
+      for(guint i=0; i < children_count; i++)
+      {
+        gint64 child_id = g_array_index(children_ids, gint64, i);
+        update_block_position(
+          child_id,
+          start_position + i
+        );
+      }
+      delete_block(id);
     }
   }
   else if(keyval == GDK_KEY_ISO_Left_Tab && state && GDK_SHIFT_MASK)
@@ -155,8 +191,6 @@ static gboolean key_pressed(
   }
   else if(keyval == GDK_KEY_Tab)
   {
-    // Indent block in SQL.
-    // Indent block in GUI.
     indent_self(_self);
     mb_text_block_grab_focus(_self);
     return TRUE;

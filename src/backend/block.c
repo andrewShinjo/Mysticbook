@@ -512,6 +512,21 @@ read_all_document_ids(GArray *document_ids)
     g_array_append_val(document_ids, id);
   }
 }
+void
+read_block_children_ids(gint64 id, GArray *block_ids)
+{
+  sqlite3 *db = db_get();
+  sqlite3_stmt *stmt;
+  const char *query = "SELECT id FROM blocks WHERE parent_id = ?;";
+  sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+  sqlite3_bind_int64(stmt, 1, id);
+  while(sqlite3_step(stmt) == SQLITE_ROW)
+  {
+    gint64 id = sqlite3_column_int64(stmt, 0);
+    g_array_append_val(block_ids, id);
+  }
+  sqlite3_finalize(stmt); 
+}
 const gchar* 
 read_block_content(gint64 id)
 {
@@ -665,7 +680,29 @@ update_block_parent(gint64 id, gint64 new_parent_id)
   sqlite3_bind_int64(stmt2, 2, new_position);
   sqlite3_bind_int64(stmt2, 3, id);
   sqlite3_step(stmt2);
-  // update later sibling position
   return;
 }
+void
+update_block_position(gint64 id, gint position)
+{
+  sqlite3 *db = db_get();
+  sqlite3_stmt *stmt;
+  const char *sql = "UPDATE blocks SET position = ? WHERE id = ?;";
+  sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+  sqlite3_bind_int64(stmt, 1, position);
+  sqlite3_bind_int64(stmt, 2, id);
+  sqlite3_step(stmt);
+  sqlite3_finalize(stmt);
+}
 /** DELETE **/
+void
+delete_block(gint64 id)
+{
+  sqlite3 *db = db_get();
+  sqlite3_stmt *stmt;
+  const char *sql = "DELETE FROM blocks WHERE id = ?;";
+  sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+  sqlite3_bind_int64(stmt, 1, id);
+  sqlite3_step(stmt);
+  sqlite3_finalize(stmt);
+}

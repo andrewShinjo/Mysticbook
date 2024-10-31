@@ -56,6 +56,8 @@ void
 read_all_document_id_and_content(GArray *documents);
 void
 read_all_document_ids(GArray *document_ids);
+void
+read_block_children_ids(gint64 id, GArray *block_ids);
 const gchar*
 read_block_content(gint64 id);
 gint64
@@ -71,4 +73,8 @@ void
 increment_block_position(gint64 id);
 void
 update_block_parent(gint64 id, gint64 new_parent_id);
+void
+update_block_position(gint64 id, gint position);
 /** DELETE **/
+void
+delete_block(gint64 id);
