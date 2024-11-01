@@ -175,10 +175,13 @@ static gboolean key_pressed(
       for(guint i=0; i < children_count; i++)
       {
         gint64 child_id = g_array_index(children_ids, gint64, i);
-        update_block_position(
-          child_id,
-          start_position + i
+        update_block_position(child_id, start_position + i);
+        g_print("child_id=%ld, start=%ld, i=%d\n", 
+          child_id, 
+          start_position,
+          i
         );
+        update_block_parent(child_id, parent_id);
       }
       delete_block(id);
     }
@@ -191,8 +194,16 @@ static gboolean key_pressed(
   }
   else if(keyval == GDK_KEY_Tab)
   {
+    // Indent in GUI.
     indent_self(_self);
     mb_text_block_grab_focus(_self);
+    // Indent in SQL.
+    gint64 id = _self->id;
+    gint64 previous_sibling_id = get_block_previous_sibling_id(id);
+    if(previous_sibling_id != 0)
+    {
+      // Indent OK.
+    }
     return TRUE;
   }
   else if(keyval == GDK_KEY_Return)
@@ -658,7 +669,6 @@ indent_self(MbTextBlock *_self)
   }
   assert(MB_IS_TEXT_BLOCK(previous_sibling));
   MbTextBlock *_previous_sibling = MB_TEXT_BLOCK(previous_sibling);
-  // Do indent in GUI.
   if(MB_IS_TEXT_BLOCK(previous_sibling) && MB_IS_TEXT_BLOCK(parent)) 
   {
     MbTextBlock *_parent = MB_TEXT_BLOCK(parent);
@@ -671,27 +681,6 @@ indent_self(MbTextBlock *_self)
     mb_root_text_block_remove_child(_parent, _self);
   }
   append_child(_previous_sibling, _self);
-
-  gint64 parent_id = read_block_parent_id(_self->id);
-  gint64 start_pos = read_block_position(_self->id);
-
-  gint64 id = _self->id;
-  gint64 new_parent_id;
-  g_object_get(previous_sibling, "id", &new_parent_id, NULL);
-  // Do indent in SQL
-  update_block_parent(id, new_parent_id);
-  // Update other positions
-  GArray *block_ids = g_array_new(FALSE, FALSE, sizeof(gint64));
-  read_all_block_ids_by_parent_id_and_gt_position(
-    block_ids,
-    parent_id,
-    start_pos
-  );
-  for(guint i = 0; i < block_ids->len; i++)
-  {
-    gint64 id_dec = g_array_index(block_ids, gint64, i);
-    decrement_block_position(id_dec);
-  }
 }
 static void 
 remove_self(MbTextBlock *_self)
