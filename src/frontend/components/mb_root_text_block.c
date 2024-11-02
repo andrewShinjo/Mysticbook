@@ -56,7 +56,7 @@ changed(GtkTextBuffer *text_buffer, gpointer user_data)
     &end, 
     FALSE
   );
-  block_update_content(id, content);
+  // block_update_content(id, content);
   g_free(content);
 }
 static gboolean 
@@ -72,7 +72,7 @@ key_pressed(
   GtkWidget *self = GTK_WIDGET(user_data);
   if(keyval == GDK_KEY_Return)
   {
-    block_increment_all_position();
+    // block_increment_all_position();
     // Create new block in SQL.
     gint64 creation_time = get_current_timestamp();
     gint64 is_document = 0;
@@ -80,18 +80,18 @@ key_pressed(
     gint64 parent_id = _self->id;
     gint64 position = 1;
     gchar *content = "";
-    gint64 new_id = block_new_all_fields(
+    /*gint64 new_id = block_new_all_fields(
       &creation_time, 
       &is_document, 
       NULL, 
       &position, 
       &parent_id, 
       content
-    );
+    );*/
     // Create new block in GUI.
-    GtkWidget *child = mb_text_block_new(new_id);
-    gtk_box_prepend(GTK_BOX(_self->children_blocks), child);
-    mb_text_block_grab_focus(MB_TEXT_BLOCK(child));
+    //GtkWidget *child = mb_text_block_new(new_id);
+    //gtk_box_prepend(GTK_BOX(_self->children_blocks), child);
+    //mb_text_block_grab_focus(MB_TEXT_BLOCK(child));
     return TRUE;
   }
   return FALSE;
@@ -101,21 +101,12 @@ notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
 {
   MbRootTextBlock *_self = MB_ROOT_TEXT_BLOCK(object);
   // Get block content.
-  const gchar *content = read_block_content(_self->id);
+  const gchar *content = "";
   if(content != NULL)
   {
     mb_root_text_block_set_content(_self, content);
   }
   // Get block children.
-  GArray *children_ids = block_get_all_children_ids(_self->id);
-  guint length = children_ids->len;
-  for(guint i = 0; i < length; i++)
-  {
-    gint64 child_id = g_array_index(children_ids, gint64, i);
-    GtkWidget *child_block = mb_text_block_new(child_id);
-    gtk_box_append(GTK_BOX(_self->children_blocks), child_block);
-  }
-  g_array_free(children_ids, TRUE);
 }
 /* PROPERTIES */
 enum property_types

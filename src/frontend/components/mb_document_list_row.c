@@ -39,7 +39,7 @@ notify_id(
 )
 {
   MbDocumentListRow *_self = MB_DOCUMENT_LIST_ROW(object);
-  const gchar *content = read_block_content(_self->id);  
+  const gchar *content = ""; 
   g_print("listrow notify_id: content=%s\n", content);
   if(content != NULL)
   {

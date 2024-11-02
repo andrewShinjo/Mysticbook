@@ -224,8 +224,6 @@ static void mb_block_view_page_init(MbBlockViewPage *self)
   self->root_block = mb_root_text_block_new();
   self->gesture_drag = gtk_gesture_drag_new();
   /* Get block data */
-  Block b;
-  block_find_by_id(self->id, &b);
   /* CONFIGURE WIDGETS */
   gtk_widget_set_hexpand(self->scrolled_window, TRUE);
   gtk_scrolled_window_set_child(

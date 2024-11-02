@@ -1,7 +1,6 @@
 #include <gtk/gtk.h>
-#include <sqlite3.h>
 #include "components/mb_app_window.h"
-#include "../backend/database.h"
+#include "../backend/database/database.h"
 
 static void activate(GtkApplication *app, gpointer user_data)
 {
@@ -24,10 +23,10 @@ static void activate(GtkApplication *app, gpointer user_data)
 
 int main (int argc, char *argv[])
 {
-	int return_code =	db_open("test.db");
+	int return_code =	open_database("test.db");
 	if (return_code != 0)
 	{
-		fprintf (stderr, "Failed to open database.");
+    g_print("Failed to open database.\n");
 		return return_code;
 	}
   else
@@ -42,7 +41,6 @@ int main (int argc, char *argv[])
 	g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
 	int status = g_application_run(G_APPLICATION(app), argc, argv);
 	g_object_unref(app);
-
-	db_close();
+  close_database("test.db");
 	return status;
 }

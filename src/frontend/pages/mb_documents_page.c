@@ -39,9 +39,8 @@ new_document_button_clicked(GtkButton *button, gpointer user_data)
   MbDocumentsPage *_self = MB_DOCUMENTS_PAGE(user_data);
   GtkBox *document_list = GTK_BOX(_self->document_list);
   // Create document in SQL.
-  gint64 new_id = create_document();
   // Create document list row in GUI.
-  GtkWidget *new_document_list_row = mb_document_list_row_new(new_id);
+  GtkWidget *new_document_list_row = mb_document_list_row_new();
   gtk_box_append(document_list, new_document_list_row);
   g_signal_connect(
     new_document_list_row,
@@ -129,23 +128,6 @@ mb_documents_page_init(MbDocumentsPage *self)
 	self->document_label = gtk_label_new("Documents");
 	self->vertical_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   /** Get document ids to populate list rows. **/
-  GtkBox *document_list = GTK_BOX(self->document_list);
-  GArray *document_ids = g_array_new(FALSE, FALSE, sizeof(gint64));
-  read_all_document_ids(document_ids);
-  for(int i = 0; i < document_ids->len; i++)
-  {
-    gint64 id = g_array_index(document_ids, gint64, i);
-    // Create document list row in GUI.
-    GtkWidget *new_document_list_row = mb_document_list_row_new(id);
-    gtk_box_append(document_list, new_document_list_row);
-    g_signal_connect(
-      new_document_list_row,
-      "opened",
-      G_CALLBACK(open_row_cb),
-      self
-    );
-  }
-  g_array_free(document_ids, TRUE);
   /* CONFIGURE WIDGETS */
   GtkBox *vertical_box = GTK_BOX(self->vertical_box);
 	gtk_widget_set_hexpand(self->vertical_box, TRUE);

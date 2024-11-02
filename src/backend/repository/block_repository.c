@@ -75,8 +75,8 @@ gint64 block_repository_find_position(gint64 id)
   
   if(rc != SQLITE_DONE)
   {
-    g_print("
-      block_repository_find_position: Failed to execute statement.\n"
+    g_print(
+      "block_repository_find_position: Failed to execute statement.\n"
     );
     return -1;
   }
@@ -97,8 +97,8 @@ GArray* block_repository_find_ids_by_position_range_and_parent_id(
 
   if(stmt == NULL)
   {
-    g_print("
-      block_repository_find_ids_by_position_range_and_parent_id: "
+    g_print(
+      "block_repository_find_ids_by_position_range_and_parent_id: "
       "Failed to prepare statement.\n"
     );
     return NULL;

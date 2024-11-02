@@ -79,7 +79,7 @@ changed(GtkTextBuffer *text_buffer, gpointer user_data)
     &end,
     FALSE
   );
-  block_update_content(_self->id, content);
+  // block_update_content(_self->id, content);
   g_free(content);
 }
 static void
@@ -91,21 +91,12 @@ notify_id(
 {
   MbTextBlock *_self = MB_TEXT_BLOCK(object);
   // Get block content.
-  const gchar *content = read_block_content(_self->id);
+  const gchar *content = "";
   if(content != NULL)
   {
     set_content(_self, content);     
   }
   // Get block children.
-  GtkBox *_children_blocks = GTK_BOX(_self->children_blocks);
-  GArray *children_ids = block_get_all_children_ids(_self->id);
-  guint length = children_ids->len;
-  for(guint i = 0; i < length; i++)
-  {
-    gint64 child_id = g_array_index(children_ids, gint64, i);
-    GtkWidget *child_block = mb_text_block_new(child_id);
-    gtk_box_append(_children_blocks, child_block); 
-  }
 }
 
 static gboolean key_pressed(
@@ -148,42 +139,9 @@ static gboolean key_pressed(
       // Remove self in GUI.
       remove_self(_self);
       // Remove self in SQL.
-      gint64 id = _self->id;
-      gint64 parent_id = read_block_parent_id(id);
-      gint64 start_position = read_block_position(id);
-      gint64 sibling_start_position = start_position + 1;
-      GArray *children_ids = g_array_new(FALSE, FALSE, sizeof(gint64));
-      read_block_children_ids(id, children_ids);
-      guint children_count = children_ids->len;
       // Get siblings positioned after this block.
-      GArray *sibling_ids = g_array_new(FALSE, FALSE, sizeof(gint64));
-      read_all_block_ids_by_parent_id_and_gt_position(
-        sibling_ids,
-        parent_id,
-        sibling_start_position
-      );
       // Reposition siblings.
-      for(guint i=0; i < sibling_ids->len; i++)
-      {
-        gint64 sibling_id = g_array_index(sibling_ids, gint64, i);
-        update_block_position(
-          sibling_id,
-          start_position + children_count + i
-        );
-      }
       // Reposition children.
-      for(guint i=0; i < children_count; i++)
-      {
-        gint64 child_id = g_array_index(children_ids, gint64, i);
-        update_block_position(child_id, start_position + i);
-        g_print("child_id=%ld, start=%ld, i=%d\n", 
-          child_id, 
-          start_position,
-          i
-        );
-        update_block_parent(child_id, parent_id);
-      }
-      delete_block(id);
     }
   }
   else if(keyval == GDK_KEY_ISO_Left_Tab && state && GDK_SHIFT_MASK)
@@ -198,12 +156,6 @@ static gboolean key_pressed(
     indent_self(_self);
     mb_text_block_grab_focus(_self);
     // Indent in SQL.
-    gint64 id = _self->id;
-    gint64 previous_sibling_id = get_block_previous_sibling_id(id);
-    if(previous_sibling_id != 0)
-    {
-      // Indent OK.
-    }
     return TRUE;
   }
   else if(keyval == GDK_KEY_Return)
@@ -226,15 +178,8 @@ static gboolean key_pressed(
       else
       {
         // Create a new block in SQL.
-        gint64 creation_time = 0;
-        gint64 is_document = 0;
-        gint64 modification_time = creation_time;
-        gint64 parent_id;
-        gint64 position;
-        gchar *content = "";
-        gint64 new_id = block_new_sibling(_self->id);
         // Create a new block in GUI.
-        GtkWidget *sibling = mb_text_block_new(new_id);
+        GtkWidget *sibling = mb_text_block_new();
         MbTextBlock *_sibling = MB_TEXT_BLOCK(sibling);
         append_sibling_after_self(_self, _sibling);
         mb_text_block_grab_focus(_sibling);
