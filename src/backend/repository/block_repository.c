@@ -38,10 +38,25 @@ gint64 block_repository_save(
 
 /* READ */
 
+const unsigned char* block_repository_find_content(gint64 id)
+{
+  const char *sql = "SELECT content FROM blocks WHERE id = ?;";
+  sqlite3_stmt *stmt = prepare_statement(sql);
+  if(stmt == NULL)
+  {
+    g_print("block_repository_find_content: Failed to prepare statement.\n");
+    exit(EXIT_FAILURE);
+  }
+  sqlite3_bind_int64(stmt, 1, id);
+  sqlite3_step(stmt);
+  const unsigned char *content = g_strdup(sqlite3_column_text(stmt, 0));
+  sqlite3_finalize(stmt);
+  return content;
+}
+
 gint64 block_repository_find_last_child_position(gint64 id)
 {
-  const char *sql = 
-  "SELECT IFNULL(MAX(position), 0) FROM blocks WHERE parent_id = ?;";
+  const char *sql = "SELECT IFNULL(MAX(position), 0) FROM blocks WHERE parent_id = ?;";
   sqlite3_stmt *stmt = prepare_statement(sql);
   if(stmt == NULL)
   {
@@ -67,25 +82,14 @@ gint64 block_repository_find_parent_id_by_id(gint64 id)
 {
   const char *sql = "SELECT parent_id FROM blocks WHERE id = ?;";
   sqlite3_stmt *stmt = prepare_statement(sql);
-
   if(stmt == NULL)
   {
-    g_print("block_repository_find_parent_id_by_id: "
-      "failed to prepare statement.\n");
-    return -1;
+    g_print("block_repository_find_parent_id_by_id: Failed to prepare statement.\n");
+    exit(EXIT_FAILURE);
   }
-
   sqlite3_bind_int64(stmt, 1, id);
   int rc = sqlite3_step(stmt);
   sqlite3_finalize(stmt);
-
-  if(rc != SQLITE_DONE)
-  {
-    g_print("block_repository_find_parent_id_by_id: "
-      "failed to execute statement.\n");
-    return -1;
-  }
-
   gint64 parent_id = sqlite3_column_int64(stmt, 0);
   return parent_id;
 }

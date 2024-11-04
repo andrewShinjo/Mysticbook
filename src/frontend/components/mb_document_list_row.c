@@ -1,6 +1,7 @@
 #include "./mb_app_window.h"
 #include "./mb_document_list_row.h"
 #include "../../backend/block.h"
+#include "../../backend/controller/block_controller.h"
 /* WIDGET DEFINITION */
 struct _MbDocumentListRow
 {
@@ -30,12 +31,14 @@ static void delete_button_clicked(GtkButton *self, gpointer user_data)
 static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
 {
   MbDocumentListRow *_self = MB_DOCUMENT_LIST_ROW(object);
-  const gchar *content = ""; 
+  gint64 id = _self->id;
+  const unsigned char *content = block_controller_get_block_content(id);
   g_print("listrow notify_id: content=%s\n", content);
   if(content != NULL)
   {
     g_object_set(G_OBJECT(_self), "content", content, NULL); 
   }
+  g_free((void*) content);
 }
 static void 
 open_button_clicked(GtkButton *button, gpointer user_data)
