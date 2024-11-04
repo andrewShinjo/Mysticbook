@@ -11,16 +11,12 @@ struct _MbAppWindow
 
 G_DEFINE_TYPE(MbAppWindow, mb_app_window, GTK_TYPE_APPLICATION_WINDOW)
 /* CALLBACK */
-static void 
-open_document_cb(
-  MbDocumentsPage *documents_page, 
-  gpointer user_data
-)
+static void open_document_cb(MbDocumentsPage *documents_page, gpointer user_data)
 {
   GtkWidget *self = GTK_WIDGET(user_data);
   MbAppWindow *_self = MB_APP_WINDOW(user_data);
   g_print("mb_app_window: open_document_cb\n");
-  gint64 id = 0;
+  gint64 id;
   g_object_get(G_OBJECT(documents_page), "id", &id, NULL);
   g_print("id=%ld\n", id);
   gtk_widget_unparent(_self->active_page);

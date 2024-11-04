@@ -3,6 +3,7 @@
 #include "../pages/mb_block_view_page.h"
 #include "../../backend/block.h"
 #include "../../backend/util.h"
+#include "../../backend/controller/block_controller.h"
 /* WIDGET DEFINITION */
 struct _MbRootTextBlock
 {
@@ -34,8 +35,7 @@ static void set_property(
   GParamSpec *pspec
 );
 /* CALLBACK */
-static void 
-changed(GtkTextBuffer *text_buffer, gpointer user_data)
+static void changed(GtkTextBuffer *text_buffer, gpointer user_data)
 {
   MbRootTextBlock *_self = MB_ROOT_TEXT_BLOCK(user_data);
   GtkWidget *self = GTK_WIDGET(user_data);
@@ -100,8 +100,7 @@ static void
 notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
 {
   MbRootTextBlock *_self = MB_ROOT_TEXT_BLOCK(object);
-  // Get block content.
-  const gchar *content = "";
+  const unsigned char *content = block_controller_get_block_content(_self->id);
   if(content != NULL)
   {
     mb_root_text_block_set_content(_self, content);

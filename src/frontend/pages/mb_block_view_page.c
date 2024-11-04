@@ -2,31 +2,18 @@
 #include "../components/mb_text_block.h"
 #include "../components/mb_root_text_block.h"
 #include "../../backend/block.h"
+#include "../../backend/controller/block_controller.h"
 
 enum property_types
 {
   PROP_ID = 1,
   N_PROPERTIES
 };
-
 static GParamSpec *properties[N_PROPERTIES];
-
-static void 
-dispose(GObject *object);
-
-static void 
-finalize(GObject *object);
-
-static void 
-set_property(
-  GObject *object,
-  guint property_id,
-  const GValue *value,
-  GParamSpec *pspec
-);
-
-static void 
-snapshot(GtkWidget *widget, GtkSnapshot *snapshot);
+static void dispose(GObject *object);
+static void finalize(GObject *object);
+static void set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec);
+static void snapshot(GtkWidget *widget, GtkSnapshot *snapshot);
 
 struct _MbBlockViewPage
 {
@@ -51,22 +38,11 @@ G_DEFINE_TYPE(MbBlockViewPage, mb_block_view_page, GTK_TYPE_WIDGET)
 
 /* Callback */
 
-static void 
-notify_id(
-  GObject *object, 
-  GParamSpec *pspec, 
-  gpointer user_data
-)
+static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
 {
   MbBlockViewPage *_self = MB_BLOCK_VIEW_PAGE(object);
   g_print("MbBlockViewPage notify_id: id=%ld\n", _self->id);
   g_object_set(_self->root_block, "id", _self->id, NULL);
-  // Block b;
-  // block_find_by_id(_self->id, &b);
-  // mb_root_text_block_set_content(
-  //   MB_ROOT_TEXT_BLOCK(_self->root_block),
-  //   b.content
-  // );
 }
 
 static void

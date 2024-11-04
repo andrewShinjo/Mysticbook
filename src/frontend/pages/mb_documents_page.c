@@ -22,9 +22,9 @@ static gboolean open_document_signal_source_func(gpointer user_data);
 /* CALLBACK */
 static void open_row_cb(MbDocumentListRow *_row, gpointer user_data)
 {
+  g_print("open_row_cb\n");
   MbDocumentsPage *_self = MB_DOCUMENTS_PAGE(user_data);
   gint64 id;
-  gint64 set_id;
   g_object_get(G_OBJECT(_row), "id", &id, NULL);
   g_object_set(G_OBJECT(_self), "id", id, NULL);
   open_document_signal_source_func(_self);
@@ -95,37 +95,38 @@ static gboolean open_document_signal_source_func(gpointer user_data)
   return G_SOURCE_CONTINUE;
 }
 /* WIDGET LIFECYCLE */
-static void mb_documents_page_init(MbDocumentsPage *self)
+static void mb_documents_page_init(MbDocumentsPage *_self)
 {
   /* INSTANTIATE WIDGETS */
-	self->new_document_button = gtk_button_new_with_label("New Document");
-	self->document_list = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-	self->document_label = gtk_label_new("Documents");
-	self->vertical_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+  _self->new_document_button = gtk_button_new_with_label("New Document");
+	_self->document_list = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+	_self->document_label = gtk_label_new("Documents");
+	_self->vertical_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   /** Get document ids to populate list rows. **/
-  GtkBox *_document_list = GTK_BOX(self->document_list);
+  GtkBox *_document_list = GTK_BOX(_self->document_list);
   GArray *document_ids = block_controller_get_document_ids();
   guint length = document_ids->len;
   for(guint i = 0; i < length; i++)
   {
     gint64 document_id = g_array_index(document_ids, gint64, i);
     GtkWidget *new_document_list_row = mb_document_list_row_new(document_id);
+    g_signal_connect(new_document_list_row, "opened", G_CALLBACK(open_row_cb), _self);
     gtk_box_append(_document_list, new_document_list_row);
   }
   g_free(document_ids);
   /* CONFIGURE WIDGETS */
-  GtkBox *vertical_box = GTK_BOX(self->vertical_box);
-	gtk_widget_set_hexpand(self->vertical_box, TRUE);
-	gtk_widget_set_vexpand(self->vertical_box, TRUE);
-	gtk_box_append(vertical_box, self->document_label);
-	gtk_box_append(vertical_box, self->document_list);
-	gtk_box_append(vertical_box, self->new_document_button);
-	gtk_widget_set_hexpand(self->document_list, TRUE);
-	gtk_widget_set_vexpand(self->document_list, TRUE);
-	gtk_widget_set_halign(self->document_label, GTK_ALIGN_START);
-	gtk_widget_set_parent(self->vertical_box, GTK_WIDGET(self));
+  GtkBox *vertical_box = GTK_BOX(_self->vertical_box);
+	gtk_widget_set_hexpand(_self->vertical_box, TRUE);
+	gtk_widget_set_vexpand(_self->vertical_box, TRUE);
+	gtk_box_append(vertical_box, _self->document_label);
+	gtk_box_append(vertical_box, _self->document_list);
+	gtk_box_append(vertical_box, _self->new_document_button);
+	gtk_widget_set_hexpand(_self->document_list, TRUE);
+	gtk_widget_set_vexpand(_self->document_list, TRUE);
+	gtk_widget_set_halign(_self->document_label, GTK_ALIGN_START);
+	gtk_widget_set_parent(_self->vertical_box, GTK_WIDGET(_self));
   /* CONNECT TO SIGNALS */
-	g_signal_connect(self->new_document_button, "clicked", G_CALLBACK(new_document_button_clicked), self);
+	g_signal_connect(_self->new_document_button, "clicked", G_CALLBACK(new_document_button_clicked), _self);
 }
 static void
 mb_documents_page_class_init(MbDocumentsPageClass *klass) 
