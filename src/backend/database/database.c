@@ -41,6 +41,13 @@ void create_blocks_table()
   sqlite3_exec(db, sql, 0, 0, NULL);
 }
 
+void clear_blocks_table()
+{
+  const char *sql = "DELETE FROM blocks;";
+  sqlite3_stmt *stmt = prepare_statement(sql);
+  sqlite3_exec(db, sql, 0, 0, NULL);
+}
+
 sqlite3_stmt* prepare_statement(const char *sql)
 {
   sqlite3_stmt *stmt;

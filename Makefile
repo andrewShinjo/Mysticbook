@@ -1,5 +1,5 @@
 CC := gcc
-CFLAGS := $(shell pkg-config --cflags gtk4)
+CFLAGS := $(shell pkg-config --cflags gtk4) -g
 LDFLAGS := $(shell pkg-config --libs gtk4) -lsqlite3
 BUILDDIR := build/
 SRCDIR := src
@@ -20,7 +20,7 @@ SERVICES := $(wildcard $(SERVICE_DIR)/*.c)
 CONTROLLERS := $(wildcard $(CONTROLLER_DIR)/*.c)
 DATABASE := $(wildcard $(DATABASE_DIR)/*.c)
 SRCS := $(FRONTEND) $(COMPONENTS) $(PAGES) $(BACKEND) $(REPOSITORIES) $(SERVICES) $(CONTROLLER) $(DATABASE)
-TESTS := $(BACKEND) $(REPOSITORIES) $(SERVICES) $(CONTROLLER) $(DATABASE) test/backend/controller/block_controller_test.c
+TESTS := $(CONTROLLERS) $(DATABASE) $(REPOSITORIES) $(SERVICES) test/backend/controller/block_controller_test.c
 MAIN := main
 TEST := test
 

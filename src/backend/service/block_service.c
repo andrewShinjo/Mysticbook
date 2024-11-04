@@ -3,8 +3,7 @@
 
 GArray* block_service_get_document_ids()
 {
-  GArray *document_ids = g_array_new(FALSE, FALSE, sizeof(gint64));
-
+  GArray *document_ids = block_repository_find_ids_by_is_document(1);
 }
 
 int block_service_indent_block(gint64 id)

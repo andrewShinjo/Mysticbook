@@ -5,6 +5,7 @@ int open_database(const char *path);
 int close_database(const char *path);
 
 void create_blocks_table();
+void clear_blocks_table();
 
 sqlite3_stmt* prepare_statement(const char *sql);
 
