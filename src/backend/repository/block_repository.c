@@ -214,4 +214,19 @@ int block_repository_update_position_id(gint64 id, gint64 position)
   return -1;
 }
 
+void block_repository_update_content(gint64 id, const unsigned char *content)
+{
+  const char *sql = "UPDATE blocks SET content = ? WHERE id = ?;";
+  sqlite3_stmt *stmt = prepare_statement(sql);
+  if(stmt == NULL)
+  {
+    g_print("block_repository_update_content: Failed to prepare statement.\n");
+    exit(EXIT_FAILURE);
+  }
+  sqlite3_bind_text(stmt, 1, content, -1, SQLITE_STATIC);
+  sqlite3_bind_int64(stmt, 2, id);
+  sqlite3_step(stmt);
+  sqlite3_finalize(stmt);
+}
+
 /* DELETE */

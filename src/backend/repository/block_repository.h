@@ -28,5 +28,6 @@ GArray* block_repository_find_ids_by_position_range_and_parent_id(gint64 start, 
 
 int block_repository_update_parent_id(gint64 id, gint64 parent_id);
 int block_repository_update_position(gint64 id, gint64 position);
+void block_repository_update_content(gint64 id, const unsigned char *content);
 
 /* DELETE */

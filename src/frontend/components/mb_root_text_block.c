@@ -22,18 +22,8 @@ G_DEFINE_TYPE(MbRootTextBlock, mb_root_text_block, GTK_TYPE_WIDGET)
 /* FORWARD DECLARATION */
 static void dispose(GObject *object);
 static void finalize(GObject *object);
-static void get_property(
-  GObject *object,
-  guint property_id,
-  GValue *value,
-  GParamSpec *pspec
-);
-static void set_property(
-  GObject *object,
-  guint property_id,
-  const GValue *value,
-  GParamSpec *pspec
-);
+static void get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec);
+static void set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec);
 /* CALLBACK */
 static void changed(GtkTextBuffer *text_buffer, gpointer user_data)
 {
@@ -50,13 +40,8 @@ static void changed(GtkTextBuffer *text_buffer, gpointer user_data)
   GtkTextIter start, end;
   gtk_text_buffer_get_start_iter(text_buffer, &start);
   gtk_text_buffer_get_end_iter(text_buffer, &end);
-  gchar *content = gtk_text_buffer_get_text(
-    text_buffer, 
-    &start, 
-    &end, 
-    FALSE
-  );
-  // block_update_content(id, content);
+  char *content = gtk_text_buffer_get_text(text_buffer, &start, &end, FALSE);
+  block_controller_update_content(id, (const unsigned char*) content);
   g_free(content);
 }
 static gboolean 

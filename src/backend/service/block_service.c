@@ -36,3 +36,8 @@ int block_service_indent_block(gint64 id)
   // Get last position of new parent
   // Set my position to be new last position of new parent
 }
+
+void block_service_update_content(gint64 id, const unsigned char *content)
+{
+  block_repository_update_content(id, content);
+}
