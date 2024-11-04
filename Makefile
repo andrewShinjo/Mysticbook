@@ -8,6 +8,7 @@ BACKEND_DIR := $(SRCDIR)/backend
 REPOSITORY_DIR := $(BACKEND_DIR)/repository
 SERVICE_DIR := $(BACKEND_DIR)/service
 CONTROLLER_DIR := $(BACKEND_DIR)/controller
+DATABASE_DIR := $(BACKEND_DIR)/database
 COMPONENT_DIR := $(FRONTEND_DIR)/components
 PAGE_DIR := $(FRONTEND_DIR)/pages
 FRONTEND := $(wildcard $(FRONTEND_DIR)/*.c)
@@ -17,19 +18,26 @@ BACKEND := $(wildcard $(BACKEND_DIR)/*.c)
 REPOSITORIES := $(wildcard $(REPOSITORY_DIR)/*.c)
 SERVICES := $(wildcard $(SERVICE_DIR)/*.c)
 CONTROLLERS := $(wildcard $(CONTROLLER_DIR)/*.c)
-SRCS := $(FRONTEND) $(COMPONENTS) $(PAGES) $(BACKEND) $(REPOSITORIES) $(SERVICES) $(CONTROLLER)
-EXEC := main
+DATABASE := $(wildcard $(DATABASE_DIR)/*.c)
+SRCS := $(FRONTEND) $(COMPONENTS) $(PAGES) $(BACKEND) $(REPOSITORIES) $(SERVICES) $(CONTROLLER) $(DATABASE)
+TESTS := $(BACKEND) $(REPOSITORIES) $(SERVICES) $(CONTROLLER) $(DATABASE) test/backend/controller/block_controller_test.c
+MAIN := main
+TEST := test
 
 all: run
 
-$(EXEC): $(BUILDDIR)
-	$(CC) $(CFLAGS) -o $(BUILDDIR)$(EXEC) $(SRCS) $(LDFLAGS)
+$(MAIN): $(BUILDDIR)
+	$(CC) $(CFLAGS) -o $(BUILDDIR)$(MAIN) $(SRCS) $(LDFLAGS)
 
 $(BUILDDIR):
 	mkdir -p $(BUILDDIR)
 
-run: $(EXEC)
-	./$(BUILDDIR)$(EXEC)
+run: $(MAIN)
+	./$(BUILDDIR)$(MAIN)
+
+unittest:
+	$(CC) $(CFLAGS) -o $(BUILDDIR)$(TEST) $(TESTS) $(LDFLAGS)
+	./$(BUILDDIR)$(TEST)
 
 clean:
-	rm -rf $(BUILDDIR) $(EXEC)
+	rm -rf $(BUILDDIR) $(MAIN)

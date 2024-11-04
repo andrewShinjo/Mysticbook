@@ -1,6 +1,12 @@
 #include "./block_service.h"
 #include "../repository/block_repository.h"
 
+GArray* block_service_get_document_ids()
+{
+  GArray *document_ids = g_array_new(FALSE, FALSE, sizeof(gint64));
+
+}
+
 int block_service_indent_block(gint64 id)
 {
   // Get parent_id

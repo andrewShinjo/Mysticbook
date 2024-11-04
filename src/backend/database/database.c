@@ -1,7 +1,7 @@
-#include <stdio.h>
+#include <glib.h>
 #include "database.h"
 
-sqlite3 *db;
+sqlite3 *db = NULL;
 
 int open_database(const char *path)
 {
@@ -9,7 +9,9 @@ int open_database(const char *path)
 	{
 		return -1;	
 	}
-	return sqlite3_open(db_path, &db);
+	sqlite3_open(path, &db);
+  create_blocks_table();
+  return 0;
 }
 
 int close_database(const char *path)
@@ -21,6 +23,22 @@ int close_database(const char *path)
     return 0;
 	}
   return -1;
+}
+
+void create_blocks_table()
+{
+  const char *sql = "CREATE TABLE IF NOT EXISTS blocks("
+    "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+    "creation_time INTEGER, "
+    "is_document INTEGER, "
+    "modification_time INTEGER, "
+    "position INTEGER, "
+    "parent_id INTEGER, "
+    "content TEXT "
+    ");"
+    ;
+  sqlite3_stmt *stmt = prepare_statement(sql);
+  sqlite3_exec(db, sql, 0, 0, NULL);
 }
 
 sqlite3_stmt* prepare_statement(const char *sql)
