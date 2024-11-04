@@ -5,7 +5,9 @@ typedef struct
 {
 	gint64 id;	
 	gint64 creation_time;
+  gint64 is_document;
 	gint64 modification_time;
+  gint64 position;
+  gint64 parent_id;
 	const unsigned char *content;
-	int is_document;
 } Block;

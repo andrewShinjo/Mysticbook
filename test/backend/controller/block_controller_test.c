@@ -6,12 +6,6 @@
 
 /* block_controller_get_document_ids() tests */
 
-static void block_controller_get_document_ids_setup()
-{
-  open_database("test.db");
-  clear_blocks_table();
-}
-
 // Test empty blocks table.
 static void block_controller_get_document_ids_test1()
 {
@@ -40,18 +34,12 @@ static void block_controller_get_document_ids_test2()
   g_print("block_controller_get_document_ids_test2 OK.\n");
 }
 
-static void block_controller_get_document_ids_teardown()
-{
-  clear_blocks_table();
-  close_database("test.db");
-}
-
 int main(void)
 {
+  open_database("test.db"); 
   g_print("BLOCK CONTROLLER TEST:\n");
-  block_controller_get_document_ids_setup();
   block_controller_get_document_ids_test1();
   block_controller_get_document_ids_test2();
-  block_controller_get_document_ids_teardown();
+  close_database("test.db");
   return 0;
 }

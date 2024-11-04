@@ -79,3 +79,8 @@ int rows_changed()
 {
   return sqlite3_changes(db);
 }
+
+gint64 last_inserted_id()
+{
+  return sqlite3_last_insert_rowid(db);
+}

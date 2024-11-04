@@ -3,7 +3,7 @@
 
 /* CREATE */
 
-void block_repository_save(
+gint64 block_repository_save(
   gint64 creation_time,
   gint64 is_document,
   gint64 modification_time,
@@ -18,7 +18,7 @@ void block_repository_save(
   if(stmt == NULL)
   {
     g_print("block_repository_save: Failed to prepare statement.\n");
-    return;
+    exit(EXIT_FAILURE);
   }
   sqlite3_bind_int64(stmt, 1, creation_time);
   sqlite3_bind_int64(stmt, 2, is_document);
@@ -31,7 +31,9 @@ void block_repository_save(
   if(rc != SQLITE_DONE)
   {
     g_print("block_repository_save: Failed to execute.\n");
+    exit(EXIT_FAILURE);
   }
+  return last_inserted_id();
 }
 
 /* READ */

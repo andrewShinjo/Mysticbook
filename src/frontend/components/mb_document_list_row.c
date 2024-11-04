@@ -19,24 +19,15 @@ struct _MbDocumentListRow
 };
 G_DEFINE_TYPE(MbDocumentListRow, mb_document_list_row, GTK_TYPE_WIDGET)
 /* FORWARD DECLARATION */
-static void 
-mb_document_list_row_dispose(GObject *object);
-static void
-mb_document_list_row_finalize(GObject *object);
-static gboolean 
-open_signal_source_func(gpointer user_data);
+static void mb_document_list_row_dispose(GObject *object);
+static void mb_document_list_row_finalize(GObject *object);
+static gboolean open_signal_source_func(gpointer user_data);
 /* CALLBACK */
-static void
-delete_button_clicked(GtkButton *self, gpointer user_data)
+static void delete_button_clicked(GtkButton *self, gpointer user_data)
 {
 	g_print("Delete button clicked.\n");
 }
-static void
-notify_id(
-  GObject *object,
-  GParamSpec *pspec,
-  gpointer user_data
-)
+static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
 {
   MbDocumentListRow *_self = MB_DOCUMENT_LIST_ROW(object);
   const gchar *content = ""; 

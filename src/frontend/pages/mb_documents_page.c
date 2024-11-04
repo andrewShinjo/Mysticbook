@@ -1,6 +1,6 @@
 #include "./mb_documents_page.h"
 #include "../components/mb_document_list_row.h"
-#include "../../backend/block.h"
+#include "../../backend/controller/block_controller.h"
 /* WIDGET DEFINITION */
 struct _MbDocumentsPage
 {
@@ -16,15 +16,11 @@ struct _MbDocumentsPage
 };
 G_DEFINE_TYPE(MbDocumentsPage, mb_documents_page, GTK_TYPE_WIDGET)
 /* FORWARD DECLARATION */
-static void 
-dispose(GObject *object);
-static void 
-finalize(GObject *object);
-static gboolean
-open_document_signal_source_func(gpointer user_data);
+static void dispose(GObject *object);
+static void finalize(GObject *object);
+static gboolean open_document_signal_source_func(gpointer user_data);
 /* CALLBACK */
-static void
-open_row_cb(MbDocumentListRow *_row, gpointer user_data)
+static void open_row_cb(MbDocumentListRow *_row, gpointer user_data)
 {
   MbDocumentsPage *_self = MB_DOCUMENTS_PAGE(user_data);
   gint64 id;
@@ -33,14 +29,15 @@ open_row_cb(MbDocumentListRow *_row, gpointer user_data)
   g_object_set(G_OBJECT(_self), "id", id, NULL);
   open_document_signal_source_func(_self);
 }
-static void 
-new_document_button_clicked(GtkButton *button, gpointer user_data)
+static void new_document_button_clicked(GtkButton *button, gpointer user_data)
 {
   MbDocumentsPage *_self = MB_DOCUMENTS_PAGE(user_data);
   GtkBox *document_list = GTK_BOX(_self->document_list);
   // Create document in SQL.
+  gint64 new_id = block_controller_create_document("Untitled");
+  g_print("New id: %ld\n", new_id);
   // Create document list row in GUI.
-  GtkWidget *new_document_list_row = mb_document_list_row_new();
+  GtkWidget *new_document_list_row = mb_document_list_row_new(new_id);
   gtk_box_append(document_list, new_document_list_row);
   g_signal_connect(
     new_document_list_row,

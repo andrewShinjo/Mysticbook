@@ -7,7 +7,7 @@
 // Functions like create, read, update, and delete are here.
 
 /* CREATE */
-void block_repository_save(
+gint64 block_repository_save(
   gint64 creation_time, 
   gint64 is_document, 
   gint64 modification_time, 

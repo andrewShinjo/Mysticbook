@@ -14,3 +14,4 @@ void commit_transaction();
 void rollback_transaction();
 
 int rows_changed();
+gint64 last_inserted_id();

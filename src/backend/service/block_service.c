@@ -1,6 +1,11 @@
 #include "./block_service.h"
 #include "../repository/block_repository.h"
 
+gint64 block_service_create_document(gchar *content)
+{
+  return block_repository_save(0, 1, 0, 0, 0, content);
+}
+
 GArray* block_service_get_document_ids()
 {
   GArray *document_ids = block_repository_find_ids_by_is_document(1);
