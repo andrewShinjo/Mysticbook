@@ -5,6 +5,7 @@
 // services that the frontend requests.
 // It processes data, enforce rules, and perform transactions.
 
+gint64 block_service_append_sibling(gint64 id);
 gint64 block_service_create_block(gchar *content);
 gint64 block_service_create_document(gchar *content);
 const unsigned char* block_service_get_block_content(gint64 id);

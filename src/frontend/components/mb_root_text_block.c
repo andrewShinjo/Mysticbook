@@ -60,8 +60,7 @@ static gboolean key_pressed(GtkEventControllerKey *key, guint keyval, guint keyc
   }
   return FALSE;
 }
-static void 
-notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
+static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
 {
   MbRootTextBlock *_self = MB_ROOT_TEXT_BLOCK(object);
   const unsigned char *content = block_controller_get_block_content(_self->id);

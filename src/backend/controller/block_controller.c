@@ -1,6 +1,11 @@
 #include "./block_controller.h"
 #include "../service/block_service.h"
 
+gint64 block_controller_append_sibling(gint64 id)
+{
+  return block_service_append_sibling(id);
+}
+
 gint64 block_controller_create_document(gchar *content)
 {
   return block_service_create_document(content);

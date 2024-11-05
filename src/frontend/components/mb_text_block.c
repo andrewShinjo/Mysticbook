@@ -1,6 +1,7 @@
 #include "./mb_text_block.h"
 #include "./mb_root_text_block.h"
 #include "../../backend/block.h"
+#include "../../backend/controller/block_controller.h"
 /* WIDGET DEFINITION */
 struct _MbTextBlock
 {
@@ -82,14 +83,10 @@ changed(GtkTextBuffer *text_buffer, gpointer user_data)
   // block_update_content(_self->id, content);
   g_free(content);
 }
-static void
-notify_id(
-  GObject *object,
-  GParamSpec *pspec,
-  gpointer user_data
-)
+static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
 {
   MbTextBlock *_self = MB_TEXT_BLOCK(object);
+  g_print("notify_id=%ld\n", _self->id);
   // Get block content.
   const gchar *content = "";
   if(content != NULL)
@@ -178,8 +175,10 @@ static gboolean key_pressed(
       else
       {
         // Create a new block in SQL.
+        g_print("ID=%ld\n", _self->id);
+        gint64 new_id = block_controller_append_sibling(_self->id);
         // Create a new block in GUI.
-        GtkWidget *sibling = mb_text_block_new();
+        GtkWidget *sibling = mb_text_block_new(new_id);
         MbTextBlock *_sibling = MB_TEXT_BLOCK(sibling);
         append_sibling_after_self(_self, _sibling);
         mb_text_block_grab_focus(_sibling);
@@ -220,13 +219,7 @@ get_property(
     }
   }
 }
-static void
-set_property(
-  GObject *object, 
-  guint property_id, 
-  const GValue *value, 
-  GParamSpec *pspec
-)
+static void set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
 {
   MbTextBlock *_self = MB_TEXT_BLOCK(object);
   switch(property_id)
@@ -272,12 +265,7 @@ mb_text_block_init(MbTextBlock *self)
   gtk_box_append(GTK_BOX(self->layout), self->children_blocks);
   gtk_widget_set_parent(self->layout, GTK_WIDGET(self)); 
   /* CONNECT TO SIGNALS */
-  g_signal_connect(
-    GTK_WIDGET(self),
-    "notify::id",
-    G_CALLBACK(notify_id),
-    self
-  );
+  g_signal_connect(GTK_WIDGET(self), "notify::id", G_CALLBACK(notify_id), self);
   /** Key controller **/
   gtk_widget_add_controller(self->text_view, self->key_controller);
   g_signal_connect(
@@ -332,10 +320,7 @@ mb_text_block_class_init(MbTextBlockClass *klass)
   );
   /* SIGNALS */
   /* LAYOUT MANAGER */
-  gtk_widget_class_set_layout_manager_type(
-    widget_class,
-    GTK_TYPE_BOX_LAYOUT
-  );
+  gtk_widget_class_set_layout_manager_type(widget_class, GTK_TYPE_BOX_LAYOUT);
 }
 static void 
 dispose(GObject *object) 
