@@ -113,8 +113,8 @@ void block_service_indent_block(gint64 id)
   g_print("previous_sibling_position=%ld\n", prev_sibling_pos);
   gint64 prev_sibling_id = block_repository_find_id_by_parent_id_and_position(parent_id, prev_sibling_pos);
   g_print("previous_sibling_id=%ld\n", prev_sibling_id);
-  block_repository_update_parent_id(id, prev_sibling_id); // move this afterwards
   gint64 new_pos = block_repository_find_last_child_position(prev_sibling_id) + 1;
+  block_repository_update_parent_id(id, prev_sibling_id); // move this afterwards
   block_repository_update_position(id, new_pos);
 }
 
