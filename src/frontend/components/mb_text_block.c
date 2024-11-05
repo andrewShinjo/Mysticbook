@@ -366,18 +366,14 @@ get_content(MbTextBlock *_self)
   );
   return content;
 }
-static GtkWidget* 
-get_first_child(MbTextBlock *_self)
+static GtkWidget* get_first_child(MbTextBlock *_self)
 {
   return gtk_widget_get_first_child(_self->children_blocks);
 }
-static MbTextBlock* 
-get_last_child(MbTextBlock *_self)
+static GtkWidget* get_last_child(MbTextBlock *_self)
 {
-  GtkWidget *last_child = gtk_widget_get_last_child(
-    _self->children_blocks
-  );
-  return MB_TEXT_BLOCK(last_child);
+  GtkWidget *last_child = gtk_widget_get_last_child(_self->children_blocks);
+  return last_child;
 }
 static GtkWidget* 
 get_parent(MbTextBlock *_self)
@@ -465,22 +461,19 @@ leave(GtkEventControllerFocus *focus, gpointer user_data)
   _self->selected = FALSE;
   gtk_widget_queue_draw(self);
 }
-static void 
-prepend_child(MbTextBlock *_self, MbTextBlock *_child)
+static void prepend_child(MbTextBlock *_self, MbTextBlock *_child)
 {
   GtkBox *_children_blocks = GTK_BOX(_self->children_blocks);
   GtkWidget *child = GTK_WIDGET(_child);
   gtk_box_prepend(_children_blocks, child);
 }
-static void
-set_content(MbTextBlock *_self, const gchar *content)
+static void set_content(MbTextBlock *_self, const gchar *content)
 {
   GtkTextView *text_view = GTK_TEXT_VIEW(_self->text_view);
   GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(text_view);
   gtk_text_buffer_set_text(text_buffer, content, -1);
 }
-static void 
-snapshot(GtkWidget *widget, GtkSnapshot *snapshot)
+static void snapshot(GtkWidget *widget, GtkSnapshot *snapshot)
 {
   MbTextBlock* _self = MB_TEXT_BLOCK(widget);
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(
@@ -584,17 +577,16 @@ indent_self(MbTextBlock *_self)
   }
   append_child(_previous_sibling, _self);
 }
-static void 
-remove_self(MbTextBlock *_self)
+static void remove_self(MbTextBlock *_self)
 {
   GtkWidget *parent = get_parent(_self);
   GtkWidget *self = GTK_WIDGET(_self);
   GtkWidget *previous_sibling = gtk_widget_get_prev_sibling(self);
-  GtkWidget *first_child = get_first_child(_self);
 
   if(MB_IS_TEXT_BLOCK(parent))
   {
     MbTextBlock *_parent = MB_TEXT_BLOCK(parent);
+    GtkWidget *first_child = get_first_child(_self);
     while(first_child != NULL)
     {
       MbTextBlock *_first_child = MB_TEXT_BLOCK(first_child);
@@ -608,18 +600,15 @@ remove_self(MbTextBlock *_self)
   else if(MB_IS_ROOT_TEXT_BLOCK(parent))
   {
     MbRootTextBlock *_parent = MB_ROOT_TEXT_BLOCK(parent); 
-    while(first_child != NULL)
+    GtkWidget *last_child = get_last_child(_self);
+    while(last_child != NULL)
     {
-      MbTextBlock *_first_child = MB_TEXT_BLOCK(first_child);
-      g_object_ref(first_child);
-      remove_child(_self, _first_child);
-      mb_root_text_block_insert_child_after(
-        _parent, 
-        _first_child, 
-        _self
-      );
-      g_object_unref(first_child);
-      first_child = get_first_child(_self);
+      MbTextBlock *_last_child = MB_TEXT_BLOCK(last_child);
+      g_object_ref(last_child);
+      remove_child(_self, _last_child);
+      mb_root_text_block_insert_child_after(_parent, _last_child, _self);
+      g_object_unref(last_child);
+      last_child = get_last_child(_self);
     }
   }
   if(MB_IS_TEXT_BLOCK(parent)) 
@@ -640,7 +629,7 @@ remove_self(MbTextBlock *_self)
     while(_last_child != NULL)
     {
       _previous = _last_child;
-      _last_child = get_last_child(_last_child);
+      _last_child = MB_TEXT_BLOCK(get_last_child(_last_child));
     }
     assert(MB_IS_TEXT_BLOCK(_previous));
     append_content(_previous, content);
