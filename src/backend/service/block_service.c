@@ -16,6 +16,11 @@ const unsigned char* block_service_get_block_content(gint64 id)
   return block_repository_find_content(id);
 }
 
+GArray* block_service_get_children_ids(gint64 id)
+{
+  return block_repository_find_ids_by_parent_id_order_by_position(id);
+}
+
 GArray* block_service_get_document_ids()
 {
   GArray *document_ids = block_repository_find_ids_by_is_document(1);

@@ -121,6 +121,25 @@ GArray* block_repository_find_ids_by_is_document(gint64 is_document)
   return ids;
 }
 
+GArray* block_repository_find_ids_by_parent_id_order_by_position(gint64 parent_id)
+{
+  const char *sql = "SELECT id FROM blocks WHERE parent_id = ? ORDER BY position;";
+  sqlite3_stmt *stmt = prepare_statement(sql);
+  if(stmt == NULL)
+  {
+    g_print("block_repository_find_ids_by_parent_id_order_by_position: Failed to prepare statement.\n");
+    exit(EXIT_FAILURE);
+  }
+  sqlite3_bind_int64(stmt, 1, parent_id);
+  GArray *ids = g_array_new(FALSE, FALSE, sizeof(gint64));
+  while(sqlite3_step(stmt) == SQLITE_ROW)
+  {
+    gint64 id = sqlite3_column_int64(stmt, 0);
+    g_array_append_val(ids, id);
+  }
+  return ids;
+}
+
 GArray* block_repository_find_ids_by_position_range_and_parent_id(gint64 start, gint64 end, gint64 parent_id)
 {
   const char *sql = "SELECT id FROM blocks WHERE position >= ? AND position <= ? AND parent_id = ?;"; 
