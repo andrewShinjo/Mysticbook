@@ -44,39 +44,18 @@ static void changed(GtkTextBuffer *text_buffer, gpointer user_data)
   block_controller_update_content(id, (const unsigned char*) content);
   g_free(content);
 }
-static gboolean 
-key_pressed(
-  GtkEventControllerKey *key, 
-  guint keyval, 
-  guint keycode, 
-  GdkModifierType state, 
-  gpointer user_data
-)
+static gboolean key_pressed(GtkEventControllerKey *key, guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
 {
   MbRootTextBlock *_self = MB_ROOT_TEXT_BLOCK(user_data);
   GtkWidget *self = GTK_WIDGET(user_data);
   if(keyval == GDK_KEY_Return)
   {
-    // block_increment_all_position();
     // Create new block in SQL.
-    gint64 creation_time = get_current_timestamp();
-    gint64 is_document = 0;
-    gint64 modification_time = creation_time;
-    gint64 parent_id = _self->id;
-    gint64 position = 1;
-    gchar *content = "";
-    /*gint64 new_id = block_new_all_fields(
-      &creation_time, 
-      &is_document, 
-      NULL, 
-      &position, 
-      &parent_id, 
-      content
-    );*/
+    gint64 new_id = block_controller_prepend_child(_self->id);
     // Create new block in GUI.
-    //GtkWidget *child = mb_text_block_new(new_id);
-    //gtk_box_prepend(GTK_BOX(_self->children_blocks), child);
-    //mb_text_block_grab_focus(MB_TEXT_BLOCK(child));
+    GtkWidget *child = mb_text_block_new(new_id);
+    gtk_box_prepend(GTK_BOX(_self->children_blocks), child);
+    mb_text_block_grab_focus(MB_TEXT_BLOCK(child));
     return TRUE;
   }
   return FALSE;

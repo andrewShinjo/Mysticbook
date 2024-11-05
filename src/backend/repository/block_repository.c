@@ -60,21 +60,13 @@ gint64 block_repository_find_last_child_position(gint64 id)
   sqlite3_stmt *stmt = prepare_statement(sql);
   if(stmt == NULL)
   {
-    g_print("block_repository_find_last_child_position: "
-      "failed to prepare statement.\n");
-    return -1;
+    g_print("block_repository_find_last_child_position: Failed to prepare statement.\n");
+    exit(EXIT_FAILURE);
   }
   sqlite3_bind_int64(stmt, 1, id);
-  int rc = sqlite3_step(stmt);
-  sqlite3_finalize(stmt);
-
-  if(rc != SQLITE_DONE)
-  {
-    g_print("block_repository_find_last_child_position: "
-      "failed to execute statement.\n");
-    return -1;
-  }
+  sqlite3_step(stmt);
   gint64 position = sqlite3_column_int64(stmt, 0);
+  sqlite3_finalize(stmt);
   return position;
 }
 
@@ -98,25 +90,15 @@ gint64 block_repository_find_position(gint64 id)
 {
   const char *sql = "SELECT position FROM blocks WHERE id = ?;";
   sqlite3_stmt *stmt = prepare_statement(sql);
-  
   if(stmt == NULL)
   {
     g_print("block_repository_find_position: Failed to prepare statement.\n");
-    return -1;
+    exit(EXIT_FAILURE);
   }
   sqlite3_bind_int64(stmt, 1, id);
-  int rc = sqlite3_step(stmt);
-  sqlite3_finalize(stmt);
-  
-  if(rc != SQLITE_DONE)
-  {
-    g_print(
-      "block_repository_find_position: Failed to execute statement.\n"
-    );
-    return -1;
-  }
-
+  sqlite3_step(stmt);
   gint64 position = sqlite3_column_int64(stmt, 0);
+  sqlite3_finalize(stmt);
   return position;
 }
 
@@ -188,7 +170,7 @@ int block_repository_update_parent_id(gint64 id, gint64 parent_id)
   return -1;
 }
 
-int block_repository_update_position_id(gint64 id, gint64 position)
+int block_repository_update_position(gint64 id, gint64 position)
 {
   const char *sql = "UPDATE blocks SET position = ? WHERE id = ?;";
   sqlite3_stmt *stmt = prepare_statement(sql);

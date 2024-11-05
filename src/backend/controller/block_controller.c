@@ -21,6 +21,11 @@ int block_controller_indent_block(gint64 id)
   return block_service_indent_block(id);  
 }
 
+gint64 block_controller_prepend_child(gint64 id)
+{
+  return block_service_prepend_child(id);
+}
+
 void block_controller_update_content(gint64 id, const unsigned char* content)
 {
   block_service_update_content(id, content);
