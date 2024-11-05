@@ -59,6 +59,18 @@ static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
     set_content(_self, content);     
   }
   // Get block children.
+  GtkBox *_children_blocks = GTK_BOX(_self->children_blocks);
+  GArray *children_ids = block_controller_get_children_ids(id);
+  guint count = children_ids->len;
+  for(guint i = 0; i < count; i++)
+  {
+    gint64 child_id = g_array_index(children_ids, gint64, i);
+    GtkWidget *child = mb_text_block_new(child_id);
+    MbTextBlock *_child = MB_TEXT_BLOCK(child);
+    gtk_box_append(_children_blocks, child);
+    mb_text_block_grab_focus(_child);
+  }
+  g_free(children_ids);
 }
 
 static gboolean key_pressed(GtkEventControllerKey *key, guint keyval, guint keycode, GdkModifierType state, gpointer user_data)

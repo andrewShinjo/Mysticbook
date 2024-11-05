@@ -91,7 +91,6 @@ void block_service_indent_block(gint64 id)
   gint64 parent_id = block_repository_find_parent_id_by_id(id);
   if(parent_id == 0)
   {
-    // No parent_id. Can't indent.
     return;
   }
   // Reposition siblings.
@@ -110,11 +109,9 @@ void block_service_indent_block(gint64 id)
   g_free(sibling_ids);
   // Update self's parent_id and position.
   gint64 prev_sibling_pos = my_pos - 1;
-  g_print("previous_sibling_position=%ld\n", prev_sibling_pos);
   gint64 prev_sibling_id = block_repository_find_id_by_parent_id_and_position(parent_id, prev_sibling_pos);
-  g_print("previous_sibling_id=%ld\n", prev_sibling_id);
   gint64 new_pos = block_repository_find_last_child_position(prev_sibling_id) + 1;
-  block_repository_update_parent_id(id, prev_sibling_id); // move this afterwards
+  block_repository_update_parent_id(id, prev_sibling_id);
   block_repository_update_position(id, new_pos);
 }
 
