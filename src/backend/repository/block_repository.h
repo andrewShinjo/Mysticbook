@@ -19,6 +19,7 @@ gint64 block_repository_save(
 /* READ */
 gint64 block_repository_count_by_parent_id(gint64 parent_id);
 const unsigned char* block_repository_find_content(gint64 id);
+gint64 block_repository_find_id_by_parent_id_and_position(gint64 parent_id, gint64 position);
 gint64 block_repository_find_last_child_position(gint64 id);
 gint64 block_repository_find_parent_id_by_id(gint64 id);
 gint64 block_repository_find_position(gint64 id);

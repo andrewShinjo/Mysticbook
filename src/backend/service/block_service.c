@@ -85,25 +85,37 @@ void block_service_increment_position(gint64 id)
   block_repository_update_position(id, position + 1);
 }
 
-int block_service_indent_block(gint64 id)
+void block_service_indent_block(gint64 id)
 {
   // Get parent_id
   gint64 parent_id = block_repository_find_parent_id_by_id(id);
   if(parent_id == 0)
   {
     // No parent_id. Can't indent.
-    return -1;
+    return;
   }
-  // Get my position
-  gint64 start_position = block_repository_find_position(id);
-  // Get position of parent's last child
-  gint64 last_position = block_repository_find_last_child_position(id);
-  // Get id of childrens positioned [pos+1, last_pos]
-  // Decrement all of their positions by 1
-  // Get id of previous_sibling
-  // Update my parent to be previous_sibling
-  // Get last position of new parent
-  // Set my position to be new last position of new parent
+  // Reposition siblings.
+  gint64 my_pos = block_repository_find_position(id);
+  gint64 start = my_pos + 1;
+  gint64 end = block_repository_find_last_child_position(parent_id);
+  GArray *sibling_ids = block_repository_find_ids_by_position_range_and_parent_id(start, end, parent_id);
+  guint sibling_count = sibling_ids->len;
+  for(guint i = 0; i < sibling_count; i++)
+  {
+    gint64 sibling_id = g_array_index(sibling_ids, gint64, i);
+    gint64 original_position = block_repository_find_position(sibling_id);
+    gint64 new_position = original_position - 1;
+    block_repository_update_position(sibling_id, new_position);
+  }
+  g_free(sibling_ids);
+  // Update self's parent_id and position.
+  gint64 prev_sibling_pos = my_pos - 1;
+  g_print("previous_sibling_position=%ld\n", prev_sibling_pos);
+  gint64 prev_sibling_id = block_repository_find_id_by_parent_id_and_position(parent_id, prev_sibling_pos);
+  g_print("previous_sibling_id=%ld\n", prev_sibling_id);
+  block_repository_update_parent_id(id, prev_sibling_id); // move this afterwards
+  gint64 new_pos = block_repository_find_last_child_position(prev_sibling_id) + 1;
+  block_repository_update_position(id, new_pos);
 }
 
 gint64 block_service_prepend_child(gint64 id)

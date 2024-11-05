@@ -109,6 +109,7 @@ static gboolean key_pressed(GtkEventControllerKey *key, guint keyval, guint keyc
     indent_self(_self);
     mb_text_block_grab_focus(_self);
     // Indent in SQL.
+    block_controller_indent_block(_self->id);
     return TRUE;
   }
   else if(keyval == GDK_KEY_Return)

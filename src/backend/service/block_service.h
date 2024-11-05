@@ -13,6 +13,6 @@ const unsigned char* block_service_get_block_content(gint64 id);
 GArray* block_service_get_children_ids(gint64 id);
 GArray* block_service_get_document_ids();
 void block_service_increment_position(gint64 id);
-int block_service_indent_block(gint64 id);
+void block_service_indent_block(gint64 id);
 gint64 block_service_prepend_child(gint64 id);
 void block_service_update_content(gint64 id, const unsigned char *content);

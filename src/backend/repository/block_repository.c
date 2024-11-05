@@ -69,9 +69,27 @@ const unsigned char* block_repository_find_content(gint64 id)
   return content;
 }
 
+gint64 block_repository_find_id_by_parent_id_and_position(gint64 parent_id, gint64 position)
+{
+  const char *sql = "SELECT id FROM blocks WHERE parent_id = ? AND position = ?;";
+  sqlite3_stmt *stmt = prepare_statement(sql);
+  if(stmt == NULL)
+  {
+    g_print("block_repository_find_id_by_parent_id_and_position: Failed to prepare statement.\n");
+    exit(EXIT_FAILURE);
+  }
+  sqlite3_bind_int64(stmt, 1, parent_id);
+  sqlite3_bind_int64(stmt, 2, position);
+  sqlite3_step(stmt);
+  gint64 id = sqlite3_column_int64(stmt, 0);
+  sqlite3_finalize(stmt);
+  return id;
+}
+
 gint64 block_repository_find_last_child_position(gint64 id)
 {
-  const char *sql = "SELECT IFNULL(MAX(position), 0) FROM blocks WHERE parent_id = ?;";
+  g_print("block_repository_find_last_child_position: %ld\n", id);
+  const char *sql = "SELECT COUNT(*) FROM blocks WHERE parent_id = ?;";
   sqlite3_stmt *stmt = prepare_statement(sql);
   if(stmt == NULL)
   {
@@ -81,6 +99,7 @@ gint64 block_repository_find_last_child_position(gint64 id)
   sqlite3_bind_int64(stmt, 1, id);
   sqlite3_step(stmt);
   gint64 position = sqlite3_column_int64(stmt, 0);
+  g_print("position=%ld\n", position);
   sqlite3_finalize(stmt);
   return position;
 }
