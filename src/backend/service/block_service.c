@@ -131,6 +131,37 @@ gint64 block_service_prepend_child(gint64 id)
   return child_id;
 }
 
+void block_service_unindent_block(gint64 id)
+{
+  gint64 parent_id = block_repository_find_parent_id_by_id(id); // New previous sibling.
+  if(parent_id == 0)
+  {
+    return;
+  }
+  gboolean is_parent_document = block_repository_is_document(id);
+  if(is_parent_document)
+  {
+    return;
+  }
+  // Update future sibling positions.
+  gint64 new_parent_id = block_repository_find_parent_id_by_id(parent_id); 
+  gint64 start = block_repository_find_position(parent_id) + 1;
+  gint64 end = block_repository_find_last_child_position(new_parent_id);
+  GArray *ids = block_repository_find_ids_by_position_range_and_parent_id(start, end, new_parent_id);
+  for(guint i = 0; i < ids->len; i++)
+  {
+    gint64 sibling_id = g_array_index(ids, gint64, i);
+    block_service_increment_position(sibling_id);
+  }
+  g_free(ids);
+
+  // Update parent_id and position of self.
+  gint64 new_position = block_repository_find_position(parent_id) + 1;
+  block_repository_update_parent_id(id, new_parent_id);
+  block_repository_update_position(id, new_position);
+
+}
+
 void block_service_update_content(gint64 id, const unsigned char *content)
 {
   block_repository_update_content(id, content);

@@ -86,6 +86,22 @@ gint64 block_repository_find_id_by_parent_id_and_position(gint64 parent_id, gint
   return id;
 }
 
+gint64 block_repository_find_is_document(gint64 id)
+{
+  const char *sql = "SELECT is_document FROM blocks WHERE id = ?;";
+  sqlite3_stmt *stmt = prepare_statement(sql);
+  if(stmt == NULL)
+  {
+    g_print("block_repository_find_is_document: Failed to prepare statement.\n");
+    exit(EXIT_FAILURE);
+  }
+  sqlite3_bind_int64(stmt, 1, id);
+  sqlite3_step(stmt);
+  gint64 is_document = sqlite3_column_int64(stmt, 0);
+  sqlite3_finalize(stmt);
+  return is_document;
+}
+
 gint64 block_repository_find_last_child_position(gint64 id)
 {
   g_print("block_repository_find_last_child_position: %ld\n", id);
@@ -197,6 +213,11 @@ GArray* block_repository_find_ids_by_position_range_and_parent_id(gint64 start, 
     g_array_append_val(ids, id);
   }
   return ids;
+}
+
+gboolean block_repository_is_document(gint64 id)
+{
+  return block_repository_find_is_document(id) == 1;
 }
 
 /* UPDATE */

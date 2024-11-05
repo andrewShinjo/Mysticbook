@@ -111,8 +111,11 @@ static gboolean key_pressed(GtkEventControllerKey *key, guint keyval, guint keyc
   }
   else if(keyval == GDK_KEY_ISO_Left_Tab && state && GDK_SHIFT_MASK)
   {
+    // Unindent in GUI.
     unindent_self(_self);
     mb_text_block_grab_focus(_self);
+    // Unindent in SQL.
+    block_controller_unindent_block(_self->id);
     return TRUE;
   }
   else if(keyval == GDK_KEY_Tab)
