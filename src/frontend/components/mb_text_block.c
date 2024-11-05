@@ -74,13 +74,8 @@ changed(GtkTextBuffer *text_buffer, gpointer user_data)
   GtkTextIter start, end;
   gtk_text_buffer_get_start_iter(text_buffer, &start);
   gtk_text_buffer_get_end_iter(text_buffer, &end);
-  gchar *content = gtk_text_buffer_get_text(
-    text_buffer,
-    &start,
-    &end,
-    FALSE
-  );
-  // block_update_content(_self->id, content);
+  gchar *content = gtk_text_buffer_get_text(text_buffer, &start, &end, FALSE);
+  block_controller_update_content(_self->id, (const unsigned char*) content);
   g_free(content);
 }
 static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
