@@ -81,9 +81,8 @@ changed(GtkTextBuffer *text_buffer, gpointer user_data)
 static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
 {
   MbTextBlock *_self = MB_TEXT_BLOCK(object);
-  g_print("notify_id=%ld\n", _self->id);
-  // Get block content.
-  const gchar *content = "";
+  gint64 id = _self->id;
+  const unsigned char *content = block_controller_get_block_content(id);
   if(content != NULL)
   {
     set_content(_self, content);     
