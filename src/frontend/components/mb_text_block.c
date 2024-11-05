@@ -21,56 +21,27 @@ struct _MbTextBlock
 };
 G_DEFINE_TYPE(MbTextBlock, mb_text_block, GTK_TYPE_WIDGET)
 /* FORWARD DECLARATION */
-static void 
-append_sibling_after_self(MbTextBlock *_self, MbTextBlock *_sibling);
-static void 
-dispose(GObject *object);
-static void 
-finalize(GObject *object);
-static void 
-get_property(
-  GObject *object, 
-  guint property_id, 
-  GValue *value, 
-  GParamSpec *pspec
-);
-static gboolean 
-has_child(MbTextBlock *_self);
-static void 
-indent_self(MbTextBlock *_self);
-static gboolean 
-is_all_text_highlighted(MbTextBlock *_self);
-static gboolean 
-is_empty(MbTextBlock *_self);
-static gboolean 
-is_insert_at_start(MbTextBlock *_self);
-static void 
-prepend_child(MbTextBlock *_self, MbTextBlock *_child);
-static void 
-remove_child(MbTextBlock *self, MbTextBlock *_child);
-static void 
-remove_self(MbTextBlock *_self);
-static void
-set_content(MbTextBlock *_self, const gchar *content);
-static void 
-set_property(
-  GObject *object, 
-  guint property_id, 
-  const GValue *value, 
-  GParamSpec *pspec
-);
-static void 
-snapshot(GtkWidget *widget, GtkSnapshot *snapshot);
-static void 
-leave(GtkEventControllerFocus *focus, gpointer user_data);
-static void 
-unindent_self(MbTextBlock *_self);
+static void append_sibling_after_self(MbTextBlock *_self, MbTextBlock *_sibling);
+static void dispose(GObject *object);
+static void finalize(GObject *object);
+static void get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec);
+static gboolean has_child(MbTextBlock *_self);
+static void indent_self(MbTextBlock *_self);
+static gboolean is_all_text_highlighted(MbTextBlock *_self);
+static gboolean is_empty(MbTextBlock *_self);
+static gboolean is_insert_at_start(MbTextBlock *_self);
+static void prepend_child(MbTextBlock *_self, MbTextBlock *_child);
+static void remove_child(MbTextBlock *self, MbTextBlock *_child);
+static void remove_self(MbTextBlock *_self);
+static void set_content(MbTextBlock *_self, const gchar *content);
+static void set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec);
+static void snapshot(GtkWidget *widget, GtkSnapshot *snapshot);
+static void leave(GtkEventControllerFocus *focus, gpointer user_data);
+static void unindent_self(MbTextBlock *_self);
 /* CALLBACK */
-static void
-changed(GtkTextBuffer *text_buffer, gpointer user_data)
+static void changed(GtkTextBuffer *text_buffer, gpointer user_data)
 {
   MbTextBlock *_self = MB_TEXT_BLOCK(user_data);
-  // Update block's content in SQL.
   GtkTextIter start, end;
   gtk_text_buffer_get_start_iter(text_buffer, &start);
   gtk_text_buffer_get_end_iter(text_buffer, &end);
@@ -90,23 +61,16 @@ static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
   // Get block children.
 }
 
-static gboolean key_pressed(
-  GtkEventControllerKey *event_controller_key,
-  guint keyval, 
-  guint keycode, 
-  GdkModifierType state, 
-  gpointer user_data
-)
+static gboolean key_pressed(GtkEventControllerKey *key, guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
 {
   MbTextBlock *_self = MB_TEXT_BLOCK(user_data);
-  GtkWidget   *self  = GTK_WIDGET(user_data);
+  GtkWidget *self  = GTK_WIDGET(user_data);
 
   if(keyval == GDK_KEY_a)
   {
     if(state & GDK_CONTROL_MASK)
     {
-      gboolean should_highlight_block = 
-        is_all_text_highlighted(_self) || is_empty(_self);
+      gboolean should_highlight_block = is_all_text_highlighted(_self) || is_empty(_self);
       if(should_highlight_block)
       {
         // _self->selected = TRUE;
@@ -130,9 +94,7 @@ static gboolean key_pressed(
       // Remove self in GUI.
       remove_self(_self);
       // Remove self in SQL.
-      // Get siblings positioned after this block.
-      // Reposition siblings.
-      // Reposition children.
+      block_controller_delete_block(_self->id); 
     }
   }
   else if(keyval == GDK_KEY_ISO_Left_Tab && state && GDK_SHIFT_MASK)

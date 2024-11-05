@@ -38,6 +38,21 @@ gint64 block_repository_save(
 
 /* READ */
 
+gint64 block_repository_count_by_parent_id(gint64 parent_id)
+{
+  const char *sql = "SELECT COUNT(id) FROM blocks WHERE parent_id = ?;";
+  sqlite3_stmt *stmt = prepare_statement(sql);
+  if(stmt == NULL)
+  {
+    g_print("block_repository_count_by_parent_id: Failed to prepare statement.\n");
+    exit(EXIT_FAILURE);
+  }
+  sqlite3_bind_int64(stmt, 1, parent_id);
+  sqlite3_step(stmt);
+  gint64 count = sqlite3_column_int64(stmt, 0);
+  return count; 
+}
+
 const unsigned char* block_repository_find_content(gint64 id)
 {
   const char *sql = "SELECT content FROM blocks WHERE id = ?;";
@@ -235,3 +250,16 @@ void block_repository_update_content(gint64 id, const unsigned char *content)
 }
 
 /* DELETE */
+void block_repository_delete(gint64 id)
+{
+  const char *sql = "DELETE FROM blocks WHERE id = ?;";
+  sqlite3_stmt *stmt = prepare_statement(sql);
+  if(stmt == NULL)
+  {
+    g_print("block_repository_delete: Failed to prepare statement.\n");
+    exit(EXIT_FAILURE);
+  }
+  sqlite3_bind_int64(stmt, 1, id);
+  sqlite3_step(stmt);
+  sqlite3_finalize(stmt);
+}

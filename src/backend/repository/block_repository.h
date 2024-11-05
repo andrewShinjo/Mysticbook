@@ -17,6 +17,7 @@ gint64 block_repository_save(
 );
 
 /* READ */
+gint64 block_repository_count_by_parent_id(gint64 parent_id);
 const unsigned char* block_repository_find_content(gint64 id);
 gint64 block_repository_find_last_child_position(gint64 id);
 gint64 block_repository_find_parent_id_by_id(gint64 id);
@@ -32,3 +33,4 @@ int block_repository_update_position(gint64 id, gint64 position);
 void block_repository_update_content(gint64 id, const unsigned char *content);
 
 /* DELETE */
+void block_repository_delete(gint64 id);

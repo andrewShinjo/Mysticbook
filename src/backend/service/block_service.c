@@ -32,6 +32,38 @@ gint64 block_service_create_document(gchar *content)
   return block_repository_save(0, 1, 0, 0, 0, content);
 }
 
+void block_service_delete_block(gint64 id)
+{
+  gint64 parent_id = block_repository_find_parent_id_by_id(id);
+  gint64 position = block_repository_find_position(id);
+  gint64 children_count = block_repository_count_by_parent_id(id);
+  gint64 start = position + 1;
+  gint64 end = block_repository_find_last_child_position(parent_id);
+  // Reposition siblings.
+  GArray *sibling_ids = block_repository_find_ids_by_position_range_and_parent_id(start, end, parent_id);
+  guint sibling_count = sibling_ids->len;
+  gint64 position_change = children_count - 1;
+  for(guint i = 0; i < sibling_count; i++)
+  {
+    gint64 sibling_id = g_array_index(sibling_ids, gint64, i);
+    gint64 original_position = block_repository_find_position(sibling_id);
+    gint64 new_position = original_position + position_change;
+    block_repository_update_position(sibling_id, new_position);
+  }
+  g_free(sibling_ids);
+  // Reposition children.
+  GArray *children_ids = block_repository_find_ids_by_parent_id_order_by_position(id);
+  for(guint i = 0; i < children_ids->len; i++)
+  {
+    gint64 child_id = g_array_index(children_ids, gint64, i);
+    block_repository_update_parent_id(child_id, parent_id);
+    block_repository_update_position(child_id, position + i);
+  }
+  g_free(children_ids);
+  // Delete self.
+  block_repository_delete(id); 
+}
+
 const unsigned char* block_service_get_block_content(gint64 id)
 {
   return block_repository_find_content(id);
