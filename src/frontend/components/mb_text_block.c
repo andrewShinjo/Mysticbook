@@ -72,7 +72,6 @@ static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
   }
   g_free(children_ids);
 }
-
 static gboolean key_pressed(GtkEventControllerKey *key, guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
 {
   MbTextBlock *_self = MB_TEXT_BLOCK(user_data);
@@ -240,12 +239,7 @@ mb_text_block_init(MbTextBlock *self)
   g_signal_connect(GTK_WIDGET(self), "notify::id", G_CALLBACK(notify_id), self);
   /** Key controller **/
   gtk_widget_add_controller(self->text_view, self->key_controller);
-  g_signal_connect(
-    self->key_controller,
-    "key-pressed",
-    G_CALLBACK(key_pressed),
-    self
-  );
+  g_signal_connect(self->key_controller, "key-pressed", G_CALLBACK(key_pressed), self);
   /** Focus controller **/
   gtk_widget_add_controller(self->text_view, self->focus_controller);
   g_signal_connect(
