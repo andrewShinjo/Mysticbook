@@ -9,6 +9,8 @@ struct _MbTextBlock
   /* WIDGETS */
   GtkWidget *layout;
   GtkWidget *hbox;
+  GtkWidget *icon;
+  GtkWidget *icon_button;
   GtkWidget *bullet_point;
   GtkWidget *text_view;
   GtkWidget *children_blocks;
@@ -215,6 +217,8 @@ mb_text_block_init(MbTextBlock *self)
   /* INSTANTIATE WIDGETS */
   self->layout = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   self->hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+  self->icon = gtk_image_new_from_file("./resources/right-large-symbolic.svg");
+  self->icon_button = gtk_button_new();
   self->bullet_point = gtk_label_new("  •  ");
   self->text_view = gtk_text_view_new();
   self->children_blocks = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
@@ -229,6 +233,7 @@ mb_text_block_init(MbTextBlock *self)
   gtk_widget_allocate(self->text_view, 0, 0, 0, NULL);
   gtk_widget_set_hexpand(self->text_view, TRUE);
   gtk_widget_set_valign(self->bullet_point, GTK_ALIGN_START);
+  gtk_box_append(GTK_BOX(self->hbox), self->icon);
   gtk_box_append(GTK_BOX(self->hbox), self->bullet_point);
   gtk_box_append(GTK_BOX(self->hbox), self->text_view);
   gtk_widget_set_margin_start(self->children_blocks, 32);
