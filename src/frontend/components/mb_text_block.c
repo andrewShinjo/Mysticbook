@@ -77,6 +77,9 @@ static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
 static void expand_clicked(GtkButton *button, gpointer user_data)
 {
   g_print("Clicked\n");
+  MbTextBlock *_self = MB_TEXT_BLOCK(user_data);
+  GtkImage *_icon_image = GTK_IMAGE(_self->icon);
+  gtk_image_set_from_file(_icon_image, "./resources/white_arrow_expand.png");
 }
 static gboolean key_pressed(GtkEventControllerKey *key, guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
 {
@@ -215,7 +218,7 @@ mb_text_block_init(MbTextBlock *self)
   /* INSTANTIATE WIDGETS */
   self->layout = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   self->hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-  self->icon = gtk_image_new_from_file("./resources/white_arrow.png");
+  self->icon = gtk_image_new_from_file("./resources/white_arrow_hide.png");
   self->icon_button = gtk_button_new();
   self->bullet_point = gtk_label_new("  •  ");
   self->text_view = gtk_text_view_new();
