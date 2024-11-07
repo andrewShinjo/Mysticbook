@@ -59,6 +59,7 @@ static void notify_expanded(GObject *object, GParamSpec *pspec, gpointer user_da
   MbTextBlock *_self = MB_TEXT_BLOCK(object);
   GtkWidget *self = GTK_WIDGET(object);
   GtkImage *_icon_image = GTK_IMAGE(_self->icon);
+  g_print("notify_expanded: %d\n", _self->expanded);
   if(_self->expanded)
   {
     gtk_image_set_from_file(_icon_image, "./resources/white_arrow_expand.png");
@@ -68,6 +69,7 @@ static void notify_expanded(GObject *object, GParamSpec *pspec, gpointer user_da
     gtk_image_set_from_file(_icon_image, "./resources/white_arrow_hide.png"); 
   }
   gtk_widget_set_visible(_self->children_blocks, _self->expanded);
+  block_controller_update_expanded(_self->id, _self->expanded);
 }
 static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
 {
@@ -323,7 +325,8 @@ void mb_text_block_grab_focus(MbTextBlock *self)
 }
 GtkWidget* mb_text_block_new(gint64 id)
 {
-  return g_object_new(MB_TYPE_TEXT_BLOCK, "id", id, "expanded", FALSE, NULL);
+  gboolean expanded = block_controller_get_expanded(id);
+  return g_object_new(MB_TYPE_TEXT_BLOCK, "id", id, "expanded", expanded, NULL);
 }
 void mb_text_block_add_child(MbTextBlock *self, GtkWidget *child)
 {

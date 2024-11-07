@@ -31,6 +31,11 @@ GArray* block_controller_get_document_ids()
   return block_service_get_document_ids();
 }
 
+gboolean block_controller_get_expanded(gint64 id)
+{
+  return block_service_get_expanded(id);  
+}
+
 void block_controller_indent_block(gint64 id)
 {
   return block_service_indent_block(id);  
@@ -50,3 +55,9 @@ void block_controller_update_content(gint64 id, const unsigned char* content)
 {
   block_service_update_content(id, content);
 }
+
+void block_controller_update_expanded(gint64 id, gboolean expanded)
+{
+  block_service_set_expanded(id, expanded);
+}
+

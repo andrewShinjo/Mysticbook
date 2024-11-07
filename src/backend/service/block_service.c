@@ -79,6 +79,11 @@ GArray* block_service_get_document_ids()
   GArray *document_ids = block_repository_find_ids_by_is_document(1);
 }
 
+gboolean block_service_get_expanded(gint64 id)
+{
+  return block_repository_find_expanded(id);
+}
+
 void block_service_increment_position(gint64 id)
 {
   gint64 position = block_repository_find_position(id);
@@ -129,6 +134,10 @@ gint64 block_service_prepend_child(gint64 id)
   gint64 child_id = block_repository_save(0, 0, 0, 1, id, 0, "");
   g_free(children_ids);
   return child_id;
+}
+void block_service_set_expanded(gint64 id, gboolean expanded)
+{
+  block_repository_update_expanded(id, expanded ? 1 : 0);
 }
 
 void block_service_unindent_block(gint64 id)

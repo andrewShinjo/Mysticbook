@@ -13,8 +13,7 @@ gint64 block_repository_save(
   gchar *content  
 )
 {
-  const char *sql = "INSERT INTO blocks (creation_time, is_document, modification_time, position, parent_id, content) "
-    "VALUES(?, ?, ?, ?, ?, ?);";
+  const char *sql = "INSERT INTO blocks (creation_time, is_document, modification_time, position, parent_id, expanded, content) VALUES(?, ?, ?, ?, ?, ?, ?);";
   sqlite3_stmt *stmt = prepare_statement(sql);
   if(stmt == NULL)
   {
@@ -64,6 +63,22 @@ const unsigned char* block_repository_find_content(gint64 id)
   const unsigned char *content = g_strdup(sqlite3_column_text(stmt, 0));
   sqlite3_finalize(stmt);
   return content;
+}
+
+gboolean block_repository_find_expanded(gint64 id)
+{
+  const char *sql = "SELECT expanded FROM blocks where id = ?;";
+  sqlite3_stmt *stmt = prepare_statement(sql);
+  if(stmt == NULL)
+  {
+    g_print("block_repository_find_expanded: Failed to prepare statement.\n");
+    exit(EXIT_FAILURE);
+  }
+  sqlite3_bind_int64(stmt, 1, id);
+  sqlite3_step(stmt);
+  gint64 expanded = sqlite3_column_int64(stmt, 0);
+  sqlite3_finalize(stmt);
+  return expanded == 1;
 }
 
 gint64 block_repository_find_id_by_parent_id_and_position(gint64 parent_id, gint64 position)
@@ -218,6 +233,21 @@ gboolean block_repository_is_document(gint64 id)
 }
 
 /* UPDATE */
+
+void block_repository_update_expanded(gint64 id, int expanded)
+{
+  const char *sql = "UPDATE blocks SET expanded = ? WHERE id = ?;";
+  sqlite3_stmt *stmt = prepare_statement(sql);
+  if(stmt == NULL)
+  {
+    g_print("block_repository_update_expanded: Failed to prepare statement.\n");
+    exit(EXIT_FAILURE);
+  }
+  sqlite3_bind_int64(stmt, 1, expanded);
+  sqlite3_bind_int64(stmt, 2, id);
+  sqlite3_step(stmt);
+  sqlite3_finalize(stmt);
+}
 
 int block_repository_update_parent_id(gint64 id, gint64 parent_id)
 {
