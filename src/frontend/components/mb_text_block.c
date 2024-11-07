@@ -74,6 +74,10 @@ static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
   }
   g_free(children_ids);
 }
+static void expand_clicked(GtkButton *button, gpointer user_data)
+{
+  g_print("Clicked\n");
+}
 static gboolean key_pressed(GtkEventControllerKey *key, guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
 {
   MbTextBlock *_self = MB_TEXT_BLOCK(user_data);
@@ -169,13 +173,7 @@ enum property_types
   N_PROPERTIES
 };
 static GParamSpec *properties[N_PROPERTIES];
-static void 
-get_property(
-  GObject *object, 
-  guint property_id, 
-  GValue *value, 
-  GParamSpec *pspec
-)
+static void get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
 {
   MbTextBlock *_self = MB_TEXT_BLOCK(object);
   switch(property_id)
@@ -217,7 +215,7 @@ mb_text_block_init(MbTextBlock *self)
   /* INSTANTIATE WIDGETS */
   self->layout = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   self->hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-  self->icon = gtk_image_new_from_file("./resources/right-large-symbolic.svg");
+  self->icon = gtk_image_new_from_file("./resources/white_arrow.png");
   self->icon_button = gtk_button_new();
   self->bullet_point = gtk_label_new("  •  ");
   self->text_view = gtk_text_view_new();
@@ -226,6 +224,8 @@ mb_text_block_init(MbTextBlock *self)
   self->focus_controller = gtk_event_controller_focus_new();
   self->selected = FALSE;
   /* CONFIGURE WIDGETS */
+  GtkButton *_icon_button = GTK_BUTTON(self->icon_button);
+  gtk_button_set_child(_icon_button, self->icon);
   gtk_widget_set_hexpand(self->layout, TRUE);
   gtk_widget_set_vexpand(self->layout, TRUE);
   gtk_widget_set_hexpand(self->hbox, TRUE);
@@ -233,7 +233,7 @@ mb_text_block_init(MbTextBlock *self)
   gtk_widget_allocate(self->text_view, 0, 0, 0, NULL);
   gtk_widget_set_hexpand(self->text_view, TRUE);
   gtk_widget_set_valign(self->bullet_point, GTK_ALIGN_START);
-  gtk_box_append(GTK_BOX(self->hbox), self->icon);
+  gtk_box_append(GTK_BOX(self->hbox), self->icon_button);
   gtk_box_append(GTK_BOX(self->hbox), self->bullet_point);
   gtk_box_append(GTK_BOX(self->hbox), self->text_view);
   gtk_widget_set_margin_start(self->children_blocks, 32);
@@ -247,12 +247,8 @@ mb_text_block_init(MbTextBlock *self)
   g_signal_connect(self->key_controller, "key-pressed", G_CALLBACK(key_pressed), self);
   /** Focus controller **/
   gtk_widget_add_controller(self->text_view, self->focus_controller);
-  g_signal_connect(
-    self->focus_controller, 
-    "leave", 
-    G_CALLBACK(leave), 
-    self
-  );
+  g_signal_connect(self->focus_controller, "leave", G_CALLBACK(leave), self);
+  g_signal_connect(self->icon_button, "clicked", G_CALLBACK(expand_clicked), self);
   /** Text buffer **/
   GtkTextView *text_view = GTK_TEXT_VIEW(self->text_view);
   GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(text_view);
