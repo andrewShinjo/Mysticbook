@@ -27,7 +27,9 @@ G_DEFINE_TYPE(MbTextBlock, mb_text_block, GTK_TYPE_WIDGET)
 static void append_sibling_after_self(MbTextBlock *_self, MbTextBlock *_sibling);
 static void dispose(GObject *object);
 static void finalize(GObject *object);
+static GtkWidget* get_parent(MbTextBlock *_self);
 static void get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec);
+static GtkWidget* get_root(MbTextBlock *self);
 static gboolean has_child(MbTextBlock *_self);
 static void indent_self(MbTextBlock *_self);
 static gboolean is_all_text_highlighted(MbTextBlock *_self);
@@ -54,8 +56,17 @@ static void changed(GtkTextBuffer *text_buffer, gpointer user_data)
 }
 static void notify_expanded(GObject *object, GParamSpec *pspec, gpointer user_data)
 {
-  g_print("notify_expanded\n");
   MbTextBlock *_self = MB_TEXT_BLOCK(object);
+  GtkWidget *self = GTK_WIDGET(object);
+  GtkImage *_icon_image = GTK_IMAGE(_self->icon);
+  if(_self->expanded)
+  {
+    gtk_image_set_from_file(_icon_image, "./resources/white_arrow_expand.png");
+  }
+  else
+  {
+    gtk_image_set_from_file(_icon_image, "./resources/white_arrow_hide.png"); 
+  }
   gtk_widget_set_visible(_self->children_blocks, _self->expanded);
 }
 static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
@@ -87,17 +98,7 @@ static void expand_clicked(GtkButton *button, gpointer user_data)
   MbTextBlock *_self = MB_TEXT_BLOCK(user_data);
   gboolean is_expanded;
   g_object_get(_self, "expanded", &is_expanded, NULL);
-  GtkImage *_icon_image = GTK_IMAGE(_self->icon);
-  if(is_expanded)
-  {
-    g_object_set(_self, "expanded", FALSE, NULL);
-    gtk_image_set_from_file(_icon_image, "./resources/white_arrow_hide.png");
-  }
-  else
-  {
-    g_object_set(_self, "expanded", TRUE, NULL);
-    gtk_image_set_from_file(_icon_image, "./resources/white_arrow_expand.png");
-  }
+  g_object_set(_self, "expanded", !is_expanded, NULL);
 }
 static gboolean key_pressed(GtkEventControllerKey *key, guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
 {
@@ -374,9 +375,10 @@ static GtkWidget* get_last_child(MbTextBlock *_self)
 }
 static GtkWidget* get_parent(MbTextBlock *_self)
 {
+  // gtk_widget_get_ancestor won't work because it will return self.
   GtkWidget *self = GTK_WIDGET(_self);
   GtkWidget *parent = gtk_widget_get_parent(self);
-  while(! MB_IS_TEXT_BLOCK(parent) && ! MB_IS_ROOT_TEXT_BLOCK(parent))
+  while(!MB_IS_TEXT_BLOCK(parent) && !MB_IS_ROOT_TEXT_BLOCK(parent) || parent == NULL)
   {
     parent = gtk_widget_get_parent(parent);
   }
@@ -522,12 +524,12 @@ static void indent_self(MbTextBlock *_self)
     MbTextBlock *_parent = MB_TEXT_BLOCK(parent);
     remove_child(_parent, _self);
   }
-  else if(MB_IS_TEXT_BLOCK(previous_sibling) 
-    && MB_IS_ROOT_TEXT_BLOCK(parent))
+  else if(MB_IS_TEXT_BLOCK(previous_sibling) && MB_IS_ROOT_TEXT_BLOCK(parent))
   {
     MbRootTextBlock *_parent = MB_ROOT_TEXT_BLOCK(parent);
     mb_root_text_block_remove_child(_parent, _self);
   }
+  g_object_set(previous_sibling, "expanded", TRUE, NULL);
   append_child(_previous_sibling, _self);
 }
 static void remove_self(MbTextBlock *_self)

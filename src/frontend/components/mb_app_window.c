@@ -8,6 +8,7 @@ struct _MbAppWindow
   GtkApplicationWindow parent;
   /* WIDGETS */
   GtkWidget *active_page;
+  GtkWidget *home_icon;
   GtkWidget *home_button;
   GtkWidget *horizontal_box;
   /* EVENT LISTENERS */
@@ -45,13 +46,16 @@ static void mb_app_window_init(MbAppWindow *self)
 {
   /* INSTANTIATE WIDGETS */
   self->active_page = mb_documents_page_new();
-  self->home_button = gtk_button_new_with_label("⌂");
+  self->home_icon = gtk_image_new_from_file("resources/light_home.svg");
+  self->home_button = gtk_button_new();
   self->horizontal_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
   /* CONFIGURE WIDGETS */
   GtkBox *_horizontal_box = GTK_BOX(self->horizontal_box);
+  GtkButton *_home_button = GTK_BUTTON(self->home_button);
   GtkWindow *window = GTK_WINDOW(self);
   gtk_box_append(_horizontal_box, self->home_button);
   gtk_box_append(_horizontal_box, self->active_page);
+  gtk_button_set_child(_home_button, self->home_icon);
   gtk_widget_set_hexpand(self->active_page, TRUE);
   gtk_widget_set_valign(self->home_button, GTK_ALIGN_START);
   gtk_window_set_child(window, self->horizontal_box);
