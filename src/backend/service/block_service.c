@@ -18,18 +18,18 @@ gint64 block_service_append_sibling(gint64 id)
   }
   g_free(sibling_ids);
   // Create new siblings.
-  gint64 new_id = block_repository_save(0, 0, 0, start, parent_id, "");
+  gint64 new_id = block_repository_save(0, 0, 0, start, parent_id, 0, "");
   return new_id;
 }
 
 gint64 block_service_create_block(gchar *content)
 {
-  return block_repository_save(0, 0, 0, 0, 0, content);
+  return block_repository_save(0, 0, 0, 0, 0, 0, content);
 }
 
 gint64 block_service_create_document(gchar *content)
 {
-  return block_repository_save(0, 1, 0, 0, 0, content);
+  return block_repository_save(0, 1, 0, 0, 0, 0, content);
 }
 
 void block_service_delete_block(gint64 id)
@@ -126,7 +126,7 @@ gint64 block_service_prepend_child(gint64 id)
     gint64 child_id = g_array_index(children_ids, gint64, i);
     block_service_increment_position(child_id);
   }
-  gint64 child_id = block_repository_save(0, 0, 0, 1, id, "");
+  gint64 child_id = block_repository_save(0, 0, 0, 1, id, 0, "");
   g_free(children_ids);
   return child_id;
 }

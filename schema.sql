@@ -5,5 +5,6 @@ CREATE TABLE IF NOT EXISTS blocks(
 	modification_time INTEGER,
   position          INTEGER,
   parent_id         INTEGER,
+  expanded          INTEGER,
 	content           TEXT
 );

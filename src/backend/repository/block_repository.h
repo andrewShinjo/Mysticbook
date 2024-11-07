@@ -13,9 +13,9 @@ gint64 block_repository_save(
   gint64 modification_time, 
   gint64 position, 
   gint64 parent_id, 
+  gint64 expanded,
   gchar *content
 );
-
 /* READ */
 gint64 block_repository_count_by_parent_id(gint64 parent_id);
 const unsigned char* block_repository_find_content(gint64 id);
@@ -28,12 +28,9 @@ GArray* block_repository_find_ids_by_is_document(gint64 is_document);
 GArray* block_repository_find_ids_by_parent_id_order_by_position(gint64 id);
 GArray* block_repository_find_ids_by_position_range_and_parent_id(gint64 start, gint64 end, gint64 parent_id);
 gboolean block_repository_is_document(gint64 id);
-
 /* UPDATE */
-
 int block_repository_update_parent_id(gint64 id, gint64 parent_id);
 int block_repository_update_position(gint64 id, gint64 position);
 void block_repository_update_content(gint64 id, const unsigned char *content);
-
 /* DELETE */
 void block_repository_delete(gint64 id);

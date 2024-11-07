@@ -9,6 +9,7 @@ gint64 block_repository_save(
   gint64 modification_time,
   gint64 position,
   gint64 parent_id,
+  gint64 expanded,
   gchar *content  
 )
 {
@@ -25,14 +26,10 @@ gint64 block_repository_save(
   sqlite3_bind_int64(stmt, 3, modification_time);
   sqlite3_bind_int64(stmt, 4, position);
   sqlite3_bind_int64(stmt, 5, parent_id);
-  sqlite3_bind_text(stmt, 6, content, -1, SQLITE_STATIC);
-  int rc = sqlite3_step(stmt);
+  sqlite3_bind_int64(stmt, 6, expanded);
+  sqlite3_bind_text(stmt, 7, content, -1, SQLITE_STATIC);
+  sqlite3_step(stmt);
   sqlite3_finalize(stmt);
-  if(rc != SQLITE_DONE)
-  {
-    g_print("block_repository_save: Failed to execute.\n");
-    exit(EXIT_FAILURE);
-  }
   return last_inserted_id();
 }
 
