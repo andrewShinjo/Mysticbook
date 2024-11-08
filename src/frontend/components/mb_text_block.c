@@ -12,6 +12,8 @@ struct _MbTextBlock
   GtkWidget *icon;
   GtkWidget *icon_button;
   GtkWidget *bullet_point;
+  GtkWidget *bp_icon;
+  GtkWidget *bp_button;
   GtkWidget *text_view;
   GtkWidget *children_blocks;
   /* EVENT LISTENERS */
@@ -253,6 +255,8 @@ mb_text_block_init(MbTextBlock *self)
   self->icon = gtk_image_new_from_file("./resources/white_arrow_hide.png");
   self->icon_button = gtk_button_new();
   self->bullet_point = gtk_label_new("  •  ");
+  self->bp_icon = gtk_image_new_from_file("./resources/bp_default.svg");
+  self->bp_button = gtk_button_new();
   self->text_view = gtk_text_view_new();
   self->children_blocks = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   self->key_controller = gtk_event_controller_key_new();
@@ -260,7 +264,9 @@ mb_text_block_init(MbTextBlock *self)
   self->selected = FALSE;
   /* CONFIGURE WIDGETS */
   GtkButton *_icon_button = GTK_BUTTON(self->icon_button);
+  GtkButton *_bp_button = GTK_BUTTON(self->bp_button);
   gtk_button_set_child(_icon_button, self->icon);
+  gtk_button_set_child(_bp_button, self->bp_icon);
   gtk_widget_set_hexpand(self->layout, TRUE);
   gtk_widget_set_vexpand(self->layout, TRUE);
   gtk_widget_set_hexpand(self->hbox, TRUE);
@@ -269,7 +275,8 @@ mb_text_block_init(MbTextBlock *self)
   gtk_widget_set_hexpand(self->text_view, TRUE);
   gtk_widget_set_valign(self->bullet_point, GTK_ALIGN_START);
   gtk_box_append(GTK_BOX(self->hbox), self->icon_button);
-  gtk_box_append(GTK_BOX(self->hbox), self->bullet_point);
+  gtk_box_append(GTK_BOX(self->hbox), self->bp_button);
+  //gtk_box_append(GTK_BOX(self->hbox), self->bullet_point);
   gtk_box_append(GTK_BOX(self->hbox), self->text_view);
   gtk_widget_set_margin_start(self->children_blocks, 32);
   gtk_box_append(GTK_BOX(self->layout), self->hbox);
