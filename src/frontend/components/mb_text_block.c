@@ -54,6 +54,7 @@ static void changed(GtkTextBuffer *text_buffer, gpointer user_data)
   gtk_text_buffer_get_start_iter(text_buffer, &start);
   gtk_text_buffer_get_end_iter(text_buffer, &end);
   gchar *content = gtk_text_buffer_get_text(text_buffer, &start, &end, FALSE);
+  g_print("Buffer content: %s\n", content);
   block_controller_update_content(_self->id, (const unsigned char*) content);
   g_free(content);
 }
@@ -62,7 +63,6 @@ static void notify_expanded(GObject *object, GParamSpec *pspec, gpointer user_da
   MbTextBlock *_self = MB_TEXT_BLOCK(object);
   GtkWidget *self = GTK_WIDGET(object);
   GtkImage *_icon_image = GTK_IMAGE(_self->icon);
-  g_print("notify_expanded: %d\n", _self->expanded);
   if(_self->expanded)
   {
     gtk_image_set_from_file(_icon_image, "./resources/white_arrow_expand.png");
@@ -76,7 +76,6 @@ static void notify_expanded(GObject *object, GParamSpec *pspec, gpointer user_da
 }
 static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
 {
-  g_print("notify_id\n");
   MbTextBlock *_self = MB_TEXT_BLOCK(object);
   gint64 id = _self->id;
   const unsigned char *content = block_controller_get_block_content(id);

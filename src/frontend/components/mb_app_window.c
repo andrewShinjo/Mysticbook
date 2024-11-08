@@ -63,8 +63,7 @@ static void mb_app_window_init(MbAppWindow *self)
   g_signal_connect(self->active_page, "open_doc", G_CALLBACK(open_document_cb), self);
   g_signal_connect(self->home_button, "clicked", G_CALLBACK(go_home), self);
 }
-static void
-mb_app_window_class_init(MbAppWindowClass *klass) {}
+static void mb_app_window_class_init(MbAppWindowClass *klass) {}
 /* PUBLIC IMPLEMENTATION */
 void mb_app_window_change_page(MbAppWindow *_self, GtkWidget *page)
 {

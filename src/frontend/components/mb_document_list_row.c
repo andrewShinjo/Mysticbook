@@ -40,14 +40,12 @@ static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
   }
   g_free((void*) content);
 }
-static void 
-open_button_clicked(GtkButton *button, gpointer user_data)
+static void open_button_clicked(GtkButton *button, gpointer user_data)
 {
   g_print("document_list_row, open_button_clicked\n");
   MbDocumentListRow *_self = MB_DOCUMENT_LIST_ROW(user_data);
   open_signal_source_func(_self);
 }
-
 /* PROPERTIES */
 enum property_types
 {
@@ -56,13 +54,7 @@ enum property_types
 	N_PROPERTIES
 };
 static GParamSpec *properties[N_PROPERTIES];
-static void
-mb_document_list_row_get_property(
-	GObject *object,
-	guint property_id,
-	GValue *value,
-	GParamSpec *pspec
-)
+static void mb_document_list_row_get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
 {
 	MbDocumentListRow *_self = MB_DOCUMENT_LIST_ROW(object);
 	switch(property_id)
@@ -86,13 +78,7 @@ mb_document_list_row_get_property(
 		}
 	}	
 }
-static void
-mb_document_list_row_set_property(
-	GObject *object,
-	guint property_id,
-	const GValue *value,
-	GParamSpec *pspec
-)
+static void mb_document_list_row_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
 {
 	MbDocumentListRow *self = MB_DOCUMENT_LIST_ROW(object);
 	switch(property_id)
@@ -126,16 +112,14 @@ enum signal_types
   LAST_SIGNAL
 };
 static guint signals[LAST_SIGNAL];
-static gboolean 
-open_signal_source_func(gpointer user_data)
+static gboolean open_signal_source_func(gpointer user_data)
 {
   MbDocumentListRow *_self = MB_DOCUMENT_LIST_ROW(user_data);
   g_signal_emit(_self, signals[OPEN], 0);
   return G_SOURCE_CONTINUE;
 }
 /* WIDGET LIFECYCLE */
-static void 
-mb_document_list_row_init(MbDocumentListRow *self)
+static void mb_document_list_row_init(MbDocumentListRow *self)
 {
   /* INSTANTIATE WIDGETS */
 	self->content_label = gtk_label_new(NULL);
@@ -148,27 +132,11 @@ mb_document_list_row_init(MbDocumentListRow *self)
 	gtk_widget_set_halign(self->content_label, GTK_ALIGN_START);
 	gtk_widget_set_hexpand(self->content_label, TRUE);
   /* CONNECT TO SIGNALS */
-  g_signal_connect(
-    self,
-    "notify::id",
-    G_CALLBACK(notify_id),
-    self
-  );
-	g_signal_connect(
-		self->delete_button,
-		"clicked",
-		G_CALLBACK(delete_button_clicked),
-		NULL
-	);
-	g_signal_connect(
-		self->open_button,
-		"clicked",
-		G_CALLBACK(open_button_clicked),
-    self
-	);
+  g_signal_connect(self, "notify::id", G_CALLBACK(notify_id), self);
+	g_signal_connect(self->delete_button, "clicked", G_CALLBACK(delete_button_clicked), NULL);
+	g_signal_connect(self->open_button, "clicked", G_CALLBACK(open_button_clicked), self);
 }
-static void 
-mb_document_list_row_class_init(MbDocumentListRowClass *klass)
+static void mb_document_list_row_class_init(MbDocumentListRowClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS(klass);
   /* MAP VIRTUAL FUNCTIONS */
@@ -193,11 +161,7 @@ mb_document_list_row_class_init(MbDocumentListRowClass *klass)
     0,
     G_PARAM_READWRITE
   );
-	g_object_class_install_properties(
-		object_class,
-		N_PROPERTIES,
-		properties
-	);
+	g_object_class_install_properties(object_class, N_PROPERTIES, properties);
   /* SIGNALS */
   signals[OPEN] = g_signal_new_class_handler(
     "opened",
@@ -211,13 +175,9 @@ mb_document_list_row_class_init(MbDocumentListRowClass *klass)
     0
   );
   /* LAYOUT MANAGER */
-	gtk_widget_class_set_layout_manager_type(
-		GTK_WIDGET_CLASS(klass), 
-		GTK_TYPE_BOX_LAYOUT
-	);
+	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(klass), GTK_TYPE_BOX_LAYOUT);
 }
-static void 
-mb_document_list_row_dispose(GObject *object)
+static void mb_document_list_row_dispose(GObject *object)
 {
 	MbDocumentListRow *self = MB_DOCUMENT_LIST_ROW(object);
 	g_clear_pointer(&self->content_label, gtk_widget_unparent);
@@ -225,8 +185,7 @@ mb_document_list_row_dispose(GObject *object)
 	g_clear_pointer(&self->delete_button, gtk_widget_unparent);
 	G_OBJECT_CLASS(mb_document_list_row_parent_class)->dispose(object);
 }
-static void 
-mb_document_list_row_finalize(GObject *object)
+static void mb_document_list_row_finalize(GObject *object)
 {
 	G_OBJECT_CLASS(mb_document_list_row_parent_class)->finalize(object);
 }
@@ -234,11 +193,6 @@ mb_document_list_row_finalize(GObject *object)
 GtkWidget* 
 mb_document_list_row_new(gint64 id)
 {
-	return g_object_new(
-		MB_TYPE_DOCUMENT_LIST_ROW,
-    "id", 
-    id,
-		NULL
-	);
+	return g_object_new(MB_TYPE_DOCUMENT_LIST_ROW, "id", id, NULL);
 }
 /* PRIVATE IMPLEMENTATION */
