@@ -1,3 +1,4 @@
+#include "./mb_app_window.h"
 #include "./mb_text_block.h"
 #include "./mb_root_text_block.h"
 #include "../../backend/block.h"
@@ -96,6 +97,17 @@ static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
     mb_text_block_grab_focus(_child);
   }
   g_free(children_ids);
+}
+static void bp_clicked(GtkButton *button, gpointer user_data)
+{
+  MbTextBlock *_self = MB_TEXT_BLOCK(user_data);
+  GtkWidget *self = GTK_WIDGET(user_data);
+  GtkWidget *app_window = gtk_widget_get_ancestor(self, MB_TYPE_APP_WINDOW);
+  if(app_window != NULL)
+  {
+    MbAppWindow *_app_window = MB_APP_WINDOW(app_window);
+    mb_app_window_open_block(_app_window, _self->id);
+  }
 }
 static void expand_clicked(GtkButton *button, gpointer user_data)
 {
@@ -285,13 +297,14 @@ mb_text_block_init(MbTextBlock *self)
   /* CONNECT TO SIGNALS */
   g_signal_connect(GTK_WIDGET(self), "notify::id", G_CALLBACK(notify_id), self);
   g_signal_connect(GTK_WIDGET(self), "notify::expanded", G_CALLBACK(notify_expanded), self);
+  g_signal_connect(self->icon_button, "clicked", G_CALLBACK(expand_clicked), self);
+  g_signal_connect(self->bp_button, "clicked", G_CALLBACK(bp_clicked), self);
   /** Key controller **/
   gtk_widget_add_controller(self->text_view, self->key_controller);
   g_signal_connect(self->key_controller, "key-pressed", G_CALLBACK(key_pressed), self);
   /** Focus controller **/
   gtk_widget_add_controller(self->text_view, self->focus_controller);
   g_signal_connect(self->focus_controller, "leave", G_CALLBACK(leave), self);
-  g_signal_connect(self->icon_button, "clicked", G_CALLBACK(expand_clicked), self);
   /** Text buffer **/
   GtkTextView *text_view = GTK_TEXT_VIEW(self->text_view);
   GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(text_view);

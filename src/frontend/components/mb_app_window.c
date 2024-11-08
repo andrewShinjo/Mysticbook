@@ -74,4 +74,12 @@ GtkWidget* mb_app_window_new(GtkApplication *application)
 {
 	return GTK_WIDGET(g_object_new(MB_TYPE_APP_WINDOW, "application", application, NULL));
 }
+void mb_app_window_open_block(MbAppWindow *_self, gint64 id)
+{
+  gtk_widget_unparent(_self->active_page);
+  _self->active_page = mb_block_view_page_new(id);
+  gtk_box_append(GTK_BOX(_self->horizontal_box), _self->active_page);
+  gtk_widget_set_hexpand(_self->active_page, TRUE);
+  gtk_widget_allocate(_self->active_page, 0, 0, 0, NULL);
+}
 /* PRIVATE IMPLEMENTATION */
