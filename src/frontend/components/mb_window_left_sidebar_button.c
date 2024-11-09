@@ -105,4 +105,8 @@ static void mb_window_left_sidebar_button_finalize(GObject *object)
   G_OBJECT_CLASS(mb_window_left_sidebar_button_parent_class)->finalize(object);
 }
 /* Public implementation */
+GtkWidget* mb_window_left_sidebar_button_new(gchar *image_path)
+{
+  return g_object_new(MB_TYPE_WINDOW_LEFT_SIDEBAR_BUTTON, "image_path", image_path, NULL);
+}
 /* Private implementation */

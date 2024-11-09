@@ -54,7 +54,9 @@ static void mb_window_left_sidebar_finalize(GObject *object)
 /* Public implementation */
 void mb_window_left_sidebar_append_button(MbWindowLeftSidebar *_self, MbWindowLeftSidebarButton *_button)
 {
-
+  GtkListBox *_list_box = GTK_LIST_BOX(_self->list_box);
+  GtkWidget *button = GTK_WIDGET(_button);
+  gtk_list_box_append(_list_box, button);
 }
 GtkWidget* mb_window_left_sidebar_new()
 {
