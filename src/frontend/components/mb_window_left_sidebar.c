@@ -52,6 +52,10 @@ static void mb_window_left_sidebar_finalize(GObject *object)
   G_OBJECT_CLASS(mb_window_left_sidebar_parent_class)->finalize(object);
 }
 /* Public implementation */
+void mb_window_left_sidebar_append_button(MbWindowLeftSidebar *_self, MbWindowLeftSidebarButton *_button)
+{
+
+}
 GtkWidget* mb_window_left_sidebar_new()
 {
   return g_object_new(MB_TYPE_WINDOW_LEFT_SIDEBAR, NULL);
