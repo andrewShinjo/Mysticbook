@@ -1,4 +1,5 @@
 #include "./mb_window_left_sidebar.h"
+#define DEFAULT_WIDTH 32
 /* WIDGET DEFINITION */
 struct _MbWindowLeftSidebar
 {
@@ -23,6 +24,8 @@ static void mb_window_left_sidebar_init(MbWindowLeftSidebar *_self)
   _self->list_box = gtk_list_box_new();
   /* CONFIGURE WIDGETS */
   gtk_widget_set_parent(_self->list_box, self);
+
+  gtk_widget_set_size_request(_self->list_box, DEFAULT_WIDTH, -1);
   gtk_widget_set_vexpand(_self->list_box, TRUE);
   /* CONNECT TO SIGNALS */
 }
