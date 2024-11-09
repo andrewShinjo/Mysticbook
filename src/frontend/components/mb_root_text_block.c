@@ -1,5 +1,6 @@
 #include "./mb_root_text_block.h"
 #include "./mb_text_block.h"
+#include "./mb_text_view.h"
 #include "../pages/mb_block_view_page.h"
 #include "../../backend/block.h"
 #include "../../backend/util.h"
@@ -143,6 +144,7 @@ static void mb_root_text_block_init(MbRootTextBlock *_self)
   _self->layout = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   _self->hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
   _self->text_view = gtk_text_view_new();
+  //_self->text_view = mb_text_view_new();
   _self->children_blocks = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   _self->key_controller = gtk_event_controller_key_new();
   /* CONFIGURE WIDGETS */
@@ -156,21 +158,9 @@ static void mb_root_text_block_init(MbRootTextBlock *_self)
   /* CONNECT TO SIGNALS */
   g_signal_connect(self, "notify::id", G_CALLBACK(notify_id), NULL);
   gtk_widget_add_controller(_self->text_view, _self->key_controller);
-  g_signal_connect(
-    _self->key_controller, 
-    "key-pressed", 
-    G_CALLBACK(key_pressed), 
-    _self
-  );
-  GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(
-    GTK_TEXT_VIEW(_self->text_view)
-  );
-  g_signal_connect(
-    text_buffer, 
-    "changed", 
-    G_CALLBACK(changed), 
-    _self
-  );
+  g_signal_connect(_self->key_controller, "key-pressed", G_CALLBACK(key_pressed), _self);
+  GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(_self->text_view));
+  g_signal_connect(text_buffer, "changed", G_CALLBACK(changed), _self);
 }
 static void 
 mb_root_text_block_class_init(MbRootTextBlockClass *klass) 

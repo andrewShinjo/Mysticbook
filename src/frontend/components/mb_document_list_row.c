@@ -190,8 +190,7 @@ static void mb_document_list_row_finalize(GObject *object)
 	G_OBJECT_CLASS(mb_document_list_row_parent_class)->finalize(object);
 }
 /* PUBLIC IMPLEMENTATION */
-GtkWidget* 
-mb_document_list_row_new(gint64 id)
+GtkWidget* mb_document_list_row_new(gint64 id)
 {
 	return g_object_new(MB_TYPE_DOCUMENT_LIST_ROW, "id", id, NULL);
 }
