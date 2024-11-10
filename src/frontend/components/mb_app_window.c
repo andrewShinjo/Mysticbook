@@ -20,7 +20,7 @@ G_DEFINE_TYPE(MbAppWindow, mb_app_window, GTK_TYPE_APPLICATION_WINDOW)
 /* FORWARD DECLARATION */
 static void open_document_cb(MbDocumentsPage *documents_page, gpointer user_data);
 /* CALLBACK */
-static void home_button_clicked(MbWindowLeftSidebarButton *_left_sidebar_button, gpointer user_data)
+static void home_button_clicked(MbWindowLeftSidebarButton *_button, gpointer user_data)
 {
   MbAppWindow *_self = MB_APP_WINDOW(user_data);
   gtk_widget_unparent(_self->active_page);

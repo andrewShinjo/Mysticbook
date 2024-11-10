@@ -143,8 +143,8 @@ static void mb_root_text_block_init(MbRootTextBlock *_self)
   /* INSTANTIATE WIDGETS */
   _self->layout = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   _self->hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-  _self->text_view = gtk_text_view_new();
-  //_self->text_view = mb_text_view_new();
+  //_self->text_view = gtk_text_view_new();
+  _self->text_view = mb_text_view_new();
   _self->children_blocks = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   _self->key_controller = gtk_event_controller_key_new();
   /* CONFIGURE WIDGETS */
@@ -157,10 +157,10 @@ static void mb_root_text_block_init(MbRootTextBlock *_self)
   gtk_widget_set_parent(_self->layout, self);
   /* CONNECT TO SIGNALS */
   g_signal_connect(self, "notify::id", G_CALLBACK(notify_id), NULL);
-  gtk_widget_add_controller(_self->text_view, _self->key_controller);
+  //gtk_widget_add_controller(_self->text_view, _self->key_controller);
   g_signal_connect(_self->key_controller, "key-pressed", G_CALLBACK(key_pressed), _self);
-  GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(_self->text_view));
-  g_signal_connect(text_buffer, "changed", G_CALLBACK(changed), _self);
+  //GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(_self->text_view));
+  //g_signal_connect(text_buffer, "changed", G_CALLBACK(changed), _self);
 }
 static void 
 mb_root_text_block_class_init(MbRootTextBlockClass *klass) 
@@ -206,29 +206,22 @@ static void finalize(GObject *object)
 }
 /* SIGNALS */
 /* PUBLIC IMPLEMENTATION */
-void mb_root_text_block_append_content(
-  MbRootTextBlock *_self, 
-  gchar *content
+void mb_root_text_block_append_content(MbRootTextBlock *_self, gchar *content
 )
 {
-  GtkTextView *text_view = GTK_TEXT_VIEW(_self->text_view);
-  GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(text_view);
-  GtkTextIter end;
-  gtk_text_buffer_get_end_iter(text_buffer, &end);
-  gtk_text_buffer_insert(text_buffer, &end, content, -1);
+  //GtkTextView *text_view = GTK_TEXT_VIEW(_self->text_view);
+  //GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(text_view);
+  //GtkTextIter end;
+  //gtk_text_buffer_get_end_iter(text_buffer, &end);
+  //gtk_text_buffer_insert(text_buffer, &end, content, -1);
 }
 
-void mb_root_text_block_insert_child_after(
-  MbRootTextBlock *self,
-  MbTextBlock *child,
-  MbTextBlock *sibling
-)
+void mb_root_text_block_insert_child_after(MbRootTextBlock *self, MbTextBlock *_child, MbTextBlock *_sibling)
 {
-  gtk_box_insert_child_after(
-    GTK_BOX(self->children_blocks),
-    GTK_WIDGET(child),
-    GTK_WIDGET(sibling)
-  );
+  GtkBox *_children_blocks = GTK_BOX(self->children_blocks);
+  GtkWidget *child = GTK_WIDGET(_child);
+  GtkWidget *sibling = GTK_WIDGET(_sibling);
+  gtk_box_insert_child_after(_children_blocks, child, sibling);
 }
 
 GtkWidget* mb_root_text_block_new(gint64 id)
@@ -246,10 +239,7 @@ void mb_root_text_block_grab_focus(MbRootTextBlock *self)
   gtk_widget_grab_focus(self->text_view);
 }
 
-void mb_root_text_block_remove_child(
-  MbRootTextBlock *_self, 
-  MbTextBlock *_child
-)
+void mb_root_text_block_remove_child(MbRootTextBlock *_self, MbTextBlock *_child)
 {
   GtkBox *_children_blocks = GTK_BOX(_self->children_blocks);
   GtkWidget *child = GTK_WIDGET(_child);
@@ -261,13 +251,10 @@ void mb_root_text_block_remove_child(
   gtk_box_remove(_children_blocks, child);
 }
 
-void 
-mb_root_text_block_set_content(
-  MbRootTextBlock *_self,
-  const gchar *content
+void mb_root_text_block_set_content(MbRootTextBlock *_self, const gchar *content
 )
 {
-  GtkTextView *text_view = GTK_TEXT_VIEW(_self->text_view);
-  GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(text_view);
-  gtk_text_buffer_set_text(text_buffer, content, -1);
+  //GtkTextView *text_view = GTK_TEXT_VIEW(_self->text_view);
+  //GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(text_view);
+  //gtk_text_buffer_set_text(text_buffer, content, -1);
 }
