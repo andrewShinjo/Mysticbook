@@ -49,7 +49,7 @@ static void mb_app_window_init(MbAppWindow *self)
   /* INSTANTIATE WIDGETS */
   self->left_sidebar = mb_window_left_sidebar_new();
   self->active_page = mb_documents_page_new();
-  self->home_button = mb_window_left_sidebar_button_new("./resources/light_home.svg", "test popover message");
+  self->home_button = mb_window_left_sidebar_button_new("./resources/light_home.svg", "Go home");
   self->horizontal_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
   /* CONFIGURE WIDGETS */
   GtkBox *_horizontal_box = GTK_BOX(self->horizontal_box);

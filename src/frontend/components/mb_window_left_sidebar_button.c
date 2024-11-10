@@ -21,9 +21,17 @@ static void mb_window_left_sidebar_button_finalize(GObject *object);
 /* Callbacks */
 static void on_mouse_enter(GtkEventController *controller, gpointer user_data) 
 {
+  g_print("enter\n");
   MbWindowLeftSidebarButton *_self = MB_WINDOW_LEFT_SIDEBAR_BUTTON(user_data);
   GtkPopover *_popover = GTK_POPOVER(_self->popover);
   gtk_popover_popup(_popover);
+}
+static void on_mouse_leave(GtkEventController *controller, gpointer user_data)
+{
+  g_print("leave\n");
+  MbWindowLeftSidebarButton *_self = MB_WINDOW_LEFT_SIDEBAR_BUTTON(user_data);
+  GtkPopover *_popover = GTK_POPOVER(_self->popover);
+  gtk_popover_popdown(_popover);
 }
 /* Properties */
 enum property_types
@@ -104,10 +112,14 @@ static void mb_window_left_sidebar_button_init(MbWindowLeftSidebarButton *_self)
   gtk_button_set_child(_button, _self->image);
   gtk_widget_set_parent(_self->popover, _self->button);
   gtk_widget_set_parent(_self->button, self);
+  gtk_popover_set_autohide(_popover, FALSE);
   gtk_popover_set_child(_popover, _self->popover_label);
+  gtk_popover_set_has_arrow(_popover, FALSE);
+  gtk_popover_set_position(_popover, GTK_POS_RIGHT);
   /* Connect to signals */
   gtk_widget_add_controller(_self->button, _self->event);
   g_signal_connect(_self->event, "enter", G_CALLBACK(on_mouse_enter), _self);
+  g_signal_connect(_self->event, "leave", G_CALLBACK(on_mouse_leave), _self);
 }
 static void mb_window_left_sidebar_button_class_init(MbWindowLeftSidebarButtonClass *klass)
 {
