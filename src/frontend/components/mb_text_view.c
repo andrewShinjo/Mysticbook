@@ -15,7 +15,21 @@ static void mb_text_view_finalize(GObject *object);
 /* CALLBACK */
 static void insert_text(GtkTextBuffer *tb, const GtkTextIter* location, gchar* text, gint len, gpointer user_data)
 {
-
+  gboolean is_left_square_bracket = g_strcmp0(text, "[") == 0;
+  if(is_left_square_bracket)
+  {
+    GtkTextIter previous_iter = *location;
+    gtk_text_iter_backward_char(&previous_iter);
+    if(gtk_text_iter_equal(&previous_iter, location))
+    {
+      return;
+    }
+    gunichar previous_char = gtk_text_iter_get_char(&previous_iter);
+    if(previous_char == '[')
+    {
+      g_print("Search link.\n");
+    }
+  }
 }
 /* PROPERTIES */
 /* SIGNALS */ 
@@ -32,7 +46,7 @@ static void mb_text_view_init(MbTextView *_self)
   /* CONNECT TO SIGNALS */
   GtkTextView *_text_view = GTK_TEXT_VIEW(_self->text_view);
   GtkTextBuffer *_text_buffer = gtk_text_view_get_buffer(_text_view);
-  g_signal_connect(_text_buffer, "changed", G_CALLBACK(changed), NULL);
+  g_signal_connect(_text_buffer, "insert-text", G_CALLBACK(insert_text), NULL);
 }
 static void mb_text_view_class_init(MbTextViewClass *klass)
 {
