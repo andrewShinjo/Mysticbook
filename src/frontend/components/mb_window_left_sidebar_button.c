@@ -16,12 +16,13 @@ struct _MbWindowLeftSidebarButton
 };
 G_DEFINE_TYPE(MbWindowLeftSidebarButton, mb_window_left_sidebar_button, GTK_TYPE_WIDGET)
 /* Forward declaration */
+static gboolean clicked_signal_source_func(gpointer user_data);
 static void mb_window_left_sidebar_button_dispose(GObject *object);
 static void mb_window_left_sidebar_button_finalize(GObject *object);
 /* Callbacks */
-static void on_button_clicked(GtkButton *_button, gpointer user_data)
+static void clicked(GtkButton *_self, gpointer user_data)
 {
-  g_print("Button clicked\n");
+  clicked_signal_source_func(user_data);
 }
 static void on_mouse_enter(GtkEventController *controller, gpointer user_data) 
 {
@@ -98,6 +99,18 @@ static void mb_window_left_sidebar_button_set_property(GObject *object, guint pr
   }
 }
 /* Signals */
+enum signal_types
+{
+  CLICKED,
+  LAST_SIGNAL
+};
+static guint signals[LAST_SIGNAL];
+static gboolean clicked_signal_source_func(gpointer user_data)
+{
+  MbWindowLeftSidebarButton *_self = MB_WINDOW_LEFT_SIDEBAR_BUTTON(user_data);
+  g_signal_emit(_self, signals[CLICKED], 0);
+  return G_SOURCE_CONTINUE;
+}
 /* Widget lifecycle */
 static void mb_window_left_sidebar_button_init(MbWindowLeftSidebarButton *_self)
 {
@@ -120,9 +133,9 @@ static void mb_window_left_sidebar_button_init(MbWindowLeftSidebarButton *_self)
   gtk_popover_set_position(_popover, GTK_POS_RIGHT);
   /* Connect to signals */
   gtk_widget_add_controller(_self->button, _self->event);
-  g_signal_connect(_self->button, "clicked", G_CALLBACK(on_button_clicked), NULL);
   g_signal_connect(_self->event, "enter", G_CALLBACK(on_mouse_enter), _self);
   g_signal_connect(_self->event, "leave", G_CALLBACK(on_mouse_leave), _self);
+  g_signal_connect(_self->button, "clicked", G_CALLBACK(clicked), _self);
 }
 static void mb_window_left_sidebar_button_class_init(MbWindowLeftSidebarButtonClass *klass)
 {
@@ -139,6 +152,13 @@ static void mb_window_left_sidebar_button_class_init(MbWindowLeftSidebarButtonCl
     "popover_message", "popover_message", "popover_message", NULL, G_PARAM_READWRITE);
   g_object_class_install_properties(object_class, N_PROPERTIES, properties);
   /* Signals */
+  signals[CLICKED] = g_signal_new_class_handler(
+    "clicked",
+    G_OBJECT_CLASS_TYPE(object_class),
+    G_SIGNAL_RUN_LAST,
+    NULL, NULL, NULL, NULL,
+    G_TYPE_NONE, 0
+  );
   /* Layout manager */
   gtk_widget_class_set_layout_manager_type(widget_class, GTK_TYPE_BOX_LAYOUT);
 }

@@ -20,7 +20,7 @@ G_DEFINE_TYPE(MbAppWindow, mb_app_window, GTK_TYPE_APPLICATION_WINDOW)
 /* FORWARD DECLARATION */
 static void open_document_cb(MbDocumentsPage *documents_page, gpointer user_data);
 /* CALLBACK */
-static void go_home(GtkButton *button, gpointer user_data)
+static void home_button_clicked(MbWindowLeftSidebarButton *_left_sidebar_button, gpointer user_data)
 {
   MbAppWindow *_self = MB_APP_WINDOW(user_data);
   gtk_widget_unparent(_self->active_page);
@@ -63,6 +63,7 @@ static void mb_app_window_init(MbAppWindow *self)
   gtk_window_set_child(window, self->horizontal_box);
   /* CONNECT TO SIGNALS */
   g_signal_connect(self->active_page, "open_doc", G_CALLBACK(open_document_cb), self);
+  g_signal_connect(self->home_button, "clicked", G_CALLBACK(home_button_clicked), self);
 }
 static void mb_app_window_class_init(MbAppWindowClass *klass) {}
 /* PUBLIC IMPLEMENTATION */
