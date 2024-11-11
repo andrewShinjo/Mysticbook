@@ -30,10 +30,7 @@ static void changed(GtkTextBuffer *text_buffer, gpointer user_data)
 {
   MbRootTextBlock *_self = MB_ROOT_TEXT_BLOCK(user_data);
   GtkWidget *self = GTK_WIDGET(user_data);
-  GtkWidget *ancestor = gtk_widget_get_ancestor(
-    self, 
-    MB_TYPE_BLOCK_VIEW_PAGE
-  );
+  GtkWidget *ancestor = gtk_widget_get_ancestor(self, MB_TYPE_BLOCK_VIEW_PAGE);
   MbBlockViewPage *block_view_page = MB_BLOCK_VIEW_PAGE(ancestor);
   gint64 id;
   g_object_get(block_view_page, "id", &id, NULL);

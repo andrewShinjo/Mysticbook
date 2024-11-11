@@ -30,8 +30,13 @@ static void insert_text(GtkTextBuffer *tb, const GtkTextIter* location, gchar* t
     gunichar previous_char = gtk_text_iter_get_char(&previous_iter);
     if(previous_char == '[')
     {
-      MbLinkPopover *_link_popover = MB_LINK_POPOVER(_self->link_popover);
-      mb_link_popover_popup(_link_popover);
+      GtkPopover *_link_popover = GTK_POPOVER(_self->link_popover);
+      GtkTextView *_text_view = GTK_TEXT_VIEW(_self->text_view);
+      GdkRectangle iter_location;
+      gtk_text_view_get_iter_location(_text_view, location, &iter_location);
+      g_print("x=%d, y=%d, width=%d, height=%d\n", iter_location.x, iter_location.y, iter_location.width, iter_location.height);
+      gtk_popover_set_pointing_to(_link_popover, &iter_location);
+      gtk_popover_popup(_link_popover);
     }
   }
 }
