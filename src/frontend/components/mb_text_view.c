@@ -1,5 +1,7 @@
 #include "./mb_link_popover.h"
 #include "./mb_text_view.h"
+/* Global variables */
+gboolean link_popover_on = FALSE;
 /* WIDGET DEFINITION */
 struct _MbTextView
 {
@@ -7,6 +9,7 @@ struct _MbTextView
   /* WIDGETS */
   GtkWidget *text_view;
   GtkWidget *link_popover;
+  GtkWidget *list_box;
   /* EVENT LISTENERS */
   /* PROPERTIES */
 };
@@ -19,24 +22,32 @@ static void insert_text(GtkTextBuffer *tb, const GtkTextIter* location, gchar* t
 {
   MbTextView *_self = MB_TEXT_VIEW(user_data);
   gboolean is_left_square_bracket = g_strcmp0(text, "[") == 0;
-  if(is_left_square_bracket)
+
+  if(link_popover_on)
   {
-    GtkTextIter previous_iter = *location;
-    gtk_text_iter_backward_char(&previous_iter);
-    if(gtk_text_iter_equal(&previous_iter, location))
+    g_print("Search for link.\n");
+  }
+  else if(!link_popover_on)
+  {
+    if(is_left_square_bracket)
     {
-      return;
-    }
-    gunichar previous_char = gtk_text_iter_get_char(&previous_iter);
-    if(previous_char == '[')
-    {
-      GtkPopover *_link_popover = GTK_POPOVER(_self->link_popover);
-      GtkTextView *_text_view = GTK_TEXT_VIEW(_self->text_view);
-      GdkRectangle iter_location;
-      gtk_text_view_get_iter_location(_text_view, location, &iter_location);
-      g_print("x=%d, y=%d, width=%d, height=%d\n", iter_location.x, iter_location.y, iter_location.width, iter_location.height);
-      gtk_popover_set_pointing_to(_link_popover, &iter_location);
-      gtk_popover_popup(_link_popover);
+      GtkTextIter previous_iter = *location;
+      gtk_text_iter_backward_char(&previous_iter);
+      if(gtk_text_iter_equal(&previous_iter, location))
+      {
+        return;
+      }
+      gunichar previous_char = gtk_text_iter_get_char(&previous_iter);
+      if(previous_char == '[')
+      {
+        GtkPopover *_link_popover = GTK_POPOVER(_self->link_popover);
+        GtkTextView *_text_view = GTK_TEXT_VIEW(_self->text_view);
+        GdkRectangle iter_location;
+        gtk_text_view_get_iter_location(_text_view, location, &iter_location);
+        gtk_popover_set_pointing_to(_link_popover, &iter_location);
+        gtk_popover_popup(_link_popover);
+        link_popover_on = TRUE;
+      }
     }
   }
 }

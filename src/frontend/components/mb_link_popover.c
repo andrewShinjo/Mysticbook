@@ -22,6 +22,7 @@ static void mb_link_popover_init(MbLinkPopover *_self)
   GtkWidget *self = GTK_WIDGET(_self);
   GtkPopover *_popover = GTK_POPOVER(_self);
   gtk_popover_set_autohide(_popover, FALSE);
+  gtk_popover_set_has_arrow(_popover, FALSE);
   /* Connect to signals */
 }
 static void mb_link_popover_class_init(MbLinkPopoverClass *klass)
