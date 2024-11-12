@@ -26,6 +26,7 @@ static void insert_text(GtkTextBuffer *tb, const GtkTextIter* location, gchar* t
   if(link_popover_on)
   {
     g_print("Search for link.\n");
+    // Implement fts5.
   }
   else if(!link_popover_on)
   {
