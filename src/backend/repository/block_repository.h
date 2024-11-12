@@ -28,6 +28,7 @@ gint64 block_repository_find_position(gint64 id);
 GArray* block_repository_find_ids_by_is_document(gint64 is_document);
 GArray* block_repository_find_ids_by_parent_id_order_by_position(gint64 id);
 GArray* block_repository_find_ids_by_position_range_and_parent_id(gint64 start, gint64 end, gint64 parent_id);
+GArray* block_repository_find_10_best_matching_blocks(gchar *text);
 gboolean block_repository_is_document(gint64 id);
 /* UPDATE */
 void block_repository_update_expanded(gint64 id, int expanded);

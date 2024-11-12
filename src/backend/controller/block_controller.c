@@ -36,6 +36,11 @@ gboolean block_controller_get_expanded(gint64 id)
   return block_service_get_expanded(id);  
 }
 
+GArray* block_controller_get_10_best_matching_blocks(gchar *text)
+{
+  return block_service_get_10_best_matching_blocks(text);
+}
+
 void block_controller_indent_block(gint64 id)
 {
   return block_service_indent_block(id);  

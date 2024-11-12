@@ -1,5 +1,6 @@
 #include "./mb_link_popover.h"
 #include "./mb_text_view.h"
+#include "../../backend/controller/block_controller.h"
 /* Global variables */
 gboolean link_popover_on = FALSE;
 /* WIDGET DEFINITION */
@@ -26,7 +27,7 @@ static void insert_text(GtkTextBuffer *tb, const GtkTextIter* location, gchar* t
   if(link_popover_on)
   {
     g_print("Search for link.\n");
-    // Implement fts5.
+    block_controller_get_10_best_matching_blocks("Untitled");
   }
   else if(!link_popover_on)
   {

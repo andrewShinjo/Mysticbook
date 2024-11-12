@@ -84,6 +84,11 @@ gboolean block_service_get_expanded(gint64 id)
   return block_repository_find_expanded(id);
 }
 
+GArray* block_service_get_10_best_matching_blocks(gchar *text)
+{
+  return block_repository_find_10_best_matching_blocks(text);
+}
+
 void block_service_increment_position(gint64 id)
 {
   gint64 position = block_repository_find_position(id);
