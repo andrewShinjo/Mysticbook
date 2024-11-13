@@ -13,6 +13,8 @@ struct _MbTextView
   GtkWidget *list_box;
   /* EVENT LISTENERS */
   /* PROPERTIES */
+  gint64 id;
+  gboolean is_root;
 };
 G_DEFINE_TYPE(MbTextView, mb_text_view, GTK_TYPE_WIDGET)
 /* FORWARD DECLARATION */
@@ -26,7 +28,7 @@ static void insert_text(GtkTextBuffer *tb, const GtkTextIter* location, gchar* t
 
   if(link_popover_on)
   {
-    g_print("Search for link.\n");
+    // Search for first char.
     block_controller_get_10_best_matching_blocks("Untitled");
   }
   else if(!link_popover_on)
@@ -53,7 +55,78 @@ static void insert_text(GtkTextBuffer *tb, const GtkTextIter* location, gchar* t
     }
   }
 }
+static gboolean key_pressed(GtkEventControllerKey *key, guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
+{
+  MbTextView *_self = MB_TEXT_VIEW(user_data);
+  if(_self->is_root)
+  {
+
+  }
+  else if(!_self->is_root)
+  {
+
+  }
+}
+static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
+{
+
+}
+static void notify_is_root(GObject *object, GParamSpec *pspec, gpointer user_data)
+{
+
+}
 /* PROPERTIES */
+enum property_types
+{
+  PROP_ID = 1,
+  PROP_IS_ROOT,
+  N_PROPERTIES
+};
+static GParamSpec *properties[N_PROPERTIES];
+static void get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
+{
+  MbTextView *_self = MB_TEXT_VIEW(object);
+  switch(property_id)
+  {
+    case PROP_ID:
+    {
+      g_value_set_int64(value, _self->id);
+      break;
+    }
+    case PROP_IS_ROOT:
+    {
+      g_value_set_boolean(value, _self->is_root);
+      break;
+    }
+    default:
+    {
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+      break;
+    }
+  }
+}
+static void set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
+{
+  MbTextView *_self = MB_TEXT_VIEW(object);
+  switch(property_id)
+  {
+    case PROP_ID:
+    {
+      _self->id = g_value_get_int64(value);
+      break;
+    }
+    case PROP_IS_ROOT:
+    {
+      _self->is_root = g_value_get_boolean(value);
+      break;
+    }
+    default:
+    {
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
+      break;
+    }
+  }
+}
 /* SIGNALS */ 
 /* WIDGET LIFECYCLE */
 static void mb_text_view_init(MbTextView *_self)
@@ -79,7 +152,12 @@ static void mb_text_view_class_init(MbTextViewClass *klass)
   /* MAP VIRTUAL FUNCTIONS */
   object_class->dispose = mb_text_view_dispose;
   object_class->finalize = mb_text_view_finalize;
+  object_class->get_property = get_property;
+  object_class->set_property = set_property;
   /* PROPERTIES */
+  properties[PROP_ID] = g_param_spec_int64("id", "id", "id", 0, G_MAXINT64, 0, G_PARAM_READWRITE);
+  properties[PROP_IS_ROOT] = g_param_spec_boolean("is_root", "is_root", "is_root", FALSE, G_PARAM_READWRITE);
+  g_object_class_install_properties(object_class, N_PROPERTIES, properties);
   /* SIGNALS */
   /* LAYOUT MANAGER */
   gtk_widget_class_set_layout_manager_type(widget_class, GTK_TYPE_BOX_LAYOUT);
