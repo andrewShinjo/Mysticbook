@@ -1,5 +1,6 @@
 #include "./mb_app_window.h"
 #include "./mb_text_block.h"
+#include "./mb_text_view.h"
 #include "./mb_root_text_block.h"
 #include "../../backend/block.h"
 #include "../../backend/controller/block_controller.h"

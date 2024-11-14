@@ -109,12 +109,7 @@ static void get_property(
     }
   }
 }
-static void set_property(
-  GObject *object,
-  guint property_id,
-  const GValue *value,
-  GParamSpec *pspec
-)
+static void set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
 {
   MbRootTextBlock *_self = MB_ROOT_TEXT_BLOCK(object);
   switch(property_id)
