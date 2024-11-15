@@ -26,22 +26,6 @@ static void finalize(GObject *object);
 static void get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec);
 static void set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec);
 /* CALLBACK */
-static void changed(GtkTextBuffer *text_buffer, gpointer user_data)
-{
-  MbRootTextBlock *_self = MB_ROOT_TEXT_BLOCK(user_data);
-  GtkWidget *self = GTK_WIDGET(user_data);
-  GtkWidget *ancestor = gtk_widget_get_ancestor(self, MB_TYPE_BLOCK_VIEW_PAGE);
-  MbBlockViewPage *block_view_page = MB_BLOCK_VIEW_PAGE(ancestor);
-  gint64 id;
-  g_object_get(block_view_page, "id", &id, NULL);
-  // Update block's content in SQL.
-  GtkTextIter start, end;
-  gtk_text_buffer_get_start_iter(text_buffer, &start);
-  gtk_text_buffer_get_end_iter(text_buffer, &end);
-  char *content = gtk_text_buffer_get_text(text_buffer, &start, &end, FALSE);
-  block_controller_update_content(id, (const unsigned char*) content);
-  g_free(content);
-}
 static gboolean key_pressed(GtkEventControllerKey *key, guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
 {
   MbRootTextBlock *_self = MB_ROOT_TEXT_BLOCK(user_data);
@@ -139,43 +123,28 @@ static void mb_root_text_block_init(MbRootTextBlock *_self)
   gtk_widget_set_hexpand(_self->text_view, TRUE);
   gtk_widget_set_parent(_self->layout, self);
   /* CONNECT TO SIGNALS */
+  MbTextView *_text_view = MB_TEXT_VIEW(_self->text_view);
+  GtkWidget *text_view_text_view = mb_text_view_get_text_view(_text_view);
   g_signal_connect(self, "notify::id", G_CALLBACK(notify_id), NULL);
-  //gtk_widget_add_controller(_self->text_view, _self->key_controller);
+  gtk_widget_add_controller(text_view_text_view, _self->key_controller);
   g_signal_connect(_self->key_controller, "key-pressed", G_CALLBACK(key_pressed), _self);
-  //GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(_self->text_view));
-  //g_signal_connect(text_buffer, "changed", G_CALLBACK(changed), _self);
 }
 static void 
 mb_root_text_block_class_init(MbRootTextBlockClass *klass) 
 {
   GObjectClass *object_class = G_OBJECT_CLASS(klass);
-
+  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
   /* MAP VIRTUAL FUNCTIONS */
   object_class->dispose = dispose;
   object_class->finalize = finalize;
   object_class->get_property = get_property;
   object_class->set_property = set_property;
   /* PROPERTY */
-  properties[PROP_ID] = g_param_spec_int64(
-    "id",
-    "id",
-    "id",
-    0,
-    G_MAXINT64,
-    0,
-    G_PARAM_READWRITE
-  );
-  g_object_class_install_properties(
-    object_class,
-    N_PROPERTIES,
-    properties
-  );
+  properties[PROP_ID] = g_param_spec_int64("id", "id", "id", 0, G_MAXINT64, 0, G_PARAM_READWRITE);
+  g_object_class_install_properties(object_class, N_PROPERTIES, properties);
   /* SIGNAL */
   /* LAYOUT MANAGER */
-  gtk_widget_class_set_layout_manager_type(
-    GTK_WIDGET_CLASS(klass), 
-    GTK_TYPE_BOX_LAYOUT
-  );
+  gtk_widget_class_set_layout_manager_type(widget_class, GTK_TYPE_BOX_LAYOUT);
 }
 static void dispose(GObject *object) 
 {
@@ -185,7 +154,7 @@ static void dispose(GObject *object)
 }
 static void finalize(GObject *object) 
 {
-
+  G_OBJECT_CLASS(mb_root_text_block_parent_class)->finalize(object);
 }
 /* SIGNALS */
 /* PUBLIC IMPLEMENTATION */

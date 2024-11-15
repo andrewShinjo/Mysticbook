@@ -179,7 +179,11 @@ static void mb_text_view_finalize(GObject *object)
   G_OBJECT_CLASS(mb_text_view_parent_class)->finalize(object);
 }
 /* PUBLIC IMPLEMENTATION */
-GtkWidget *mb_text_view_new()
+GtkWidget* mb_text_view_get_text_view(MbTextView *_self)
+{
+  return _self->text_view;
+}
+GtkWidget* mb_text_view_new()
 {
   return g_object_new(MB_TYPE_TEXT_VIEW, NULL);
 }

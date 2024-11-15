@@ -1,6 +1,5 @@
 #include "./mb_text_buffer.h"
 #include "../../backend/service/block_service.h"
-
 /* Widget definition */
 struct _MbTextBuffer
 {
