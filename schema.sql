@@ -18,4 +18,4 @@ CREATE TRIGGER IF NOT EXISTS blocks_update_trigger AFTER UPDATE ON blocks
 BEGIN UPDATE blocks_fts5 SET id = NEW.id, content = NEW.content WHERE id = NEW.id; END;
 
 CREATE TRIGGER IF NOT EXISTS blocks_delete_trigger AFTER DELETE ON blocks
-BEGIN DELETE FROM blocks_fts WHERE id = OLD.id; END;
+BEGIN DELETE FROM blocks_fts5 WHERE id = OLD.id; END;
