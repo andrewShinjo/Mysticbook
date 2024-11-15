@@ -157,8 +157,7 @@ static void finalize(GObject *object)
 }
 /* SIGNALS */
 /* PUBLIC IMPLEMENTATION */
-void mb_root_text_block_append_content(MbRootTextBlock *_self, gchar *content
-)
+void mb_root_text_block_append_content(MbRootTextBlock *_self, gchar *content)
 {
   //GtkTextView *text_view = GTK_TEXT_VIEW(_self->text_view);
   //GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(text_view);

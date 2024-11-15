@@ -324,7 +324,7 @@ static void finalize(GObject *object)
 /* PUBLIC IMPLEMENTATION */
 void mb_text_block_grab_focus(MbTextBlock *self)
 {
-  gtk_widget_grab_focus(self->text_view);
+  mb_text_view_grab_focus(MB_TEXT_VIEW(self->text_view));
 }
 GtkWidget* mb_text_block_new(gint64 id)
 {

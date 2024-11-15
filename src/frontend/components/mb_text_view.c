@@ -213,6 +213,10 @@ GtkWidget* mb_text_view_get_text_view(MbTextView *_self)
 {
   return _self->text_view;
 }
+void mb_text_view_grab_focus(MbTextView *_self)
+{
+  gtk_widget_grab_focus(_self->text_view);
+}
 gboolean mb_text_view_is_all_text_highlighted(MbTextView *_self)
 {
   GtkTextView *_text_view = GTK_TEXT_VIEW(_self->text_view);
