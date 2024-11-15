@@ -45,7 +45,6 @@ static gboolean key_pressed(GtkEventControllerKey *key, guint keyval, guint keyc
 static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
 {
   MbRootTextBlock *_self = MB_ROOT_TEXT_BLOCK(object);
-  g_print("MbRootTextBlock: id=%ld\n", _self->id);
   g_object_set(_self->text_view, "id", _self->id, NULL);
   // Get block children.
   GtkBox *_children_blocks = GTK_BOX(_self->children_blocks);

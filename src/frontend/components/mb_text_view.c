@@ -179,9 +179,69 @@ static void mb_text_view_finalize(GObject *object)
   G_OBJECT_CLASS(mb_text_view_parent_class)->finalize(object);
 }
 /* PUBLIC IMPLEMENTATION */
+void mb_text_view_append_content(MbTextView *_self, gchar *content)
+{
+  GtkTextView *text_view = GTK_TEXT_VIEW(_self->text_view);
+  GtkTextBuffer *buffer = gtk_text_view_get_buffer(text_view);
+  GtkTextIter end;
+  gtk_text_buffer_get_end_iter(buffer, &end);
+  gtk_text_buffer_insert(buffer, &end, content, -1);
+}
+void mb_text_view_force_redraw_cursor(MbTextView *_self)
+{
+  if(!mb_text_view_is_empty(_self))
+  {
+    return;
+  }
+  GtkTextView *text_view = GTK_TEXT_VIEW(_self->text_view);
+  GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(text_view);
+  gtk_text_buffer_set_text(text_buffer, " ", -1);
+  gtk_text_buffer_set_text(text_buffer, "", -1);
+
+}
+gchar* mb_text_view_get_content(MbTextView *_self)
+{
+  GtkTextView *text_view = GTK_TEXT_VIEW(_self->text_view);
+  GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(text_view);
+  GtkTextIter start, end;
+  gtk_text_buffer_get_start_iter(text_buffer, &start);
+  gtk_text_buffer_get_end_iter(text_buffer, &end);
+  gchar *content = gtk_text_buffer_get_text(text_buffer, &start, &end, FALSE);
+  return content;
+}
 GtkWidget* mb_text_view_get_text_view(MbTextView *_self)
 {
   return _self->text_view;
+}
+gboolean mb_text_view_is_all_text_highlighted(MbTextView *_self)
+{
+  GtkTextView *_text_view = GTK_TEXT_VIEW(_self->text_view);
+  GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(_text_view);
+  GtkTextIter start, end, highlight_start, highlight_end;
+  gtk_text_buffer_get_start_iter(text_buffer, &start);
+  gtk_text_buffer_get_end_iter(text_buffer, &end);
+  gtk_text_buffer_get_selection_bounds(text_buffer, &highlight_start, &highlight_end);
+  return gtk_text_iter_equal(&start, &highlight_start) && gtk_text_iter_equal(&end, &highlight_end) 
+    && !gtk_text_iter_equal(&highlight_start, &highlight_end);
+
+}
+gboolean mb_text_view_is_empty(MbTextView *_self)
+{
+  GtkTextView *_text_view = GTK_TEXT_VIEW(_self->text_view);
+  GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(_text_view);
+  GtkTextIter start, end;
+  gtk_text_buffer_get_start_iter(text_buffer, &start);
+  gtk_text_buffer_get_end_iter(text_buffer, &end);
+  return gtk_text_iter_equal(&start, &end);
+}
+gboolean mb_text_view_is_insert_at_start(MbTextView *_self)
+{
+  GtkTextView *text_view = GTK_TEXT_VIEW(_self->text_view);
+  GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(text_view);
+  GtkTextIter insert, start;
+  gtk_text_buffer_get_start_iter(text_buffer, &start);
+  gtk_text_buffer_get_iter_at_mark(text_buffer, &insert, gtk_text_buffer_get_insert(text_buffer));
+  return gtk_text_iter_equal(&start, &insert);
 }
 GtkWidget* mb_text_view_new()
 {
