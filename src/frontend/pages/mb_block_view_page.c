@@ -286,9 +286,5 @@ static void mb_block_view_page_class_init(MbBlockViewPageClass *klass)
 GtkWidget *mb_block_view_page_new(gint64 id)
 {
   g_print("mb_block_view_page_new, id=%ld\n", id);
-	return g_object_new(
-    MB_TYPE_BLOCK_VIEW_PAGE,
-    "id", id,
-    NULL
-  );
+	return g_object_new(MB_TYPE_BLOCK_VIEW_PAGE, "id", id, NULL);
 }

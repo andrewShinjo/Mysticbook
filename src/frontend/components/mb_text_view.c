@@ -1,4 +1,5 @@
 #include "./mb_link_popover.h"
+#include "./mb_text_buffer.h"
 #include "./mb_text_view.h"
 #include "../../backend/controller/block_controller.h"
 /* Global variables */
@@ -69,7 +70,11 @@ static gboolean key_pressed(GtkEventControllerKey *key, guint keyval, guint keyc
 }
 static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
 {
-
+  MbTextView *_self = MB_TEXT_VIEW(object);
+  GtkTextView *text_view = GTK_TEXT_VIEW(_self->text_view);
+  g_print("mb_text_view, notify_id = %ld\n", _self->id); 
+  GtkTextBuffer *buffer = mb_text_buffer_new(_self->id);
+  gtk_text_view_set_buffer(text_view, buffer);
 }
 static void notify_is_root(GObject *object, GParamSpec *pspec, gpointer user_data)
 {
@@ -144,6 +149,7 @@ static void mb_text_view_init(MbTextView *_self)
   GtkTextView *_text_view = GTK_TEXT_VIEW(_self->text_view);
   GtkTextBuffer *_text_buffer = gtk_text_view_get_buffer(_text_view);
   g_signal_connect(_text_buffer, "insert-text", G_CALLBACK(insert_text), _self);
+  g_signal_connect(self, "notify::id", G_CALLBACK(notify_id), self);
 }
 static void mb_text_view_class_init(MbTextViewClass *klass)
 {

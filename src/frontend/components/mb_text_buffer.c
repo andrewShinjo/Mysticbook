@@ -1,4 +1,5 @@
 #include "./mb_text_buffer.h"
+#include "../../backend/service/block_service.h"
 
 /* Widget definition */
 struct _MbTextBuffer
@@ -17,6 +18,16 @@ static void mb_text_buffer_finalize(GObject *object);
 static void changed(GtkTextBuffer *_self, gpointer user_data)
 {
 
+}
+static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
+{
+  MbTextBuffer *_self = MB_TEXT_BUFFER(user_data);
+  const gchar *content = block_service_get_block_content(_self->id);
+  if(content != NULL)
+  {
+    GtkTextBuffer *self = GTK_TEXT_BUFFER(_self);
+    gtk_text_buffer_set_text(self, content, -1);
+  }
 }
 /* Properties */
 enum property_types
@@ -67,7 +78,8 @@ static void mb_text_buffer_init(MbTextBuffer *_self)
   /* Instantiate widgets */
   /* Configure widgets */
   /* Connect to signals */
-  g_signal_connect(self, "changed", G_CALLBACK(changed), NULL);
+  g_signal_connect(self, "changed", G_CALLBACK(changed), self);
+  g_signal_connect(self, "notify::id", G_CALLBACK(notify_id), self);
 }
 static void mb_text_buffer_class_init(MbTextBufferClass *klass)
 {
@@ -92,8 +104,8 @@ static void mb_text_buffer_finalize(GObject *object)
   G_OBJECT_CLASS(mb_text_buffer_parent_class)->finalize(object);
 }
 /* Public implementation */
-GtkTextBuffer* mb_text_buffer_new(GtkTextTagTable *table)
+GtkTextBuffer* mb_text_buffer_new(gint64 id)
 {
-  return g_object_new(MB_TYPE_TEXT_BUFFER, "tag-table", table, NULL);
+  return g_object_new(MB_TYPE_TEXT_BUFFER, "id", id, NULL);
 }
 /* Private implementation */

@@ -61,11 +61,8 @@ static gboolean key_pressed(GtkEventControllerKey *key, guint keyval, guint keyc
 static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
 {
   MbRootTextBlock *_self = MB_ROOT_TEXT_BLOCK(object);
-  const unsigned char *content = block_controller_get_block_content(_self->id);
-  if(content != NULL)
-  {
-    mb_root_text_block_set_content(_self, content);
-  }
+  g_print("MbRootTextBlock: id=%ld\n", _self->id);
+  g_object_set(_self->text_view, "id", _self->id, NULL);
   // Get block children.
   GtkBox *_children_blocks = GTK_BOX(_self->children_blocks);
   GArray *children_ids = block_controller_get_children_ids(_self->id);
@@ -87,12 +84,7 @@ enum property_types
   N_PROPERTIES
 };
 static GParamSpec *properties[N_PROPERTIES];
-static void get_property(
-  GObject *object,
-  guint property_id,
-  GValue *value,
-  GParamSpec *pspec
-)
+static void get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
 {
   MbRootTextBlock *_self = MB_ROOT_TEXT_BLOCK(object);
   switch(property_id)
@@ -135,7 +127,6 @@ static void mb_root_text_block_init(MbRootTextBlock *_self)
   /* INSTANTIATE WIDGETS */
   _self->layout = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   _self->hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-  //_self->text_view = gtk_text_view_new();
   _self->text_view = mb_text_view_new();
   _self->children_blocks = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   _self->key_controller = gtk_event_controller_key_new();
@@ -218,12 +209,7 @@ void mb_root_text_block_insert_child_after(MbRootTextBlock *self, MbTextBlock *_
 
 GtkWidget* mb_root_text_block_new(gint64 id)
 {
-  return g_object_new(
-    MB_TYPE_ROOT_TEXT_BLOCK, 
-    "id",
-    id,
-    NULL
-  );
+  return g_object_new(MB_TYPE_ROOT_TEXT_BLOCK, "id", id, NULL);
 }
 
 void mb_root_text_block_grab_focus(MbRootTextBlock *self)
@@ -243,8 +229,7 @@ void mb_root_text_block_remove_child(MbRootTextBlock *_self, MbTextBlock *_child
   gtk_box_remove(_children_blocks, child);
 }
 
-void mb_root_text_block_set_content(MbRootTextBlock *_self, const gchar *content
-)
+void mb_root_text_block_set_content(MbRootTextBlock *_self, const gchar *content)
 {
   //GtkTextView *text_view = GTK_TEXT_VIEW(_self->text_view);
   //GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(text_view);
