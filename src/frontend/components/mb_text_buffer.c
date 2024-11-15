@@ -15,9 +15,15 @@ G_DEFINE_TYPE(MbTextBuffer, mb_text_buffer, GTK_TYPE_TEXT_BUFFER)
 static void mb_text_buffer_dispose(GObject *object);
 static void mb_text_buffer_finalize(GObject *object);
 /* Callback */
-static void changed(GtkTextBuffer *_self, gpointer user_data)
+static void changed(GtkTextBuffer *self, gpointer user_data)
 {
-
+  MbTextBuffer *_self = MB_TEXT_BUFFER(self);
+  GtkTextIter start, end;
+  gtk_text_buffer_get_start_iter(self, &start);
+  gtk_text_buffer_get_end_iter(self, &end);
+  gchar *content = gtk_text_buffer_get_text(self, &start, &end, FALSE);
+  block_service_update_content(_self->id, (const unsigned char*) content);
+  g_free(content);
 }
 static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
 {

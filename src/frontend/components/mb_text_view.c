@@ -72,7 +72,6 @@ static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
 {
   MbTextView *_self = MB_TEXT_VIEW(object);
   GtkTextView *text_view = GTK_TEXT_VIEW(_self->text_view);
-  g_print("mb_text_view, notify_id = %ld\n", _self->id); 
   GtkTextBuffer *buffer = mb_text_buffer_new(_self->id);
   gtk_text_view_set_buffer(text_view, buffer);
 }

@@ -45,13 +45,7 @@ static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
   g_object_set(_self->root_block, "id", _self->id, NULL);
 }
 
-static void
-drag_begin(
-  GtkGestureDrag *gesture_drag,
-  gdouble start_x,
-  gdouble start_y,
-  gpointer user_data
-)
+static void drag_begin(GtkGestureDrag *gesture_drag, gdouble start_x, gdouble start_y, gpointer user_data)
 {
   GtkWidget *self = GTK_WIDGET(user_data);
   MbBlockViewPage *_self = MB_BLOCK_VIEW_PAGE(user_data);
