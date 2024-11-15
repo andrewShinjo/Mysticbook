@@ -28,7 +28,7 @@ static void activate(GtkApplication *application, gpointer user_data)
   gtk_window_present(window);
 }
 
-/** Launches app.
+/** Setup, and launch application.
  *
  */
 int main (int argc, char *argv[])
