@@ -3,7 +3,7 @@
 #include "./mb_text_view.h"
 #include "./mb_root_text_block.h"
 #include "../../backend/block.h"
-#include "../../backend/controller/block_controller.h"
+#include "../../backend/service/block_service.h"
 /* WIDGET DEFINITION */
 struct _MbTextBlock
 {
@@ -52,7 +52,7 @@ static void changed(GtkTextBuffer *text_buffer, gpointer user_data)
   gtk_text_buffer_get_end_iter(text_buffer, &end);
   gchar *content = gtk_text_buffer_get_text(text_buffer, &start, &end, FALSE);
   g_print("Buffer content: %s\n", content);
-  block_controller_update_content(_self->id, (const unsigned char*) content);
+  block_service_update_content(_self->id, (const unsigned char*) content);
   g_free(content);
 }
 static void notify_expanded(GObject *object, GParamSpec *pspec, gpointer user_data)
@@ -69,7 +69,7 @@ static void notify_expanded(GObject *object, GParamSpec *pspec, gpointer user_da
     gtk_image_set_from_file(_icon_image, "./resources/white_arrow_hide.png"); 
   }
   gtk_widget_set_visible(_self->children_blocks, _self->expanded);
-  block_controller_update_expanded(_self->id, _self->expanded);
+  block_service_set_expanded(_self->id, _self->expanded);
 }
 static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
 {
@@ -77,7 +77,7 @@ static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
   g_object_set(_self->text_view, "id", _self->id, NULL);
   // Get block children.
   GtkBox *_children_blocks = GTK_BOX(_self->children_blocks);
-  GArray *children_ids = block_controller_get_children_ids(_self->id);
+  GArray *children_ids = block_service_get_children_ids(_self->id);
   guint count = children_ids->len;
   for(guint i = 0; i < count; i++)
   {
@@ -141,7 +141,7 @@ static gboolean key_pressed(GtkEventControllerKey *key, guint keyval, guint keyc
       // Remove self in GUI.
       remove_self(_self);
       // Remove self in SQL.
-      block_controller_delete_block(_self->id); 
+      block_service_delete_block(_self->id); 
     }
   }
   else if(keyval == GDK_KEY_ISO_Left_Tab && state && GDK_SHIFT_MASK)
@@ -150,7 +150,7 @@ static gboolean key_pressed(GtkEventControllerKey *key, guint keyval, guint keyc
     unindent_self(_self);
     mb_text_block_grab_focus(_self);
     // Unindent in SQL.
-    block_controller_unindent_block(_self->id);
+    block_service_unindent_block(_self->id);
     return TRUE;
   }
   else if(keyval == GDK_KEY_Tab)
@@ -159,7 +159,7 @@ static gboolean key_pressed(GtkEventControllerKey *key, guint keyval, guint keyc
     indent_self(_self);
     mb_text_block_grab_focus(_self);
     // Indent in SQL.
-    block_controller_indent_block(_self->id);
+    block_service_indent_block(_self->id);
     return TRUE;
   }
   else if(keyval == GDK_KEY_Return)
@@ -177,7 +177,7 @@ static gboolean key_pressed(GtkEventControllerKey *key, guint keyval, guint keyc
       {
         // Create a new block in SQL.
         g_print("ID=%ld\n", _self->id);
-        gint64 new_id = block_controller_append_sibling(_self->id);
+        gint64 new_id = block_service_append_sibling(_self->id);
         // Create a new block in GUI.
         GtkWidget *sibling = mb_text_block_new(new_id);
         MbTextBlock *_sibling = MB_TEXT_BLOCK(sibling);
@@ -328,7 +328,7 @@ void mb_text_block_grab_focus(MbTextBlock *self)
 }
 GtkWidget* mb_text_block_new(gint64 id)
 {
-  gboolean expanded = block_controller_get_expanded(id);
+  gboolean expanded = block_service_get_expanded(id);
   return g_object_new(MB_TYPE_TEXT_BLOCK, "id", id, "expanded", expanded, NULL);
 }
 void mb_text_block_add_child(MbTextBlock *self, GtkWidget *child)

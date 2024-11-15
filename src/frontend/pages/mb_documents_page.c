@@ -1,6 +1,6 @@
 #include "./mb_documents_page.h"
 #include "../components/mb_document_list_row.h"
-#include "../../backend/controller/block_controller.h"
+#include "../../backend/service/block_service.h"
 /* WIDGET DEFINITION */
 struct _MbDocumentsPage
 {
@@ -34,7 +34,7 @@ static void new_document_button_clicked(GtkButton *button, gpointer user_data)
   MbDocumentsPage *_self = MB_DOCUMENTS_PAGE(user_data);
   GtkBox *document_list = GTK_BOX(_self->document_list);
   // Create document in SQL.
-  gint64 new_id = block_controller_create_document("Untitled");
+  gint64 new_id = block_service_create_document("Untitled");
   // Create document list row in GUI.
   GtkWidget *new_document_list_row = mb_document_list_row_new(new_id);
   gtk_box_append(document_list, new_document_list_row);
@@ -104,7 +104,7 @@ static void mb_documents_page_init(MbDocumentsPage *_self)
 	_self->vertical_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   /** Get document ids to populate list rows. **/
   GtkBox *_document_list = GTK_BOX(_self->document_list);
-  GArray *document_ids = block_controller_get_document_ids();
+  GArray *document_ids = block_service_get_document_ids();
   guint length = document_ids->len;
   for(guint i = 0; i < length; i++)
   {

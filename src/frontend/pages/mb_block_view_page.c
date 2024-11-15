@@ -2,7 +2,6 @@
 #include "../components/mb_text_block.h"
 #include "../components/mb_root_text_block.h"
 #include "../../backend/block.h"
-#include "../../backend/controller/block_controller.h"
 
 enum property_types
 {

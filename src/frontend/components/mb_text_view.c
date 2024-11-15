@@ -1,7 +1,7 @@
 #include "./mb_link_popover.h"
 #include "./mb_text_buffer.h"
 #include "./mb_text_view.h"
-#include "../../backend/controller/block_controller.h"
+#include "../../backend/service/block_service.h"
 /* Global variables */
 gboolean link_popover_on = FALSE;
 /* WIDGET DEFINITION */
@@ -30,7 +30,7 @@ static void insert_text(GtkTextBuffer *tb, const GtkTextIter* location, gchar* t
   if(link_popover_on)
   {
     // Search for first char.
-    block_controller_get_10_best_matching_blocks("Untitled");
+    block_service_get_10_best_matching_blocks("Untitled");
   }
   else if(!link_popover_on)
   {

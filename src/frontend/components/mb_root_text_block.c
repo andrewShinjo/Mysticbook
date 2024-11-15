@@ -4,7 +4,7 @@
 #include "../pages/mb_block_view_page.h"
 #include "../../backend/block.h"
 #include "../../backend/util.h"
-#include "../../backend/controller/block_controller.h"
+#include "../../backend/service/block_service.h"
 /* WIDGET DEFINITION */
 struct _MbRootTextBlock
 {
@@ -33,7 +33,7 @@ static gboolean key_pressed(GtkEventControllerKey *key, guint keyval, guint keyc
   if(keyval == GDK_KEY_Return)
   {
     // Create new block in SQL.
-    gint64 new_id = block_controller_prepend_child(_self->id);
+    gint64 new_id = block_service_prepend_child(_self->id);
     // Create new block in GUI.
     GtkWidget *child = mb_text_block_new(new_id);
     gtk_box_prepend(GTK_BOX(_self->children_blocks), child);
@@ -48,7 +48,7 @@ static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
   g_object_set(_self->text_view, "id", _self->id, NULL);
   // Get block children.
   GtkBox *_children_blocks = GTK_BOX(_self->children_blocks);
-  GArray *children_ids = block_controller_get_children_ids(_self->id);
+  GArray *children_ids = block_service_get_children_ids(_self->id);
   guint count = children_ids->len;
   for(guint i = 0; i < count; i++)
   {
