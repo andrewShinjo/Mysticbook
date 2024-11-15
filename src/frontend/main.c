@@ -2,22 +2,33 @@
 #include "components/mb_app_window.h"
 #include "../backend/database/database.h"
 
-static void activate(GtkApplication *app, gpointer user_data)
+#define WINDOW_TITLE            "Mysticbook"
+#define DEFAULT_STYLESHEET_PATH "./stylesheet.css"
+
+/** Activates the GTK application.
+ *
+ */
+static void activate(GtkApplication *application, gpointer user_data)
 {
-  GtkWidget *mb_app_window = mb_app_window_new(app);
+  GtkWidget *mb_app_window = mb_app_window_new(application);
+
   GtkCssProvider *css_provider = gtk_css_provider_new();
+  GFile *css_file = g_file_new_for_path(DEFAULT_STYLESHEET_PATH);
+  gtk_css_provider_load_from_file(css_provider, css_file);
+
+  GdkDisplay *default_display = gdk_display_get_default();
   GtkStyleProvider *style_provider = GTK_STYLE_PROVIDER(css_provider);
-  gtk_css_provider_load_from_file(
-    css_provider, 
-    g_file_new_for_path("stylesheet.css")
-  );
-  gtk_style_context_add_provider_for_display(gdk_display_get_default(), style_provider, GTK_STYLE_PROVIDER_PRIORITY_USER);
+  gtk_style_context_add_provider_for_display(default_display, style_provider, GTK_STYLE_PROVIDER_PRIORITY_USER);
+
   GtkWindow *window = GTK_WINDOW(mb_app_window);
-  gtk_window_set_title(window, "Mysticbook");
+  gtk_window_set_title(window, WINDOW_TITLE);
   gtk_window_maximize(window);
   gtk_window_present(window);
 }
 
+/** Launches app.
+ *
+ */
 int main (int argc, char *argv[])
 {
 	int return_code =	open_database("test.db");
