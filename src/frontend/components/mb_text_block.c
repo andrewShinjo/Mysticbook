@@ -110,8 +110,7 @@ static void expand_clicked(GtkButton *button, gpointer user_data)
 static gboolean key_pressed(GtkEventControllerKey *key, guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
 {
   MbTextBlock *_self = MB_TEXT_BLOCK(user_data);
-  GtkWidget *self  = GTK_WIDGET(user_data);
-
+  GtkWidget *self = GTK_WIDGET(user_data);
   if(keyval == GDK_KEY_a)
   {
     if(state & GDK_CONTROL_MASK)
@@ -165,9 +164,8 @@ static gboolean key_pressed(GtkEventControllerKey *key, guint keyval, guint keyc
   }
   else if(keyval == GDK_KEY_Return)
   {
+    g_print("Return pressed.\n");
     _self->selected = FALSE;
-    if(!state || !GDK_SHIFT_MASK)
-    {
       if(has_child(_self))
       {
         GtkWidget *child = mb_text_block_new();
@@ -187,7 +185,6 @@ static gboolean key_pressed(GtkEventControllerKey *key, guint keyval, guint keyc
         mb_text_block_grab_focus(_sibling);
       }
       return TRUE;
-    }
   }
   return FALSE;
 }
