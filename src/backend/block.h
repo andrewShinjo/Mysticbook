@@ -7,7 +7,7 @@ typedef struct
 	gint64 creation_time;
   gint64 is_document;
 	gint64 modification_time;
-  gint64 position;
+  gdouble position;
   gint64 parent_id;
   gint64 expanded;
 	const unsigned char *content;

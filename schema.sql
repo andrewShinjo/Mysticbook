@@ -1,15 +1,18 @@
+-- Create tables.
 CREATE TABLE IF NOT EXISTS blocks(
 	id                INTEGER PRIMARY KEY AUTOINCREMENT,
 	creation_time     INTEGER,
 	is_document       INTEGER,
 	modification_time INTEGER,
-  position          INTEGER,
+  position          DOUBLE,
   parent_id         INTEGER,
   expanded          INTEGER,
 	content           TEXT
 );
 
 CREATE VIRTUAL TABLE IF NOT EXISTS blocks_fts5 using fts5(id, content);
+
+-- Create triggers.
 
 CREATE TRIGGER IF NOT EXISTS blocks_insert_trigger AFTER INSERT ON blocks
 FOR EACH ROW BEGIN INSERT INTO blocks_fts5 (id, content) VALUES (NEW.id, NEW.content); END;
