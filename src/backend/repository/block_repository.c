@@ -13,6 +13,12 @@ gint64 block_repository_save(
   gchar *content  
 )
 {
+  /**
+   * Algorithm:
+   * 1. Bind all of the function parameters into the query.
+   * 2. Execute the query.
+   * 3. Return the newly created block's ID.
+   */
   const char *sql = 
     "INSERT INTO blocks (creation_time, is_document, modification_time, position, parent_id, expanded, content) "
     "VALUES(?, ?, ?, ?, ?, ?, ?);";
@@ -171,6 +177,46 @@ gint64 block_repository_find_parent_id_by_id(gint64 id)
   return parent_id;
 }
 
+/**
+ * Algorithm:
+ *
+ * 1. Bind the input ID.
+ * 2. Execute the SQL query.
+ * 3. Return the next cloest position, if exists. Otherwise, return -1.
+ */
+gdouble block_repository_find_next_closest_sibling_position(gint64 id)
+{
+  const char *sql = "SELECT position FROM blocks "
+    "WHERE parent_id = (SELECT parent_id FROM blocks WHERE id = ?) "
+    "AND position > (SELECT position FROM blocks WHERE id = ?) "
+    "ORDER BY position LIMIT 1;";
+  sqlite3_stmt *stmt = prepare_statement(sql);
+  if(stmt == NULL)
+  {
+    g_print("block_repository_find_next_closest_sibling_position: Failed to prepare statement.\n");
+    exit(EXIT_FAILURE);
+  }
+  sqlite3_bind_int64(stmt, 1, id);
+  sqlite3_bind_int64(stmt, 2, id);
+  gboolean result_found = sqlite3_step(stmt) == SQLITE_ROW;
+  if(result_found)
+  {
+    gdouble position = sqlite3_column_double(stmt, 0);
+    return position;
+  }
+  else
+  {
+    return -1;
+  }
+}
+
+/**
+ * Algorithm:
+ *
+ * 1. Bind the input ID to the SQL query.
+ * 2. Execute the SQL query.
+ * 3. Return block's position.
+ */
 gdouble block_repository_find_position(gint64 id)
 {
   const char *sql = "SELECT position FROM blocks WHERE id = ?;";
@@ -182,7 +228,7 @@ gdouble block_repository_find_position(gint64 id)
   }
   sqlite3_bind_int64(stmt, 1, id);
   sqlite3_step(stmt);
-  gdouble position = sqlite3_column_int64(stmt, 0);
+  gdouble position = sqlite3_column_double(stmt, 0);
   sqlite3_finalize(stmt);
   return position;
 }

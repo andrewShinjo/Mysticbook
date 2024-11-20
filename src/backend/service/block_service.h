@@ -1,16 +1,20 @@
 #pragma once
 #include <glib.h>
 
-// block_service is responsible for implementing the
-// services that the frontend requests.
-// It processes data, enforce rules, and perform transactions.
-
+/** 
+ * @brief Creates a sibling block positioned following a specified block ID.
+ * 
+ * This function takes an existing block ID as input and creates a new sibling block immediately following the block with the 
+ * input ID. The new block has the same parent_id as the input block and has a position adjacent after the input block.
+ * 
+ * @param id: The unique identifier of the existing block after which the new sibling block will be appended.
+ *
+ * @return gint64: Return the id of the newly created sibling block.
+ */
 gint64 block_service_append_sibling(gint64 id);
 gint64 block_service_create_block(gchar *content);
 gint64 block_service_create_document(gchar *content);
 void block_service_delete_block(gint64 id);
-
-// GET
 const unsigned char* block_service_get_block_content(gint64 id);
 GArray* block_service_get_children_ids(gint64 id);
 GArray* block_service_get_document_ids();

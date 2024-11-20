@@ -3,23 +3,52 @@
 
 gint64 block_service_append_sibling(gint64 id)
 {
-  g_print("block_service_append_sibling\n");
-  // Reposition siblings.
+  /**
+   * Algorithm:
+   *
+   * 1. Get the position of the input block.
+   * 2. If the input block already has a sibling following it, then get the position of the sibling block. 
+   *    2.1 Create a new block, and set it's position as the midpoint between the input block and the sibling block.
+   * 3. If the input block doesn't have a sibling following it, then create a new sibling block that's positioned 10.0
+   *    units away from the input block.
+   * 
+   * Justification of correctness:
+   *
+   * Each block has a list of children blocks, and the order of each child is maintained by the position field.
+   * Hence, if block 1's position value is less than block 2's position value, then block 1 comes before block 2 in the list.
+   * 
+   * If the input block already has a sibling, then by setting the new block's position as the midpoint between the input block
+   * and the sibling block, then the new block is positioned in between them, resulting in the new block becoming the input 
+   * block's new sibling.
+   *
+   * If the input block has no sibling following it, then by setting the new block's position value to be 10.0 units away from
+   * the input block, it is positioned immediately after the input block.
+   *
+   * Known issues:
+   *
+   * When getting the midpoint of the positions of two blocks, need to identify imprecision of working with small numbers
+   * and handle them.
+   */
+
+  g_print("block_service_append_sibling:\n");
+  
   gint64 parent_id = block_repository_find_parent_id_by_id(id);
-  gint64 start = block_repository_find_position(id) + 1;
-  gint64 end = block_repository_find_last_child_position(parent_id);
-  g_print("start=%ld, end=%ld\n", start, end);
-  GArray *sibling_ids = block_repository_find_ids_by_position_range_and_parent_id(start, end, parent_id);
-  guint count = sibling_ids->len;
-  for(guint i = 0; i < count; i++)
+  gdouble position = block_repository_find_position(id);
+  gdouble position2 = block_repository_find_next_closest_sibling_position(id);
+  gboolean sibling_exists = (position2 > 0);
+  gdouble new_position = 0;
+
+  g_print("Position=%f, Position2=%f\n", position, position2);
+
+  if(sibling_exists)
   {
-    gint64 sibling_id = g_array_index(sibling_ids, gint64, i);
-    block_service_increment_position(sibling_id);
+    new_position = (position + position2) / 2.0;
   }
-  g_free(sibling_ids);
-  // Create new siblings.
-  gint64 new_id = block_repository_save(0, 0, 0, start, parent_id, 0, "");
-  return new_id;
+  else if(!sibling_exists)
+  {
+    new_position = position + 10.0;
+  }
+  block_repository_save(0, 0, 0, new_position, parent_id, 0, "");
 }
 
 gint64 block_service_create_block(gchar *content)

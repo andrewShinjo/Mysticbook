@@ -5,7 +5,7 @@
 #define APPLICATION_ID          "org.mysticbook.mysticbook"
 #define WINDOW_TITLE            "Mysticbook"
 #define DEFAULT_STYLESHEET_PATH "./stylesheet.css"
-#define TEST_DATABASE           "./test.db"
+#define DEV_DB           "./development.db"
 
 /** Activates the GTK application.
  *
@@ -33,7 +33,7 @@ static void activate(GtkApplication *application, gpointer user_data)
  */
 int main (int argc, char *argv[])
 {
-	int return_code =	open_database(TEST_DATABASE);
+	int return_code =	open_database(DEV_DB);
 	if (return_code != 0)
 	{
     g_print("Failed to open database.\n");
@@ -48,6 +48,6 @@ int main (int argc, char *argv[])
 	g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
 	int status = g_application_run(G_APPLICATION(app), argc, argv);
 	g_object_unref(app);
-  close_database(TEST_DATABASE);
+  close_database(DEV_DB);
 	return status;
 }
