@@ -26,7 +26,7 @@ gint64 block_service_append_sibling(gint64 id)
    *
    * Known issues:
    *
-   * When getting the midpoint of the positions of two blocks, need to identify imprecision of working with small numbers
+   * When getting the midpoint of the positions of two blocks, may need to identify imprecision of working with small numbers
    * and handle them.
    */
 
@@ -37,8 +37,6 @@ gint64 block_service_append_sibling(gint64 id)
   gdouble position2 = block_repository_find_next_closest_sibling_position(id);
   gboolean sibling_exists = (position2 > 0);
   gdouble new_position = 0;
-
-  g_print("Position=%f, Position2=%f\n", position, position2);
 
   if(sibling_exists)
   {
