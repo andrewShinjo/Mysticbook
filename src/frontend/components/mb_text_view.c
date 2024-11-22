@@ -1,6 +1,7 @@
 #include "./mb_link_popover.h"
 #include "./mb_text_buffer.h"
 #include "./mb_text_view.h"
+#include "../../backend/block.h"
 #include "../../backend/service/block_service.h"
 /* Global variables */
 /* WIDGET DEFINITION */
@@ -29,7 +30,13 @@ static void insert_text(GtkTextBuffer *tb, const GtkTextIter* location, gchar* t
   if(_self->popover_open)
   {
     g_print("Searching.\n");
-    block_service_get_10_best_matching_blocks("Untitled");
+    GArray *blocks = block_service_get_10_best_matching_blocks("Untitled");
+    for(guint i = 0; i < blocks->len; i++)
+    {
+      BlockFts5 b = g_array_index(blocks, BlockFts5, i);
+      g_print("mb_text_view:insert_text: ID: %ld, Content: %s\n", b.id, b.content);
+    }
+    g_free(blocks);
   }
   else if(!_self->popover_open)
   {

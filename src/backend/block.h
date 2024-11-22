@@ -16,5 +16,5 @@ typedef struct
 typedef struct
 {
   gint64 id;
-  const unsigned char *content;
+  const gchar *content;
 } BlockFts5;

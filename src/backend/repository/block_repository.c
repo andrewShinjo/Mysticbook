@@ -1,5 +1,6 @@
 #include "./block_repository.h"
 #include "../database/database.h"
+#include "../block.h"
 
 /* CREATE */
 
@@ -125,13 +126,17 @@ GArray* block_repository_find_10_best_matching_blocks(gchar *text)
     g_print("block_repository_find_10_best_matching_blocks: Failed to prepare statement.\n");
     exit(EXIT_FAILURE);
   }
+  GArray *result = g_array_new(FALSE, FALSE, sizeof(BlockFts5));
   sqlite3_bind_text(stmt, 1, text, -1, SQLITE_STATIC);
   while(sqlite3_step(stmt) == SQLITE_ROW)
   {
     gint64 id = sqlite3_column_int64(stmt, 0);
     const gchar* content = sqlite3_column_text(stmt, 1);
+    g_print("block_repository_find_10_best_matching_blocks, ID=%ld, Content=%s\n", id, content);
+    BlockFts5 block_fts5 = { id, g_strdup(content) };
+    g_array_append_val(result, block_fts5);
   }
-  return NULL;
+  return result;
 }
 
 gint64 block_repository_find_is_document(gint64 id)
