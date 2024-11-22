@@ -12,3 +12,9 @@ typedef struct
   gint64 expanded;
 	const unsigned char *content;
 } Block;
+
+typedef struct
+{
+  gint64 id;
+  const unsigned char *content;
+} BlockFts5;

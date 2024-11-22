@@ -3,7 +3,6 @@
 #include "./mb_text_view.h"
 #include "../../backend/service/block_service.h"
 /* Global variables */
-gboolean link_popover_on = FALSE;
 /* WIDGET DEFINITION */
 struct _MbTextView
 {
@@ -15,26 +14,26 @@ struct _MbTextView
   /* PROPERTIES */
   gint64 id;
   gboolean is_root;
+  /* Other fields */
+  gboolean popover_open;
 };
 G_DEFINE_TYPE(MbTextView, mb_text_view, GTK_TYPE_WIDGET)
 /* FORWARD DECLARATION */
 static void mb_text_view_dispose(GObject *object);
 static void mb_text_view_finalize(GObject *object);
 /* CALLBACK */
+
 static void insert_text(GtkTextBuffer *tb, const GtkTextIter* location, gchar* text, gint len, gpointer user_data)
 {
-  g_print("mb_text_view: insert_text\n");
   MbTextView *_self = MB_TEXT_VIEW(user_data);
-  gboolean is_left_square_bracket = g_strcmp0(text, "[") == 0;
-
-  if(link_popover_on)
+  if(_self->popover_open)
   {
-    // Search for first char.
+    g_print("Searching.\n");
     block_service_get_10_best_matching_blocks("Untitled");
   }
-  else if(!link_popover_on)
+  else if(!_self->popover_open)
   {
-    if(is_left_square_bracket)
+    if(g_strcmp0(text, "[") == 0)
     {
       GtkTextIter previous_iter = *location;
       gtk_text_iter_backward_char(&previous_iter);
@@ -42,8 +41,7 @@ static void insert_text(GtkTextBuffer *tb, const GtkTextIter* location, gchar* t
       {
         return;
       }
-      gunichar previous_char = gtk_text_iter_get_char(&previous_iter);
-      if(previous_char == '[')
+      if(gtk_text_iter_get_char(&previous_iter) == '[')
       {
         GtkPopover *_popover = GTK_POPOVER(_self->popover);
         GtkTextView *_text_view = GTK_TEXT_VIEW(_self->text_view);
@@ -51,7 +49,7 @@ static void insert_text(GtkTextBuffer *tb, const GtkTextIter* location, gchar* t
         gtk_text_view_get_iter_location(_text_view, location, &iter_location);
         gtk_popover_set_pointing_to(_popover, &iter_location);
         gtk_popover_popup(_popover);
-        link_popover_on = TRUE;
+        _self->popover_open = TRUE;
       }
     }
   }
@@ -74,7 +72,7 @@ static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
   GtkTextView *text_view = GTK_TEXT_VIEW(_self->text_view);
   GtkTextBuffer *buffer = mb_text_buffer_new(_self->id);
   gtk_text_view_set_buffer(text_view, buffer);
-  g_signal_connect(buffer, "insert-text", G_CALLBACK(insert_text), _self);
+  g_signal_connect(buffer, "insert-text", G_CALLBACK(insert_text), user_data);
 }
 static void notify_is_root(GObject *object, GParamSpec *pspec, gpointer user_data)
 {
@@ -140,6 +138,7 @@ static void mb_text_view_init(MbTextView *_self)
   /* INSTANTIATE WIDGETS */
   _self->text_view = gtk_text_view_new();
   _self->popover = mb_link_popover_new();
+  _self->popover_open = FALSE;
   /* CONFIGURE WIDGETS */
   gtk_widget_allocate(_self->text_view, 0, 0, 0, NULL);
   gtk_widget_set_hexpand(_self->text_view, TRUE);
