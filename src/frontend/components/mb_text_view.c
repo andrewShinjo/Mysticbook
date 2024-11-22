@@ -10,8 +10,7 @@ struct _MbTextView
   GtkWidget parent;
   /* WIDGETS */
   GtkWidget *text_view;
-  GtkWidget *link_popover;
-  GtkWidget *list_box;
+  GtkWidget *popover;
   /* EVENT LISTENERS */
   /* PROPERTIES */
   gint64 id;
@@ -24,6 +23,7 @@ static void mb_text_view_finalize(GObject *object);
 /* CALLBACK */
 static void insert_text(GtkTextBuffer *tb, const GtkTextIter* location, gchar* text, gint len, gpointer user_data)
 {
+  g_print("mb_text_view: insert_text\n");
   MbTextView *_self = MB_TEXT_VIEW(user_data);
   gboolean is_left_square_bracket = g_strcmp0(text, "[") == 0;
 
@@ -45,12 +45,12 @@ static void insert_text(GtkTextBuffer *tb, const GtkTextIter* location, gchar* t
       gunichar previous_char = gtk_text_iter_get_char(&previous_iter);
       if(previous_char == '[')
       {
-        GtkPopover *_link_popover = GTK_POPOVER(_self->link_popover);
+        GtkPopover *_popover = GTK_POPOVER(_self->popover);
         GtkTextView *_text_view = GTK_TEXT_VIEW(_self->text_view);
         GdkRectangle iter_location;
         gtk_text_view_get_iter_location(_text_view, location, &iter_location);
-        gtk_popover_set_pointing_to(_link_popover, &iter_location);
-        gtk_popover_popup(_link_popover);
+        gtk_popover_set_pointing_to(_popover, &iter_location);
+        gtk_popover_popup(_popover);
         link_popover_on = TRUE;
       }
     }
@@ -74,6 +74,7 @@ static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
   GtkTextView *text_view = GTK_TEXT_VIEW(_self->text_view);
   GtkTextBuffer *buffer = mb_text_buffer_new(_self->id);
   gtk_text_view_set_buffer(text_view, buffer);
+  g_signal_connect(buffer, "insert-text", G_CALLBACK(insert_text), _self);
 }
 static void notify_is_root(GObject *object, GParamSpec *pspec, gpointer user_data)
 {
@@ -138,16 +139,13 @@ static void mb_text_view_init(MbTextView *_self)
   GtkWidget *self = GTK_WIDGET(_self);
   /* INSTANTIATE WIDGETS */
   _self->text_view = gtk_text_view_new();
-  _self->link_popover = mb_link_popover_new();
+  _self->popover = mb_link_popover_new();
   /* CONFIGURE WIDGETS */
   gtk_widget_allocate(_self->text_view, 0, 0, 0, NULL);
   gtk_widget_set_hexpand(_self->text_view, TRUE);
-  gtk_widget_set_parent(_self->link_popover, _self->text_view);
+  gtk_widget_set_parent(_self->popover, _self->text_view);
   gtk_widget_set_parent(_self->text_view, self);
   /* CONNECT TO SIGNALS */
-  GtkTextView *_text_view = GTK_TEXT_VIEW(_self->text_view);
-  GtkTextBuffer *_text_buffer = gtk_text_view_get_buffer(_text_view);
-  g_signal_connect(_text_buffer, "insert-text", G_CALLBACK(insert_text), _self);
   g_signal_connect(self, "notify::id", G_CALLBACK(notify_id), self);
 }
 static void mb_text_view_class_init(MbTextViewClass *klass)
@@ -170,7 +168,7 @@ static void mb_text_view_class_init(MbTextViewClass *klass)
 static void mb_text_view_dispose(GObject *object) 
 {
   MbTextView *_self = MB_TEXT_VIEW(object);
-  g_clear_pointer(&_self->link_popover, gtk_widget_unparent);
+  g_clear_pointer(&_self->popover, gtk_widget_unparent);
   g_clear_pointer(&_self->text_view, gtk_widget_unparent);
   G_OBJECT_CLASS(mb_text_view_parent_class)->dispose(object);
 }

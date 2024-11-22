@@ -5,7 +5,6 @@ struct _MbTextBuffer
 {
   GtkTextBuffer parent;
   /* Widgets */
-  GtkWidget *popover;
   /* Event listeners */
   /* Properties */
   gint64 id;
@@ -17,10 +16,7 @@ static void mb_text_buffer_finalize(GObject *object);
 /* Callback */
 static void changed(GtkTextBuffer *self, gpointer user_data)
 {
-  g_print("changed\n");
-
   MbTextBuffer *_self = MB_TEXT_BUFFER(self);
-
   // Update SQLite
   GtkTextIter start, end;
   gtk_text_buffer_get_start_iter(self, &start);
@@ -28,20 +24,6 @@ static void changed(GtkTextBuffer *self, gpointer user_data)
   gchar *content = gtk_text_buffer_get_text(self, &start, &end, FALSE);
   block_service_update_content(_self->id, (const unsigned char*) content);
   g_free(content);
-
-  // Look for "[["
-  GtkTextIter previous_iter = end;
-  GtkTextIter current_iter = end;
-  gtk_text_iter_backward_char(&current_iter);
-  gtk_text_iter_backward_char(&previous_iter);
-  gtk_text_iter_backward_char(&previous_iter);
-  gunichar previous_char = gtk_text_iter_get_char(&previous_iter);
-  gunichar current_char = gtk_text_iter_get_char(&current_iter);
-
-  if(gtk_text_iter_compare(&previous_iter, &current_iter) != 0 && previous_char == '[' && current_char == '[')
-  {
-    g_print("Open popup.\n");
-  }
 }
 static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
 {
@@ -100,7 +82,6 @@ static void mb_text_buffer_init(MbTextBuffer *_self)
 {
   GtkTextBuffer *self = GTK_TEXT_BUFFER(_self);
   /* Instantiate widgets */
-  _self->popover = gtk_popover_new();
   /* Configure widgets */
   /* Connect to signals */
   g_signal_connect(self, "changed", G_CALLBACK(changed), self);
