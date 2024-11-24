@@ -14,7 +14,6 @@
 static void activate(GtkApplication *application, gpointer user_data)
 {
   GtkWidget *mb_app_window = mb_app_window_new(application);
-
   GtkCssProvider *css_provider = gtk_css_provider_new();
   GFile *css_file = g_file_new_for_path(DEFAULT_STYLESHEET_PATH);
   gtk_css_provider_load_from_file(css_provider, css_file);
