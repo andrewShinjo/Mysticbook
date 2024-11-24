@@ -53,13 +53,16 @@ static void mb_app_window_init(MbAppWindow *self)
   self->left_sidebar = mb_window_left_sidebar_new();
   self->active_page = mb_documents_page_new();
   self->home_button = mb_window_left_sidebar_button_new("./resources/light_home.svg", "Go home");
+  self->settings_button = mb_window_left_sidebar_button_new("./resources/SETTINGS_ICON_LIGHT_MODE.svg", "Settings");
   self->horizontal_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
   /* CONFIGURE WIDGETS */
   GtkBox *_horizontal_box = GTK_BOX(self->horizontal_box);
   MbWindowLeftSidebar *_left_sidebar = MB_WINDOW_LEFT_SIDEBAR(self->left_sidebar);
   MbWindowLeftSidebarButton *_home_button = MB_WINDOW_LEFT_SIDEBAR_BUTTON(self->home_button);
+  MbWindowLeftSidebarButton *_settings_button = MB_WINDOW_LEFT_SIDEBAR_BUTTON(self->settings_button);
   GtkWindow *window = GTK_WINDOW(self);
   mb_window_left_sidebar_append_button(_left_sidebar, _home_button);
+  mb_window_left_sidebar_append_button(_left_sidebar, _settings_button);
   gtk_box_append(_horizontal_box, self->left_sidebar);
   gtk_box_append(_horizontal_box, self->active_page);
   gtk_widget_set_hexpand(self->active_page, TRUE);
