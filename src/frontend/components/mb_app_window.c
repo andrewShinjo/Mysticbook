@@ -11,8 +11,11 @@ struct _MbAppWindow
   /* WIDGETS */
   GtkWidget *left_sidebar;
   GtkWidget *active_page;
-  GtkWidget *home_button;
+
   GtkWidget *horizontal_box;
+  /** Left sidebar buttons **/
+  GtkWidget *home_button;
+  GtkWidget *settings_button;
   /* EVENT LISTENERS */
   /* PROPERTIES */
 };
