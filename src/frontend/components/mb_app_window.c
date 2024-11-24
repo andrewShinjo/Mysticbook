@@ -32,6 +32,10 @@ static void home_button_clicked(MbWindowLeftSidebarButton *_button, gpointer use
   gtk_widget_set_hexpand(_self->active_page, TRUE);
   g_signal_connect(_self->active_page, "open_doc", G_CALLBACK(open_document_cb), _self);
 }
+static void settings_button_clicked(MbWindowLeftSidebarButton *_button, gpointer user_data)
+{
+  g_print("Settings button clicked.\n");
+}
 static void open_document_cb(MbDocumentsPage *documents_page, gpointer user_data)
 {
   GtkWidget *self = GTK_WIDGET(user_data);
@@ -70,6 +74,7 @@ static void mb_app_window_init(MbAppWindow *self)
   /* CONNECT TO SIGNALS */
   g_signal_connect(self->active_page, "open_doc", G_CALLBACK(open_document_cb), self);
   g_signal_connect(self->home_button, "clicked", G_CALLBACK(home_button_clicked), self);
+  g_signal_connect(self->settings_button, "clicked", G_CALLBACK(settings_button_clicked), self);
 }
 static void mb_app_window_class_init(MbAppWindowClass *klass) {}
 /* PUBLIC IMPLEMENTATION */
