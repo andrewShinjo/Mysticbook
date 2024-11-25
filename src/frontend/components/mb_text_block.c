@@ -62,11 +62,11 @@ static void notify_expanded(GObject *object, GParamSpec *pspec, gpointer user_da
   GtkImage *_icon_image = GTK_IMAGE(_self->icon);
   if(_self->expanded)
   {
-    gtk_image_set_from_file(_icon_image, "./resources/white_arrow_expand.png");
+    gtk_image_set_from_file(_icon_image, "./resources/arrow_expand.svg");
   }
   else
   {
-    gtk_image_set_from_file(_icon_image, "./resources/white_arrow_hide.png"); 
+    gtk_image_set_from_file(_icon_image, "./resources/arrow_hide.svg"); 
   }
   gtk_widget_set_visible(_self->children_blocks, _self->expanded);
   block_service_set_expanded(_self->id, _self->expanded);
