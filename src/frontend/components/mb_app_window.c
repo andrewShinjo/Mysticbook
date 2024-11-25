@@ -1,4 +1,5 @@
 #include "./mb_app_window.h"
+#include "./mb_app_window_key_controller.h"
 #include "./mb_settings_dialog.h"
 #include "./mb_window_left_sidebar.h"
 #include "./mb_window_left_sidebar_button.h"
@@ -20,7 +21,7 @@ struct _MbAppWindow
   GtkWidget *home_button;
   GtkWidget *settings_button;
   /* EVENT LISTENERS */
-	GtkEventController *key;
+	GtkEventController *key_controller;
   /* PROPERTIES */
 };
 G_DEFINE_TYPE(MbAppWindow, mb_app_window, GTK_TYPE_APPLICATION_WINDOW)
@@ -67,6 +68,7 @@ static void mb_app_window_init(MbAppWindow *self)
   self->home_button = mb_window_left_sidebar_button_new("./resources/light_home.svg", "Go home");
   self->settings_button = mb_window_left_sidebar_button_new("./resources/settings.svg", "Settings");
   self->horizontal_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+	self->key_controller = mb_app_window_key_new(self);
   /* CONFIGURE WIDGETS */
 	/** Settings dialog **/
 	gtk_window_set_hide_on_close(GTK_WINDOW(self->settings_dialog), TRUE);
