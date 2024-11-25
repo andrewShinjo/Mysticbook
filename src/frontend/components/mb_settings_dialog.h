@@ -7,4 +7,9 @@ G_BEGIN_DECLS
 
 G_DECLARE_FINAL_TYPE(MbSettingsDialog, mb_settings_dialog, MB, SETTINGS_DIALOG, GtkWindow)
 
+GtkWidget* mb_settings_dialog_new()
+{
+	return g_object_new(MB_TYPE_SETTINGS_DIALOG, NULL);
+}
+
 G_END_DECLS
