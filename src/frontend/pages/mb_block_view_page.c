@@ -17,6 +17,7 @@ static void snapshot(GtkWidget *widget, GtkSnapshot *snapshot);
 struct _MbBlockViewPage
 {
 	GtkWidget parent;
+	/* Widgets */
   GtkWidget *overlay;
   GtkWidget *scrolled_window;
   GtkWidget *layout;

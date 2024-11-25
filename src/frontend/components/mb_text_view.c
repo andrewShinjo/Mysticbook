@@ -31,15 +31,7 @@ static void insert_text(GtkTextBuffer *tb, const GtkTextIter* location, gchar* t
 static gboolean 
 key_pressed(GtkEventControllerKey *key, guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
 {
-  MbTextView *_self = MB_TEXT_VIEW(user_data);
-  if(_self->is_root)
-  {
 
-  }
-  else if(!_self->is_root)
-  {
-
-  }
 }
 static void notify_id(GObject *object, GParamSpec *pspec, gpointer user_data)
 {

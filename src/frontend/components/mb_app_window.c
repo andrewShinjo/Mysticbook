@@ -2,6 +2,7 @@
 #include "./mb_settings_dialog.h"
 #include "./mb_window_left_sidebar.h"
 #include "./mb_window_left_sidebar_button.h"
+#include "../mb_notebook.h"
 #include "../pages/mb_block_view_page.h"
 #include "../pages/mb_documents_page.h"
 #include "../../backend/block.h"
@@ -11,6 +12,7 @@ struct _MbAppWindow
   GtkApplicationWindow parent;
   /* WIDGETS */
   GtkWidget *left_sidebar;
+	GtkWidget *notebook;
   GtkWidget *active_page;
 	GtkWidget *settings_dialog;
   GtkWidget *horizontal_box;
@@ -58,6 +60,7 @@ static void mb_app_window_init(MbAppWindow *self)
 {
   /* INSTANTIATE WIDGETS */
   self->left_sidebar = mb_window_left_sidebar_new();
+	self->notebook = mb_notebook_new();
   self->active_page = mb_documents_page_new();
 	self->settings_dialog = mb_settings_dialog_new();
   self->home_button = mb_window_left_sidebar_button_new("./resources/light_home.svg", "Go home");
@@ -75,7 +78,7 @@ static void mb_app_window_init(MbAppWindow *self)
   mb_window_left_sidebar_append_button(_left_sidebar, _home_button);
   mb_window_left_sidebar_append_button(_left_sidebar, _settings_button);
   gtk_box_append(_horizontal_box, self->left_sidebar);
-  gtk_box_append(_horizontal_box, self->active_page);
+  gtk_box_append(_horizontal_box, self->notebook);
   gtk_widget_set_hexpand(self->active_page, TRUE);
   gtk_window_set_child(window, self->horizontal_box);
   /* CONNECT TO SIGNALS */
