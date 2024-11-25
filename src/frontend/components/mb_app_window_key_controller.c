@@ -4,11 +4,16 @@
 static gboolean
 key_pressed(GtkEventControllerKey* self, guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
 {
+	MbAppWindow *app_window = MB_APP_WINDOW(user_data);
 	gboolean ctrl_o_pressed = (state & GDK_CONTROL_MASK) && keyval == GDK_KEY_o;
+	static GtkWidget *block_search;
 
 	if(ctrl_o_pressed)
 	{
-		GtkWidget *block_search = mb_block_search_open();
+		if(block_search == NULL)
+		{
+			block_search = mb_block_search_open();
+		}
 		return TRUE;
 	}
 	return FALSE;
