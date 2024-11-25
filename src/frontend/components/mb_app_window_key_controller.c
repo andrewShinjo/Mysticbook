@@ -6,7 +6,7 @@ key_pressed(GtkEventControllerKey* self, guint keyval, guint keycode, GdkModifie
 	return TRUE;
 }
 
-GtkEventController *mb_app_window_key_new()
+GtkEventController* mb_app_window_key_new(MbAppWindow *app_window)
 {
 	GtkEventController *key = gtk_event_controller_key_new();
 	return key;
