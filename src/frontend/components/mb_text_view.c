@@ -26,42 +26,10 @@ static void mb_text_view_finalize(GObject *object);
 
 static void insert_text(GtkTextBuffer *tb, const GtkTextIter* location, gchar* text, gint len, gpointer user_data)
 {
-  MbTextView *_self = MB_TEXT_VIEW(user_data);
-  if(_self->popover_open)
-  {
-    g_print("Searching.\n");
-    GArray *blocks = block_service_get_10_best_matching_blocks("Untitled");
-    for(guint i = 0; i < blocks->len; i++)
-    {
-      BlockFts5 b = g_array_index(blocks, BlockFts5, i);
-      g_print("mb_text_view:insert_text: ID: %ld, Content: %s\n", b.id, b.content);
-    }
-    g_free(blocks);
-  }
-  else if(!_self->popover_open)
-  {
-    if(g_strcmp0(text, "[") == 0)
-    {
-      GtkTextIter previous_iter = *location;
-      gtk_text_iter_backward_char(&previous_iter);
-      if(gtk_text_iter_equal(&previous_iter, location))
-      {
-        return;
-      }
-      if(gtk_text_iter_get_char(&previous_iter) == '[')
-      {
-        GtkPopover *_popover = GTK_POPOVER(_self->popover);
-        GtkTextView *_text_view = GTK_TEXT_VIEW(_self->text_view);
-        GdkRectangle iter_location;
-        gtk_text_view_get_iter_location(_text_view, location, &iter_location);
-        gtk_popover_set_pointing_to(_popover, &iter_location);
-        gtk_popover_popup(_popover);
-        _self->popover_open = TRUE;
-      }
-    }
-  }
+
 }
-static gboolean key_pressed(GtkEventControllerKey *key, guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
+static gboolean 
+key_pressed(GtkEventControllerKey *key, guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
 {
   MbTextView *_self = MB_TEXT_VIEW(user_data);
   if(_self->is_root)

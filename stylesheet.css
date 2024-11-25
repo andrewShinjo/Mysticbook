@@ -9,7 +9,7 @@ textview
   font-size: 20px;
 }
 
-#main-text-view
+#root-text-view
 {
   font-size: 64px;
 }
