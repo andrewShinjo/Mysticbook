@@ -77,7 +77,8 @@ static void mb_document_list_row_get_property(GObject *object, guint property_id
 		}
 	}	
 }
-static void mb_document_list_row_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
+static void 
+mb_document_list_row_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
 {
 	MbDocumentListRow *self = MB_DOCUMENT_LIST_ROW(object);
 	switch(property_id)
