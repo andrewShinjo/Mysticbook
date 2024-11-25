@@ -20,6 +20,7 @@ struct _MbAppWindow
   GtkWidget *home_button;
   GtkWidget *settings_button;
   /* EVENT LISTENERS */
+	GtkEventController *key;
   /* PROPERTIES */
 };
 G_DEFINE_TYPE(MbAppWindow, mb_app_window, GTK_TYPE_APPLICATION_WINDOW)
