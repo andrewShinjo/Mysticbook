@@ -23,8 +23,8 @@ static void activate(GtkApplication *application, gpointer user_data)
   gtk_style_context_add_provider_for_display(default_display, style_provider, GTK_STYLE_PROVIDER_PRIORITY_USER);
 
   GtkWindow *window = GTK_WINDOW(mb_app_window);
+	gtk_window_set_default_size(window, 1920 / 2, 1080 / 2);
   gtk_window_set_title(window, WINDOW_TITLE);
-  gtk_window_maximize(window);
   gtk_window_present(window);
 }
 

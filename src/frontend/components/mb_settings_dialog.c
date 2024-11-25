@@ -18,4 +18,8 @@ static void mb_settings_dialog_class_init(MbSettingsDialogClass *klass) {}
 static void mb_settings_dialog_dispose(GObject *object) {}
 static void mb_settings_dialog_finalize(GObject *object) {}
 /* Public implementation */
+GtkWidget* mb_settings_dialog_new()
+{
+	return g_object_new(MB_TYPE_SETTINGS_DIALOG, NULL);
+}
 /* Private implementation */
