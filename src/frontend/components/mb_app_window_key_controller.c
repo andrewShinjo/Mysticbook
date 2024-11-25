@@ -1,4 +1,5 @@
 #include "./mb_app_window_key_controller.h"
+#include "./mb_block_search.h"
 
 static gboolean
 key_pressed(GtkEventControllerKey* self, guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
@@ -7,7 +8,7 @@ key_pressed(GtkEventControllerKey* self, guint keyval, guint keycode, GdkModifie
 
 	if(ctrl_o_pressed)
 	{
-		g_print("Ctrl+o pressed.\n");
+		GtkWidget *block_search = mb_block_search_open();
 		return TRUE;
 	}
 	return FALSE;

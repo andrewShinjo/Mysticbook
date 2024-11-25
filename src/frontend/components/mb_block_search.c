@@ -1,6 +1,6 @@
 #include "./mb_block_search.h"
 
-GtkWidget* mb_file_search_open()
+GtkWidget* mb_block_search_open()
 {
 	static GtkWidget *window = NULL;
 	GtkWidget *vbox;
