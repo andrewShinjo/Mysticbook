@@ -15,10 +15,10 @@ G_DEFINE_TYPE(MbSettingsDialog, mb_settings_dialog, GTK_TYPE_WINDOW)
 /* Widget lifecycle */
 static void mb_settings_dialog_init(MbSettingsDialog *_self) 
 {
-
+	/* Instantiate widgets */
+	/* Configure widgets */
+	/* Connect to signals */
 }
 static void mb_settings_dialog_class_init(MbSettingsDialogClass *klass) {}
-static void mb_settings_dialog_dispose(GObject *object) {}
-static void mb_settings_dialog_finalize(GObject *object) {}
 /* Public implementation */
 /* Private implementation */
