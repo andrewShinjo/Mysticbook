@@ -17,8 +17,13 @@ static void mb_settings_dialog_init(MbSettingsDialog *_self)
 {
 	/* Instantiate widgets */
 	/* Configure widgets */
+	gtk_window_set_title(GTK_WINDOW(_self), "Settings");
 	/* Connect to signals */
 }
 static void mb_settings_dialog_class_init(MbSettingsDialogClass *klass) {}
 /* Public implementation */
+GtkWidget* mb_settings_dialog_new()
+{
+	return g_object_new(MB_TYPE_SETTINGS_DIALOG, NULL);
+}
 /* Private implementation */

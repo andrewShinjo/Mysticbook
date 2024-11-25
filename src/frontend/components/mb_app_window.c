@@ -1,4 +1,5 @@
 #include "./mb_app_window.h"
+#include "./mb_settings_dialog.h"
 #include "./mb_window_left_sidebar.h"
 #include "./mb_window_left_sidebar_button.h"
 #include "../pages/mb_block_view_page.h"
@@ -11,7 +12,7 @@ struct _MbAppWindow
   /* WIDGETS */
   GtkWidget *left_sidebar;
   GtkWidget *active_page;
-
+	GtkWidget *settings_dialog;
   GtkWidget *horizontal_box;
   /** Left sidebar buttons **/
   GtkWidget *home_button;
@@ -34,6 +35,8 @@ static void home_button_clicked(MbWindowLeftSidebarButton *_button, gpointer use
 }
 static void settings_button_clicked(MbWindowLeftSidebarButton *_button, gpointer user_data)
 {
+	MbAppWindow *self = MB_APP_WINDOW(user_data);
+	gtk_window_present(GTK_WINDOW(self->settings_dialog));
   g_print("Settings button clicked.\n");
 }
 static void open_document_cb(MbDocumentsPage *documents_page, gpointer user_data)
@@ -56,10 +59,15 @@ static void mb_app_window_init(MbAppWindow *self)
   /* INSTANTIATE WIDGETS */
   self->left_sidebar = mb_window_left_sidebar_new();
   self->active_page = mb_documents_page_new();
+	self->settings_dialog = mb_settings_dialog_new();
   self->home_button = mb_window_left_sidebar_button_new("./resources/light_home.svg", "Go home");
-  self->settings_button = mb_window_left_sidebar_button_new("./resources/SETTINGS_ICON_LIGHT_MODE.svg", "Settings");
+  self->settings_button = mb_window_left_sidebar_button_new("./resources/settings.svg", "Settings");
   self->horizontal_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
   /* CONFIGURE WIDGETS */
+
+	/** Settings dialog **/
+	gtk_window_set_hide_on_close(GTK_WINDOW(self->settings_dialog), TRUE);
+
   GtkBox *_horizontal_box = GTK_BOX(self->horizontal_box);
   MbWindowLeftSidebar *_left_sidebar = MB_WINDOW_LEFT_SIDEBAR(self->left_sidebar);
   MbWindowLeftSidebarButton *_home_button = MB_WINDOW_LEFT_SIDEBAR_BUTTON(self->home_button);
