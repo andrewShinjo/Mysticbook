@@ -6,4 +6,7 @@ G_DECLARE_FINAL_TYPE(MbAppWindow, mb_app_window, MB, APP_WINDOW, GtkApplicationW
 void mb_app_window_change_page(MbAppWindow *_self, GtkWidget *page);
 GtkWidget* mb_app_window_new(GtkApplication *application);
 void mb_app_window_open_block(MbAppWindow *_self, gint64 id);
+
+int mb_app_window_append_page_to_notebook(MbAppWindow *self, GtkWidget *page);
+
 G_END_DECLS

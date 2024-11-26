@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS blocks(
 	content           TEXT
 );
 
-CREATE VIRTUAL TABLE IF NOT EXISTS blocks_fts5 using fts5(id, content);
+CREATE VIRTUAL TABLE IF NOT EXISTS blocks_fts5 using fts5(id, content, tokenize=trigram);
 
 -- Create triggers.
 

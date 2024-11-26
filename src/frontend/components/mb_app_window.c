@@ -3,7 +3,7 @@
 #include "./mb_settings_dialog.h"
 #include "./mb_window_left_sidebar.h"
 #include "./mb_window_left_sidebar_button.h"
-#include "../mb_notebook.h"
+#include "./mb_notebook.h"
 #include "../pages/mb_block_view_page.h"
 #include "../pages/mb_documents_page.h"
 #include "../../backend/block.h"
@@ -84,6 +84,9 @@ static void mb_app_window_init(MbAppWindow *self)
   gtk_box_append(_horizontal_box, self->notebook);
   gtk_widget_set_hexpand(self->active_page, TRUE);
   gtk_window_set_child(window, self->horizontal_box);
+
+	gtk_widget_set_hexpand(self->notebook, TRUE);
+	gtk_widget_set_vexpand(self->notebook, TRUE);
   /* CONNECT TO SIGNALS */
   g_signal_connect(self->active_page, "open_doc", G_CALLBACK(open_document_cb), self);
   g_signal_connect(self->home_button, "clicked", G_CALLBACK(home_button_clicked), self);
@@ -93,6 +96,7 @@ static void mb_app_window_class_init(MbAppWindowClass *klass) {}
 /* PUBLIC IMPLEMENTATION */
 void mb_app_window_change_page(MbAppWindow *_self, GtkWidget *page)
 {
+	gtk_widget_unparent(_self->active_page);
   _self->active_page = page;
 }
 GtkWidget* mb_app_window_new(GtkApplication *application)
@@ -106,5 +110,10 @@ void mb_app_window_open_block(MbAppWindow *_self, gint64 id)
   gtk_box_append(GTK_BOX(_self->horizontal_box), _self->active_page);
   gtk_widget_set_hexpand(_self->active_page, TRUE);
   gtk_widget_allocate(_self->active_page, 0, 0, 0, NULL);
+}
+
+int mb_app_window_append_page_to_notebook(MbAppWindow *self, GtkWidget *page)
+{
+	return mb_notebook_append_page(GTK_NOTEBOOK(self->notebook), page);
 }
 /* PRIVATE IMPLEMENTATION */

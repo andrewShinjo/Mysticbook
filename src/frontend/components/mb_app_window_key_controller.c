@@ -1,3 +1,5 @@
+#include "../../backend/service/block_service.h"
+#include "../pages/mb_block_view_page.h"
 #include "./mb_app_window_key_controller.h"
 #include "./mb_block_search.h"
 
@@ -5,10 +7,20 @@ static gboolean
 key_pressed(GtkEventControllerKey* self, guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
 {
 	MbAppWindow *app_window = MB_APP_WINDOW(user_data);
+
+	gboolean ctrl_n_pressed = (state & GDK_CONTROL_MASK) && keyval == GDK_KEY_n;
 	gboolean ctrl_o_pressed = (state & GDK_CONTROL_MASK) && keyval == GDK_KEY_o;
+
 	static GtkWidget *block_search;
 
-	if(ctrl_o_pressed)
+	if(ctrl_n_pressed)
+	{
+		// Create a new document, and open it.
+		gint64 new_id = block_service_create_document("Untitled");
+		GtkWidget *block_view_page = mb_block_view_page_new(new_id);
+		mb_app_window_append_page_to_notebook(app_window, block_view_page);
+	}
+	else if(ctrl_o_pressed)
 	{
 		if(block_search == NULL)
 		{
