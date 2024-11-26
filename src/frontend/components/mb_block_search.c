@@ -1,11 +1,17 @@
 #include "./mb_block_search.h"
 
+static void on_changed(GtkEditable *self, gpointer user_data)
+{
+	g_print("changed\n");
+}
+
 GtkWidget* mb_block_search_open()
 {
 	static GtkWidget *window = NULL;
 	GtkWidget *vbox;
 	GtkWidget *label;
 	GtkWidget *entry;
+	GtkWidget *list_box;
 
 	if(!window)
 	{
@@ -22,8 +28,13 @@ GtkWidget* mb_block_search_open()
 
 		label = gtk_label_new("Search for a block.");
 		entry = gtk_entry_new();
+		list_box = gtk_list_box_new();
+
 		gtk_box_append(GTK_BOX(vbox), label);
 		gtk_box_append(GTK_BOX(vbox), entry);
+		gtk_box_append(GTK_BOX(vbox), list_box);
+
+		g_signal_connect(entry, "changed", G_CALLBACK(on_changed), NULL);
 	}
 
 	if(!gtk_widget_get_visible(window))
