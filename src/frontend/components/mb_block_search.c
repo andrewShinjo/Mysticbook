@@ -4,7 +4,8 @@
 
 void on_pressed(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, gpointer user_data)
 {
-	g_print("Pressed\n");
+	BlockFts5* b = (BlockFts5*) user_data;
+	g_print("Pressed: b.content=%s\n", b->content);
 }
 
 static void on_changed(GtkEditable *self, gpointer user_data)
@@ -21,7 +22,7 @@ static void on_changed(GtkEditable *self, gpointer user_data)
 		GtkWidget *label = gtk_label_new(b.content);
 		GtkGesture *click = gtk_gesture_click_new();
 		gtk_widget_add_controller(label, GTK_EVENT_CONTROLLER(click));
-		g_signal_connect(click, "pressed", G_CALLBACK(on_pressed), NULL);
+		g_signal_connect(click, "pressed", G_CALLBACK(on_pressed), &b);
 		gtk_list_box_append(list_box, label);
 	}
 }

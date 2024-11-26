@@ -53,7 +53,8 @@ enum property_types
 	N_PROPERTIES
 };
 static GParamSpec *properties[N_PROPERTIES];
-static void mb_document_list_row_get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
+static void 
+mb_document_list_row_get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
 {
 	MbDocumentListRow *_self = MB_DOCUMENT_LIST_ROW(object);
 	switch(property_id)
@@ -87,10 +88,7 @@ mb_document_list_row_set_property(GObject *object, guint property_id, const GVal
 		{
 			g_free(self->content);
 			self->content = g_value_dup_string(value);
-			gtk_label_set_text(
-        GTK_LABEL(self->content_label), 
-        self->content
-      );
+			gtk_label_set_text(GTK_LABEL(self->content_label), self->content);
 			break;
 		}
     case PROP_ID:
