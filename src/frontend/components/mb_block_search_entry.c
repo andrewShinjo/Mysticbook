@@ -81,7 +81,9 @@ static void set_property(GObject *object, guint property_id, const GValue *value
 static void mb_block_search_entry_init(MbBlockSearchEntry *self)
 {
 	/* Instantiate widgets */
+	self->label = gtk_label_new(NULL);
 	/* Configure widgets */
+	gtk_widget_set_parent(self->label, GTK_WIDGET(self));
 	/* Connect to signals */
 }
 
@@ -113,8 +115,8 @@ static void finalize(GObject *object)
 }
 
 /* Public implementation */
-GtkWidget* mb_block_search_entry_new(gint64 id, gchar *content)
+GtkWidget* mb_block_search_entry_new(const gchar *content, gint64 id)
 {
-	return g_object_new(MB_TYPE_BLOCK_SEARCH_ENTRY, "id", id, "content", content, NULL);
+	return g_object_new(MB_TYPE_BLOCK_SEARCH_ENTRY, "content", content, "id", id, NULL);
 }
 /* Private implementation */

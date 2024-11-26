@@ -1,6 +1,7 @@
 #include "../../backend/service/block_service.h"
 #include "../../backend/block.h"
 #include "./mb_block_search.h"
+#include "./mb_block_search_entry.h"
 
 void on_pressed(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, gpointer user_data)
 {
@@ -19,12 +20,10 @@ static void on_changed(GtkEditable *self, gpointer user_data)
 	for(int i=0; i < matching_blocks->len; i++)
 	{
 		BlockFts5 b = g_array_index(matching_blocks, BlockFts5, i);
-		GtkWidget *label = gtk_label_new(b.content);
-		GtkGesture *click = gtk_gesture_click_new();
-		gtk_widget_add_controller(label, GTK_EVENT_CONTROLLER(click));
-		g_signal_connect(click, "pressed", G_CALLBACK(on_pressed), &b);
-		gtk_list_box_append(list_box, label);
+		GtkWidget *block_search_entry = mb_block_search_entry_new(b.content, b.id);
+		gtk_list_box_append(list_box, block_search_entry);
 	}
+	g_free(matching_blocks);
 }
 
 GtkWidget* mb_block_search_open()
