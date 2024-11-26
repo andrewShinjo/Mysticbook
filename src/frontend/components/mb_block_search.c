@@ -2,6 +2,11 @@
 #include "../../backend/block.h"
 #include "./mb_block_search.h"
 
+static void create_block_search_entry(BlockFts5 block)
+{
+
+}
+
 static void on_changed(GtkEditable *self, gpointer user_data)
 {
 	GtkListBox *list_box = GTK_LIST_BOX(user_data);

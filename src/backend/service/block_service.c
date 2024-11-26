@@ -3,33 +3,6 @@
 
 gint64 block_service_append_sibling(gint64 id)
 {
-  /**
-   * Algorithm:
-   *
-   * 1. Get the position of the input block.
-   * 2. If the input block already has a sibling following it, then get the position of the sibling block. 
-   *    2.1 Create a new block, and set it's position as the midpoint between the input block and the sibling block.
-   * 3. If the input block doesn't have a sibling following it, then create a new sibling block that's positioned 10.0
-   *    units away from the input block.
-   * 
-   * Justification of correctness:
-   *
-   * Each block has a list of children blocks, and the order of each child is maintained by the position field.
-   * Hence, if block 1's position value is less than block 2's position value, then block 1 comes before block 2 in the list.
-   * 
-   * If the input block already has a sibling, then by setting the new block's position as the midpoint between the input block
-   * and the sibling block, then the new block is positioned in between them, resulting in the new block becoming the input 
-   * block's new sibling.
-   *
-   * If the input block has no sibling following it, then by setting the new block's position value to be 10.0 units away from
-   * the input block, it is positioned immediately after the input block.
-   *
-   * Known issues:
-   *
-   * When getting the midpoint of the positions of two blocks, may need to identify imprecision of working with small numbers
-   * and handle them.
-   */
-
   g_print("block_service_append_sibling:\n");
   
   gint64 parent_id = block_repository_find_parent_id_by_id(id);
