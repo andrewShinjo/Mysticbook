@@ -2,9 +2,9 @@
 #include "../../backend/block.h"
 #include "./mb_block_search.h"
 
-static void create_block_search_entry(BlockFts5 block)
+void on_pressed(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, gpointer user_data)
 {
-
+	g_print("Pressed\n");
 }
 
 static void on_changed(GtkEditable *self, gpointer user_data)
@@ -19,6 +19,9 @@ static void on_changed(GtkEditable *self, gpointer user_data)
 	{
 		BlockFts5 b = g_array_index(matching_blocks, BlockFts5, i);
 		GtkWidget *label = gtk_label_new(b.content);
+		GtkGesture *click = gtk_gesture_click_new();
+		gtk_widget_add_controller(label, GTK_EVENT_CONTROLLER(click));
+		g_signal_connect(click, "pressed", G_CALLBACK(on_pressed), NULL);
 		gtk_list_box_append(list_box, label);
 	}
 }
