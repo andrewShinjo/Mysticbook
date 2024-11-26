@@ -3,6 +3,39 @@
 #include "./mb_block_search.h"
 #include "./mb_block_search_entry.h"
 
+/* Widget definition */
+struct _MbBlockSearch
+{
+	GtkWidget parent;
+	/* Widgets */
+	/* Event listeners */
+	/* Properties */
+};
+G_DEFINE_TYPE(MbBlockSearch, mb_block_search, GTK_TYPE_WIDGET)
+/* Forward declaration */
+static void dispose(GObject *object);
+static void finalize(GObject *object);
+/* Callback */
+/* Properties */
+/* Signals */
+/* Widget lifecycle */
+static void mb_block_search_init(MbBlockSearch *self)
+{
+
+}
+static void mb_block_search_class_init(MbBlockSearchClass *klass)
+{
+
+}
+static void dispose(GObject *object) {}
+static void finalize(GObject *object) {}
+/* Public implementation */
+GtkWidget* mb_block_search_new()
+{
+
+}
+/* Refactor these. */
+
 static void on_changed(GtkEditable *self, gpointer user_data)
 {
 	GtkListBox *list_box = GTK_LIST_BOX(user_data);
@@ -20,7 +53,7 @@ static void on_changed(GtkEditable *self, gpointer user_data)
 	g_free(matching_blocks);
 }
 
-GtkWidget* mb_block_search_open()
+GtkWidget* mb_block_search_open(MbAppWindow *app_window)
 {
 	static GtkWidget *window = NULL;
 	GtkWidget *vbox;

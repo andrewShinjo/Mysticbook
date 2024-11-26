@@ -5,6 +5,7 @@ struct _MbBlockSearchEntry
 {
 	GtkWidget parent;
 	/* Widgets */
+	GtkWidget *app_window;
 	GtkWidget *label;
 	/* Event listeners */
 	GtkGesture *click;
@@ -21,7 +22,9 @@ static void finalize(GObject *object);
 /* Callback */
 static void on_pressed(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, gpointer user_data)
 {
-	g_print("pressed.\n");
+	MbBlockSearchEntry *entry = MB_BLOCK_SEARCH_ENTRY(user_data);
+	gchar *content = entry->content;
+	gint64 id = entry->id;
 }
 /* Properties */
 enum property_types
@@ -92,7 +95,7 @@ static void mb_block_search_entry_init(MbBlockSearchEntry *self)
 	gtk_widget_add_controller(self->label, GTK_EVENT_CONTROLLER(self->click));
 	gtk_widget_set_parent(self->label, GTK_WIDGET(self));
 	/* Connect to signals */
-	g_signal_connect(self->click, "pressed", G_CALLBACK(on_pressed), NULL);
+	g_signal_connect(self->click, "pressed", G_CALLBACK(on_pressed), self);
 }
 
 static void mb_block_search_entry_class_init(MbBlockSearchEntryClass *klass)
@@ -122,7 +125,7 @@ static void finalize(GObject *object)
 	G_OBJECT_CLASS(mb_block_search_entry_parent_class)->finalize(object);
 }
 /* Public implementation */
-GtkWidget* mb_block_search_entry_new(const gchar *content, gint64 id)
+GtkWidget* mb_block_search_entry_new(const gchar *content, gint64 id, MbAppWindow *app_window)
 {
 	return g_object_new(MB_TYPE_BLOCK_SEARCH_ENTRY, "content", content, "id", id, NULL);
 }

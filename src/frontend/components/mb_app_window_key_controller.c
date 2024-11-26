@@ -24,7 +24,7 @@ key_pressed(GtkEventControllerKey* self, guint keyval, guint keycode, GdkModifie
 	{
 		if(block_search == NULL)
 		{
-			block_search = mb_block_search_open();
+			block_search = mb_block_search_open(app_window);
 			gtk_window_set_hide_on_close(GTK_WINDOW(block_search), TRUE);
 		}
 		gtk_window_present(GTK_WINDOW(block_search));
