@@ -3,12 +3,6 @@
 #include "./mb_block_search.h"
 #include "./mb_block_search_entry.h"
 
-void on_pressed(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, gpointer user_data)
-{
-	BlockFts5* b = (BlockFts5*) user_data;
-	g_print("Pressed: b.content=%s\n", b->content);
-}
-
 static void on_changed(GtkEditable *self, gpointer user_data)
 {
 	GtkListBox *list_box = GTK_LIST_BOX(user_data);

@@ -7,6 +7,7 @@ struct _MbBlockSearchEntry
 	/* Widgets */
 	GtkWidget *label;
 	/* Event listeners */
+	GtkGesture *click;
 	/* Properties */
 	gchar *content;
 	gint64 id;
@@ -18,6 +19,10 @@ G_DEFINE_TYPE(MbBlockSearchEntry, mb_block_search_entry, GTK_TYPE_WIDGET)
 static void dispose(GObject *object);
 static void finalize(GObject *object);
 /* Callback */
+static void on_pressed(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, gpointer user_data)
+{
+	g_print("pressed.\n");
+}
 /* Properties */
 enum property_types
 {
@@ -82,9 +87,12 @@ static void mb_block_search_entry_init(MbBlockSearchEntry *self)
 {
 	/* Instantiate widgets */
 	self->label = gtk_label_new(NULL);
+	self->click = gtk_gesture_click_new();
 	/* Configure widgets */
+	gtk_widget_add_controller(self->label, GTK_EVENT_CONTROLLER(self->click));
 	gtk_widget_set_parent(self->label, GTK_WIDGET(self));
 	/* Connect to signals */
+	g_signal_connect(self->click, "pressed", G_CALLBACK(on_pressed), NULL);
 }
 
 static void mb_block_search_entry_class_init(MbBlockSearchEntryClass *klass)
@@ -113,7 +121,6 @@ static void finalize(GObject *object)
 {
 	G_OBJECT_CLASS(mb_block_search_entry_parent_class)->finalize(object);
 }
-
 /* Public implementation */
 GtkWidget* mb_block_search_entry_new(const gchar *content, gint64 id)
 {
