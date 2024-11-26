@@ -107,14 +107,8 @@ gint64 block_repository_find_id_by_parent_id_and_position(gint64 parent_id, gdou
   return id;
 }
 
-GArray* block_repository_find_10_best_matching_blocks(gchar *text)
+GArray* block_repository_find_10_best_matching_blocks(const gchar *text)
 {
-  /*
-   * Algorithm:
-   * 1. Bind parameter to SQL query.
-   * 2. Execute SQL query.
-   * 3. Return list of blocks.
-   */
   const char *sql = 
     "SELECT *, bm25(blocks_fts5) AS RANK "
     "FROM blocks_fts5 "

@@ -111,7 +111,7 @@ gboolean block_service_get_expanded(gint64 id)
   return block_repository_find_expanded(id);
 }
 
-GArray* block_service_get_10_best_matching_blocks(gchar *text)
+GArray* block_service_get_10_best_matching_blocks(const gchar *text)
 {
   return block_repository_find_10_best_matching_blocks(text);
 }

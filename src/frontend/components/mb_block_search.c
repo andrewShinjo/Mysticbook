@@ -1,3 +1,5 @@
+#include "../../backend/service/block_service.h"
+#include "../../backend/block.h"
 #include "./mb_block_search.h"
 
 static void on_changed(GtkEditable *self, gpointer user_data)
@@ -5,10 +7,13 @@ static void on_changed(GtkEditable *self, gpointer user_data)
 	GtkListBox *list_box = GTK_LIST_BOX(user_data);
 	gtk_list_box_remove_all(list_box);
 
-	for(int i=0; i < 10; i++)
+	const char *text = gtk_editable_get_text(self);
+	GArray *matching_blocks = block_service_get_10_best_matching_blocks(text);
+
+	for(int i=0; i < matching_blocks->len; i++)
 	{
-		gchar *entry_text = g_strdup_printf("%s %d", "Entry ", i);
-		GtkWidget *label = gtk_label_new(entry_text);
+		BlockFts5 b = g_array_index(matching_blocks, BlockFts5, i);
+		GtkWidget *label = gtk_label_new(b.content);
 		gtk_list_box_append(list_box, label);
 	}
 }
