@@ -2,7 +2,15 @@
 
 static void on_changed(GtkEditable *self, gpointer user_data)
 {
-	g_print("changed\n");
+	GtkListBox *list_box = GTK_LIST_BOX(user_data);
+	gtk_list_box_remove_all(list_box);
+
+	for(int i=0; i < 10; i++)
+	{
+		gchar *entry_text = g_strdup_printf("%s %d", "Entry ", i);
+		GtkWidget *label = gtk_label_new(entry_text);
+		gtk_list_box_append(list_box, label);
+	}
 }
 
 GtkWidget* mb_block_search_open()
@@ -34,7 +42,7 @@ GtkWidget* mb_block_search_open()
 		gtk_box_append(GTK_BOX(vbox), entry);
 		gtk_box_append(GTK_BOX(vbox), list_box);
 
-		g_signal_connect(entry, "changed", G_CALLBACK(on_changed), NULL);
+		g_signal_connect(entry, "changed", G_CALLBACK(on_changed), list_box);
 	}
 
 	if(!gtk_widget_get_visible(window))
