@@ -22,6 +22,10 @@ G_DEFINE_TYPE(MbBlockSearch, mb_block_search, GTK_TYPE_WINDOW)
 static void dispose(GObject *object);
 static void finalize(GObject *object);
 /* Callback */
+static void on_changed(GtkEditable *self, gpointer user_data)
+{
+	g_print("changed\n");
+}
 /* Properties */
 /* Signals */
 /* Widget lifecycle */
@@ -42,6 +46,7 @@ static void mb_block_search_init(MbBlockSearch *self)
 	gtk_box_append(GTK_BOX(self->vbox), self->entry);
 	gtk_box_append(GTK_BOX(self->vbox), self->list_box);
 	/* Connect to signals */
+	g_signal_connect(self->entry, "changed", G_CALLBACK(on_changed), self);
 }
 static void mb_block_search_class_init(MbBlockSearchClass *klass)
 {
