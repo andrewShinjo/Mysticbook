@@ -1,10 +1,11 @@
+#include "../pages/mb_block_view_page.h"
 #include "./mb_block_search_entry.h"
 
 /* Widget definition */
 struct _MbBlockSearchEntry
 {
 	GtkWidget parent;
-	GtkWidget *app_window;
+	MbAppWindow *app_window;
 	/* Widgets */
 	GtkWidget *label;
 	/* Event listeners */
@@ -22,9 +23,13 @@ static void finalize(GObject *object);
 /* Callback */
 static void on_pressed(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, gpointer user_data)
 {
+	g_print("pressed\n");
 	MbBlockSearchEntry *entry = MB_BLOCK_SEARCH_ENTRY(user_data);
 	gchar *content = entry->content;
 	gint64 id = entry->id;
+
+	GtkWidget *block_view_page = mb_block_view_page_new(id);
+	mb_app_window_append_page_to_notebook(entry->app_window, block_view_page);
 }
 /* Properties */
 enum property_types
@@ -58,7 +63,6 @@ static void get_property(GObject *object, guint property_id, GValue *value, GPar
 		}
 	}
 }
-
 static void set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
 {	
 	MbBlockSearchEntry *self = MB_BLOCK_SEARCH_ENTRY(object);	
@@ -83,7 +87,6 @@ static void set_property(GObject *object, guint property_id, const GValue *value
 		}
 	}
 }
-
 /* Signals */
 /* Widget lifecycle */
 static void mb_block_search_entry_init(MbBlockSearchEntry *self)
@@ -129,6 +132,8 @@ static void finalize(GObject *object)
 /* Public implementation */
 GtkWidget* mb_block_search_entry_new(const gchar *content, gint64 id, MbAppWindow *app_window)
 {
-	return g_object_new(MB_TYPE_BLOCK_SEARCH_ENTRY, "content", content, "id", id, NULL);
+	GtkWidget *self = g_object_new(MB_TYPE_BLOCK_SEARCH_ENTRY, "content", content, "id", id, NULL);
+	MB_BLOCK_SEARCH_ENTRY(self)->app_window = app_window;
+	return self;
 }
 /* Private implementation */
