@@ -1,17 +1,23 @@
 #include "../../backend/service/block_service.h"
 #include "../../backend/block.h"
-#include "./mb_block_search.h"
 #include "./mb_block_search_entry.h"
+#include "./mb_block_search_window.h"
 
 /* Widget definition */
 struct _MbBlockSearch
 {
-	GtkWidget parent;
+	GtkWindow parent;
+	/* Reference */
+	MbAppWindow *app_window;
 	/* Widgets */
+	GtkWidget *vbox;
+	GtkWidget *label;
+	GtkWidget *entry;
+	GtkWidget *list_box;
 	/* Event listeners */
 	/* Properties */
 };
-G_DEFINE_TYPE(MbBlockSearch, mb_block_search, GTK_TYPE_WIDGET)
+G_DEFINE_TYPE(MbBlockSearch, mb_block_search, GTK_TYPE_WINDOW)
 /* Forward declaration */
 static void dispose(GObject *object);
 static void finalize(GObject *object);
@@ -21,7 +27,21 @@ static void finalize(GObject *object);
 /* Widget lifecycle */
 static void mb_block_search_init(MbBlockSearch *self)
 {
-
+	/* Instantiate widgets */
+	self->vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 12);
+	self->label = gtk_label_new("Search for a block.");
+	self->entry = gtk_entry_new();
+	self->list_box = gtk_list_box_new();
+	/* Configure widgets */
+	gtk_widget_set_margin_start(self->vbox, 18);
+	gtk_widget_set_margin_end(self->vbox, 18);
+	gtk_widget_set_margin_top(self->vbox, 18);
+	gtk_widget_set_margin_bottom(self->vbox, 18);
+	gtk_window_set_child(GTK_WINDOW(self), self->vbox);
+	gtk_box_append(GTK_BOX(self->vbox), self->label);
+	gtk_box_append(GTK_BOX(self->vbox), self->entry);
+	gtk_box_append(GTK_BOX(self->vbox), self->list_box);
+	/* Connect to signals */
 }
 static void mb_block_search_class_init(MbBlockSearchClass *klass)
 {
@@ -30,12 +50,15 @@ static void mb_block_search_class_init(MbBlockSearchClass *klass)
 static void dispose(GObject *object) {}
 static void finalize(GObject *object) {}
 /* Public implementation */
-GtkWidget* mb_block_search_new()
+GtkWidget* mb_block_search_window_new(MbAppWindow *app_window)
 {
-
+	GtkWidget *self = g_object_new(MB_TYPE_BLOCK_SEARCH, NULL);	
+	MB_BLOCK_SEARCH(self)->app_window = app_window;
+	return self;
 }
 /* Refactor these. */
 
+/*
 static void on_changed(GtkEditable *self, gpointer user_data)
 {
 	GtkListBox *list_box = GTK_LIST_BOX(user_data);
@@ -52,47 +75,4 @@ static void on_changed(GtkEditable *self, gpointer user_data)
 	}
 	g_free(matching_blocks);
 }
-
-GtkWidget* mb_block_search_open(MbAppWindow *app_window)
-{
-	static GtkWidget *window = NULL;
-	GtkWidget *vbox;
-	GtkWidget *label;
-	GtkWidget *entry;
-	GtkWidget *list_box;
-
-	if(!window)
-	{
-		window = gtk_window_new();
-		gtk_window_set_title(GTK_WINDOW(window), "Search Block");
-		gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
-
-		vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 12);
-		gtk_widget_set_margin_start(vbox, 18);
-		gtk_widget_set_margin_end(vbox, 18);
-		gtk_widget_set_margin_top(vbox, 18);
-		gtk_widget_set_margin_bottom(vbox, 18);
-		gtk_window_set_child(GTK_WINDOW(window), vbox);
-
-		label = gtk_label_new("Search for a block.");
-		entry = gtk_entry_new();
-		list_box = gtk_list_box_new();
-
-		gtk_box_append(GTK_BOX(vbox), label);
-		gtk_box_append(GTK_BOX(vbox), entry);
-		gtk_box_append(GTK_BOX(vbox), list_box);
-
-		g_signal_connect(entry, "changed", G_CALLBACK(on_changed), list_box);
-	}
-
-	if(!gtk_widget_get_visible(window))
-	{
-		gtk_widget_set_visible(window, TRUE);
-	}
-	else
-	{
-		gtk_window_destroy(GTK_WINDOW(window));
-	}
-
-	return window;
-}
+*/

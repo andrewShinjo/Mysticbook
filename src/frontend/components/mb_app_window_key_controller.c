@@ -1,7 +1,7 @@
 #include "../../backend/service/block_service.h"
 #include "../pages/mb_block_view_page.h"
 #include "./mb_app_window_key_controller.h"
-#include "./mb_block_search.h"
+#include "./mb_block_search_window.h"
 
 static gboolean
 key_pressed(GtkEventControllerKey* self, guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
@@ -24,7 +24,7 @@ key_pressed(GtkEventControllerKey* self, guint keyval, guint keycode, GdkModifie
 	{
 		if(block_search == NULL)
 		{
-			block_search = mb_block_search_open(app_window);
+			block_search = mb_block_search_window_new(app_window);
 			gtk_window_set_hide_on_close(GTK_WINDOW(block_search), TRUE);
 		}
 		gtk_window_present(GTK_WINDOW(block_search));
