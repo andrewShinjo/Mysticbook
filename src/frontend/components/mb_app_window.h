@@ -7,6 +7,12 @@ void mb_app_window_change_page(MbAppWindow *_self, GtkWidget *page);
 GtkWidget* mb_app_window_new(GtkApplication *application);
 void mb_app_window_open_block(MbAppWindow *_self, gint64 id);
 
+/* Block search window */
+
+void mb_app_window_open_block_search_window(MbAppWindow *self);
+
+void mb_app_window_close_block_search_window(MbAppWindow *self);
+
 /* Notebook */
 
 int mb_app_window_append_page_to_notebook(MbAppWindow *self, GtkWidget *page);

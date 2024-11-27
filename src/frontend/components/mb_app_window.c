@@ -1,5 +1,6 @@
 #include "./mb_app_window.h"
 #include "./mb_app_window_key_controller.h"
+#include "./mb_block_search_window.h"
 #include "./mb_settings_dialog.h"
 #include "./mb_window_left_sidebar.h"
 #include "./mb_window_left_sidebar_button.h"
@@ -17,6 +18,7 @@ struct _MbAppWindow
   GtkWidget *active_page;
 	GtkWidget *settings_dialog;
   GtkWidget *horizontal_box;
+	GtkWidget *block_search_window;
   /** Left sidebar buttons **/
   GtkWidget *home_button;
   GtkWidget *settings_button;
@@ -112,7 +114,21 @@ void mb_app_window_open_block(MbAppWindow *_self, gint64 id)
   gtk_widget_allocate(_self->active_page, 0, 0, 0, NULL);
 }
 
-/** Interact with notebook **/
+/** Block search window **/
+
+void mb_app_window_open_block_search_window(MbAppWindow *self)
+{
+	self->block_search_window = mb_block_search_window_new(self);
+	gtk_window_present(GTK_WINDOW(self->block_search_window));
+}
+
+void mb_app_window_close_block_search_window(MbAppWindow *self)
+{
+	GtkWindow *window = GTK_WINDOW(self->block_search_window);
+	gtk_window_destroy(window);
+}
+
+/** Notebook **/
 
 int mb_app_window_append_page_to_notebook(MbAppWindow *self, GtkWidget *page)
 {

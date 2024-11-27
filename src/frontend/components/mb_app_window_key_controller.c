@@ -22,13 +22,7 @@ key_pressed(GtkEventControllerKey* self, guint keyval, guint keycode, GdkModifie
 	}
 	else if(ctrl_o_pressed)
 	{
-		if(block_search == NULL)
-		{
-			block_search = mb_block_search_window_new(app_window);
-			gtk_window_set_hide_on_close(GTK_WINDOW(block_search), TRUE);
-		}
-		gtk_window_present(GTK_WINDOW(block_search));
-		return TRUE;
+		mb_app_window_open_block_search_window(app_window);
 	}
 	return FALSE;
 }
