@@ -7,6 +7,10 @@ void mb_app_window_change_page(MbAppWindow *_self, GtkWidget *page);
 GtkWidget* mb_app_window_new(GtkApplication *application);
 void mb_app_window_open_block(MbAppWindow *_self, gint64 id);
 
+/* Notebook */
+
 int mb_app_window_append_page_to_notebook(MbAppWindow *self, GtkWidget *page);
+
+void mb_app_window_replace_notebook_current_page(MbAppWindow *self, GtkWidget *page);
 
 G_END_DECLS

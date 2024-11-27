@@ -23,13 +23,9 @@ static void finalize(GObject *object);
 /* Callback */
 static void on_pressed(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, gpointer user_data)
 {
-	g_print("pressed\n");
 	MbBlockSearchEntry *entry = MB_BLOCK_SEARCH_ENTRY(user_data);
-	gchar *content = entry->content;
-	gint64 id = entry->id;
-
-	GtkWidget *block_view_page = mb_block_view_page_new(id);
-	mb_app_window_append_page_to_notebook(entry->app_window, block_view_page);
+	GtkWidget *block_view_page = mb_block_view_page_new(entry->id);
+	mb_app_window_replace_notebook_current_page(entry->app_window, block_view_page);
 }
 /* Properties */
 enum property_types

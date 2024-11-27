@@ -112,8 +112,17 @@ void mb_app_window_open_block(MbAppWindow *_self, gint64 id)
   gtk_widget_allocate(_self->active_page, 0, 0, 0, NULL);
 }
 
+/** Interact with notebook **/
+
 int mb_app_window_append_page_to_notebook(MbAppWindow *self, GtkWidget *page)
 {
 	return mb_notebook_append_page(GTK_NOTEBOOK(self->notebook), page);
 }
+
+void mb_app_window_replace_notebook_current_page(MbAppWindow *self, GtkWidget *page)
+{
+	GtkNotebook *notebook = GTK_NOTEBOOK(self->notebook);
+	mb_notebook_replace_page_content(notebook, page);
+}
+
 /* PRIVATE IMPLEMENTATION */
