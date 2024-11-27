@@ -4,7 +4,7 @@
 #include "./mb_block_search_window.h"
 
 /* Widget definition */
-struct _MbBlockSearch
+struct _MbBlockSearchWindow
 {
 	GtkWindow parent;
 	/* Reference */
@@ -17,19 +17,33 @@ struct _MbBlockSearch
 	/* Event listeners */
 	/* Properties */
 };
-G_DEFINE_TYPE(MbBlockSearch, mb_block_search, GTK_TYPE_WINDOW)
+G_DEFINE_TYPE(MbBlockSearchWindow, mb_block_search_window, GTK_TYPE_WINDOW)
 /* Forward declaration */
 static void dispose(GObject *object);
 static void finalize(GObject *object);
 /* Callback */
 static void on_changed(GtkEditable *self, gpointer user_data)
 {
-	g_print("changed\n");
+	MbBlockSearchWindow *block_search_window = MB_BLOCK_SEARCH_WINDOW(user_data);
+	GtkListBox *list_box = GTK_LIST_BOX(block_search_window->list_box);
+	
+	gtk_list_box_remove_all(list_box);
+
+	const char *text = gtk_editable_get_text(self);
+	GArray *blocks = block_service_get_10_best_matching_blocks(text);
+
+	for(int i=0; i < blocks->len; i++)
+	{
+		BlockFts5 b = g_array_index(blocks, BlockFts5, i);
+		GtkWidget *block_search_entry = mb_block_search_entry_new(b.content, b.id, block_search_window->app_window);
+		gtk_list_box_append(list_box, block_search_entry);
+	}
+	g_free(blocks);
 }
 /* Properties */
 /* Signals */
 /* Widget lifecycle */
-static void mb_block_search_init(MbBlockSearch *self)
+static void mb_block_search_window_init(MbBlockSearchWindow *self)
 {
 	/* Instantiate widgets */
 	self->vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 12);
@@ -48,7 +62,7 @@ static void mb_block_search_init(MbBlockSearch *self)
 	/* Connect to signals */
 	g_signal_connect(self->entry, "changed", G_CALLBACK(on_changed), self);
 }
-static void mb_block_search_class_init(MbBlockSearchClass *klass)
+static void mb_block_search_window_class_init(MbBlockSearchWindowClass *klass)
 {
 
 }
@@ -57,8 +71,8 @@ static void finalize(GObject *object) {}
 /* Public implementation */
 GtkWidget* mb_block_search_window_new(MbAppWindow *app_window)
 {
-	GtkWidget *self = g_object_new(MB_TYPE_BLOCK_SEARCH, NULL);	
-	MB_BLOCK_SEARCH(self)->app_window = app_window;
+	GtkWidget *self = g_object_new(MB_TYPE_BLOCK_SEARCH_WINDOW, NULL);	
+	MB_BLOCK_SEARCH_WINDOW(self)->app_window = app_window;
 	return self;
 }
 /* Refactor these. */

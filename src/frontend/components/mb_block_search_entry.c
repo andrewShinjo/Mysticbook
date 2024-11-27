@@ -4,8 +4,8 @@
 struct _MbBlockSearchEntry
 {
 	GtkWidget parent;
-	/* Widgets */
 	GtkWidget *app_window;
+	/* Widgets */
 	GtkWidget *label;
 	/* Event listeners */
 	GtkGesture *click;
@@ -117,6 +117,8 @@ static void mb_block_search_entry_class_init(MbBlockSearchEntryClass *klass)
 
 static void dispose(GObject *object)
 {
+	MbBlockSearchEntry *self = MB_BLOCK_SEARCH_ENTRY(object);
+	g_clear_pointer(&self->label, gtk_widget_unparent);
 	G_OBJECT_CLASS(mb_block_search_entry_parent_class)->dispose(object);
 }
 
