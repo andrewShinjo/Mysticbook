@@ -23,9 +23,20 @@ static void finalize(GObject *object);
 /* Callback */
 static void on_pressed(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, gpointer user_data)
 {
-	g_print("mb_block_search_entry: pressed\n");
 	MbBlockSearchEntry *entry = MB_BLOCK_SEARCH_ENTRY(user_data);
 	GtkWidget *block_view_page = mb_block_view_page_new(entry->id);
+
+	GdkEvent *event = gtk_gesture_get_last_event(GTK_GESTURE(self), NULL);
+
+	if(event)
+	{
+		GdkModifierType state = gdk_event_get_modifier_state(event);
+		if(state & GDK_SHIFT_MASK)
+		{
+			g_print("Shift pressed.\n");
+		}
+	}
+
 	mb_app_window_replace_notebook_current_page(entry->app_window, block_view_page);
 	mb_app_window_close_block_search_window(entry->app_window);
 }
