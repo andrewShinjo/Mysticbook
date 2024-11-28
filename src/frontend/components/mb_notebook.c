@@ -7,8 +7,13 @@ GtkWidget* mb_notebook_new()
 
 int mb_notebook_append_page(GtkNotebook *notebook, GtkWidget *page)
 {
+	GtkWidget *hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
 	GtkWidget *label = gtk_label_new("Tab");
-	return gtk_notebook_append_page(notebook, page, label);
+	GtkWidget *button = gtk_button_new_with_label("X");
+	gtk_box_append(GTK_BOX(hbox), label);
+	gtk_box_append(GTK_BOX(hbox), button);
+	gtk_widget_set_hexpand(label, TRUE);
+	return gtk_notebook_append_page(notebook, page, hbox);
 }
 
 void mb_notebook_replace_page_content(GtkNotebook *notebook, GtkWidget *page)
