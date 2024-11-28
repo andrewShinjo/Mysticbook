@@ -135,6 +135,12 @@ int mb_app_window_append_page_to_notebook(MbAppWindow *self, GtkWidget *page)
 	return mb_notebook_append_page(GTK_NOTEBOOK(self->notebook), page);
 }
 
+void mb_app_window_notebook_set_current_page(MbAppWindow *self, int page_number)
+{
+	GtkNotebook *notebook = GTK_NOTEBOOK(self->notebook);
+	mb_notebook_set_current_page(notebook, page_number);
+}
+
 void mb_app_window_replace_notebook_current_page(MbAppWindow *self, GtkWidget *page)
 {
 	GtkNotebook *notebook = GTK_NOTEBOOK(self->notebook);

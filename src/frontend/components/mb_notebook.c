@@ -18,3 +18,8 @@ void mb_notebook_replace_page_content(GtkNotebook *notebook, GtkWidget *page)
 	GtkWidget *label = gtk_label_new("Tab");
 	gtk_notebook_insert_page(notebook, page, label, current_page_number);
 }
+
+void mb_notebook_set_current_page(GtkNotebook *notebook, int page_number)
+{
+	gtk_notebook_set_current_page(notebook, page_number);
+}

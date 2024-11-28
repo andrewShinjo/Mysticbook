@@ -27,17 +27,17 @@ static void on_pressed(GtkGestureClick* self, gint n_press, gdouble x, gdouble y
 	GtkWidget *block_view_page = mb_block_view_page_new(entry->id);
 
 	GdkEvent *event = gtk_gesture_get_last_event(GTK_GESTURE(self), NULL);
+	gboolean shift_pressed = event && gdk_event_get_modifier_state(event) && GDK_SHIFT_MASK;
 
-	if(event)
+	if(shift_pressed)
 	{
-		GdkModifierType state = gdk_event_get_modifier_state(event);
-		if(state & GDK_SHIFT_MASK)
-		{
-			g_print("Shift pressed.\n");
-		}
+		int new_page_number = mb_app_window_append_page_to_notebook(entry->app_window, block_view_page);
+		mb_app_window_notebook_set_current_page(entry->app_window, new_page_number);
 	}
-
-	mb_app_window_replace_notebook_current_page(entry->app_window, block_view_page);
+	else
+	{
+		mb_app_window_replace_notebook_current_page(entry->app_window, block_view_page);
+	}
 	mb_app_window_close_block_search_window(entry->app_window);
 }
 /* Properties */

@@ -17,6 +17,8 @@ void mb_app_window_close_block_search_window(MbAppWindow *self);
 
 int mb_app_window_append_page_to_notebook(MbAppWindow *self, GtkWidget *page);
 
+void mb_app_window_notebook_set_current_page(MbAppWindow *self, int page_number);
+
 void mb_app_window_replace_notebook_current_page(MbAppWindow *self, GtkWidget *page);
 
 G_END_DECLS
