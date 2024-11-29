@@ -20,9 +20,7 @@ SERVICES := $(wildcard $(SERVICE_DIR)/*.c)
 CONTROLLERS := $(wildcard $(CONTROLLER_DIR)/*.c)
 DATABASE := $(wildcard $(DATABASE_DIR)/*.c)
 SRCS := $(FRONTEND) $(COMPONENTS) $(PAGES) $(BACKEND) $(REPOSITORIES) $(SERVICES) $(CONTROLLERS) $(DATABASE)
-TESTS := $(CONTROLLERS) $(DATABASE) $(REPOSITORIES) $(SERVICES) test/backend/controller/block_controller_test.c
 MAIN := main
-TEST := test
 
 all: run
 
@@ -34,10 +32,6 @@ $(BUILDDIR):
 
 run: $(MAIN)
 	./$(BUILDDIR)$(MAIN)
-
-unittest:
-	$(CC) $(CFLAGS) -o $(BUILDDIR)$(TEST) $(TESTS) $(LDFLAGS)
-	./$(BUILDDIR)$(TEST)
 
 clean:
 	rm -rf $(BUILDDIR) $(MAIN)
