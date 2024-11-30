@@ -104,31 +104,41 @@ static void apply_paragraph_tag(GtkTextBuffer *buffer, gint line_number)
 	gtk_text_iter_set_line(&end, line_number);
 	gtk_text_iter_forward_to_line_end(&end);
 
-	int temp = line_number - 1;
-	int heading_level = get_heading_level(buffer, temp);
-	while(temp > 0 && heading_level == 0)
+	if(line_number == 0)
 	{
-		temp--;
-		heading_level = get_heading_level(buffer, temp);
+		return;
 	}
+
+	line_number--;
+	int heading_level = get_heading_level(buffer, line_number);
+	while(line_number > 0 && heading_level == 0)
+	{
+		line_number--;
+		heading_level = get_heading_level(buffer, line_number);
+	}
+	g_print("Below heading %d\n", heading_level);
 	if(heading_level > 0)
 	{
 		GtkTextTag *margin_tag = gtk_text_buffer_create_tag(buffer, NULL, "left-margin", heading_level * 25, NULL);	
 		gtk_text_buffer_apply_tag(buffer, margin_tag, &start, &end);
 	}
-
 }
 
 static void changed(GtkTextBuffer *buffer, gpointer user_data)
 {
 	gint line_number = get_line_number(buffer);
-
 	GtkTextIter iter;
 
-	gtk_text_buffer_get_iter_at_mark(buffer, &iter, gtk_text_buffer_get_insert(buffer));
+	g_print("Line number: %d\n", line_number);
 
-	if(gtk_text_iter_backward_char(&iter) && gtk_text_iter_get_char(&iter) == '\n')
+	gtk_text_buffer_get_iter_at_line(buffer, &iter, line_number);
+	gboolean last_key_newline = gtk_text_iter_backward_char(&iter) && gtk_text_iter_get_char(&iter);
+
+	if(last_key_newline)
 	{
+
+		g_print("Last key newline\n");
+		
 		int heading_level;
 		clear_tags(buffer, line_number - 1);
 		heading_level = get_heading_level(buffer, line_number - 1);
@@ -144,6 +154,9 @@ static void changed(GtkTextBuffer *buffer, gpointer user_data)
 
 	clear_tags(buffer, line_number);
 	gint heading_level = get_heading_level(buffer, line_number);
+
+	g_print("Heading %d\n", heading_level);
+
 	if(heading_level > 0)
 	{
 		apply_heading_tag(buffer, line_number, heading_level);
@@ -161,11 +174,10 @@ static void clear_tags(GtkTextBuffer *buffer, gint line_number)
 	gtk_text_buffer_get_start_iter(buffer, &end);
 	gtk_text_iter_set_line(&start, line_number);
 	gtk_text_iter_set_line(&end, line_number);
-	if(gtk_text_iter_ends_line(&end))
+	if(!gtk_text_iter_ends_line(&end))
 	{
-		return;
+		gtk_text_iter_forward_to_line_end(&end);
 	}
-	gtk_text_iter_forward_to_line_end(&end);
 	gtk_text_buffer_remove_all_tags(buffer, &start, &end);
 }
 
