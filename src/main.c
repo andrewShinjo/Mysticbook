@@ -8,14 +8,6 @@
 static void activate(GtkApplication *application, gpointer user_data)
 {
   GtkWidget *mb_app_window = mb_app_window_new(application);
-  GtkCssProvider *css_provider = gtk_css_provider_new();
-  GFile *css_file = g_file_new_for_path(DEFAULT_STYLESHEET_PATH);
-  gtk_css_provider_load_from_file(css_provider, css_file);
-
-  GdkDisplay *default_display = gdk_display_get_default();
-  GtkStyleProvider *style_provider = GTK_STYLE_PROVIDER(css_provider);
-  gtk_style_context_add_provider_for_display(default_display, style_provider, GTK_STYLE_PROVIDER_PRIORITY_USER);
-
   GtkWindow *window = GTK_WINDOW(mb_app_window);
 	gtk_window_set_default_size(window, 1920 / 2, 1080 / 2);
   gtk_window_set_title(window, WINDOW_TITLE);
