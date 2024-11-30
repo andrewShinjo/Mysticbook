@@ -4,6 +4,8 @@
 
 static void apply_heading_tag(GtkTextBuffer *buffer, gint line_number, gint heading_level);
 
+static void apply_paragraph_tag(GtkTextBuffer *buffer, gint line_number);
+
 static void changed(GtkTextBuffer *buffer, gpointer user_data);
 
 static void clear_tags(GtkTextBuffer *buffer, gint line_number);
@@ -89,13 +91,37 @@ static void apply_heading_tag(GtkTextBuffer *buffer, gint line_number, gint head
 			break;
 		}
 	}
+	GtkTextTag *margin_tag = gtk_text_buffer_create_tag(buffer, NULL, "left-margin", (heading_level - 1) * 5, NULL);
+	gtk_text_buffer_apply_tag(buffer, margin_tag, &start, &end);
+}
+
+static void apply_paragraph_tag(GtkTextBuffer *buffer, gint line_number)
+{
+	GtkTextIter start, end;
+	gtk_text_buffer_get_start_iter(buffer, &start);
+	gtk_text_buffer_get_start_iter(buffer, &end);
+	gtk_text_iter_set_line(&start, line_number);
+	gtk_text_iter_set_line(&end, line_number);
+	gtk_text_iter_forward_to_line_end(&end);
+
+	int temp = line_number - 1;
+	int heading_level = get_heading_level(buffer, temp);
+	while(temp > 0 && heading_level == 0)
+	{
+		temp--;
+		heading_level = get_heading_level(buffer, temp);
+	}
+	if(heading_level > 0)
+	{
+		GtkTextTag *margin_tag = gtk_text_buffer_create_tag(buffer, NULL, "left-margin", heading_level * 25, NULL);	
+		gtk_text_buffer_apply_tag(buffer, margin_tag, &start, &end);
+	}
+
 }
 
 static void changed(GtkTextBuffer *buffer, gpointer user_data)
 {
 	gint line_number = get_line_number(buffer);
-
-	g_print("Line number: %d\n", line_number);
 
 	GtkTextIter iter;
 
@@ -110,12 +136,21 @@ static void changed(GtkTextBuffer *buffer, gpointer user_data)
 		{
 			apply_heading_tag(buffer, line_number - 1, heading_level);
 		}
+		else if(heading_level == 0)
+		{
+			apply_paragraph_tag(buffer, line_number - 1);
+		}
 	}
+
 	clear_tags(buffer, line_number);
 	gint heading_level = get_heading_level(buffer, line_number);
 	if(heading_level > 0)
 	{
 		apply_heading_tag(buffer, line_number, heading_level);
+	}
+	else if(heading_level == 0)
+	{
+		apply_paragraph_tag(buffer, line_number);
 	}
 }
 
