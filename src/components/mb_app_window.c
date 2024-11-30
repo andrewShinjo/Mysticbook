@@ -33,7 +33,11 @@ static void mb_app_window_init(MbAppWindow *self)
 	GtkTextTagTable *tag_table = gtk_text_buffer_get_tag_table(buffer);
 
 	// Initialize tags
-	GtkTextTag *h1_tag = gtk_text_buffer_create_tag(buffer, "h1", "foreground", "blue", "scale", 2.0, NULL);
+	GtkTextTag *h1_tag = gtk_text_buffer_create_tag(buffer, "h1", "foreground", "blue", "scale", 1.5, NULL);
+	GtkTextTag *h2_tag = gtk_text_buffer_create_tag(buffer, "h2", "foreground", "green", "scale", 1.5, NULL);
+	GtkTextTag *h3_tag = gtk_text_buffer_create_tag(buffer, "h3", "foreground", "orange", "scale", 1.5, NULL);
+	GtkTextTag *h4_tag = gtk_text_buffer_create_tag(buffer, "h4", "foreground", "purple", "scale", 1.5, NULL);
+	GtkTextTag *h5_tag = gtk_text_buffer_create_tag(buffer, "h5", "foreground", "red", "scale", 1.5, NULL);
 	gtk_text_tag_table_add(tag_table, h1_tag);
 	g_signal_connect(buffer, "changed", G_CALLBACK(changed), NULL);
 }
@@ -57,7 +61,34 @@ static void apply_heading_tag(GtkTextBuffer *buffer, gint line_number, gint head
 	gtk_text_iter_set_line(&start, line_number);
 	gtk_text_iter_set_line(&end, line_number);
 	gtk_text_iter_forward_to_line_end(&end);
-	gtk_text_buffer_apply_tag_by_name(buffer, "h1", &start, &end);
+	switch(heading_level % 5)
+	{
+		case 0:
+		{
+			gtk_text_buffer_apply_tag_by_name(buffer, "h5", &start, &end);
+			break;
+		}
+		case 1:
+		{
+			gtk_text_buffer_apply_tag_by_name(buffer, "h1", &start, &end);
+			break;
+		}
+		case 2:
+		{
+			gtk_text_buffer_apply_tag_by_name(buffer, "h2", &start, &end);
+			break;
+		}
+		case 3:
+		{
+			gtk_text_buffer_apply_tag_by_name(buffer, "h3", &start, &end);
+			break;
+		}
+		case 4:
+		{
+			gtk_text_buffer_apply_tag_by_name(buffer, "h4", &start, &end);
+			break;
+		}
+	}
 }
 
 static void changed(GtkTextBuffer *buffer, gpointer user_data)
