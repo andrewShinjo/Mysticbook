@@ -14,7 +14,7 @@ static void setup(GtkSignalListItemFactory *factory, GtkListItem *list_item, gpo
 
 /* Public implementation */
 
-GtkWidget* gfile_list_view_new()
+GtkWidget* gfile_list_view_new(MbAppWindow *app_window)
 {
 	GListStore *store = g_list_store_new(G_TYPE_FILE);
 	GtkSelectionModel *selection = GTK_SELECTION_MODEL(gtk_single_selection_new(G_LIST_MODEL(store)));
@@ -25,6 +25,8 @@ GtkWidget* gfile_list_view_new()
 	gtk_single_selection_set_autoselect(GTK_SINGLE_SELECTION(selection), FALSE);
 	populate_store(store);
 
+	g_signal_connect(list_view, "activate", G_CALLBACK(activate), app_window);
+
 	return list_view;
 }
 
@@ -32,7 +34,10 @@ GtkWidget* gfile_list_view_new()
 
 static void activate(GtkListView *self, guint position, gpointer user_data)
 {
-
+	GtkSelectionModel *model = gtk_list_view_get_model(self);
+	GFile *file = g_list_model_get_item(G_LIST_MODEL(model), position);
+	MbAppWindow *app_window = MB_APP_WINDOW(user_data);
+	mb_app_window_open_gfile(app_window, file);
 }
 
 static void bind(GtkSignalListItemFactory *factory, GtkListItem *list_item, gpointer user_data)

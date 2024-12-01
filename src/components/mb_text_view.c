@@ -48,6 +48,13 @@ GtkWidget* mb_text_view_new()
 	return GTK_WIDGET(g_object_new(MB_TYPE_TEXT_VIEW, NULL));
 }
 
+void mb_text_view_set_gfile(MbTextView *self, GFile *file)
+{
+	self->file = file;
+	gchar *basename = g_file_get_basename(self->file);
+	gtk_label_set_text(GTK_LABEL(self->label), basename);
+}
+
 /* Private implementation */
 
 static void apply_heading_tag(GtkTextBuffer *buffer, gint line_number, gint heading_level)
