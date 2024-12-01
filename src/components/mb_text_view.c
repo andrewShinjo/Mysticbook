@@ -29,6 +29,7 @@ struct _MbTextView
 	/* Child widgets */
 	GtkWidget *container;
 	GtkWidget *label;
+	GtkWidget *scrolled_window;
 	GtkWidget *text_view;
 	/* Event listeners */
 	/* Properties */
@@ -266,20 +267,27 @@ static void mb_text_view_init(MbTextView *self)
 	/* Instantiate widgets */
 	self->container = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
 	self->label = gtk_label_new("No File Open");
+	self->scrolled_window = gtk_scrolled_window_new();
 	self->text_view = gtk_text_view_new();
 	
 	/* Configure widgets */
+	GtkScrolledWindow *scrolled_window = GTK_SCROLLED_WINDOW(self->scrolled_window);
+	gtk_scrolled_window_set_child(scrolled_window, self->text_view);
+	gtk_scrolled_window_set_policy(scrolled_window, GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+
 	gtk_text_view_set_left_margin(GTK_TEXT_VIEW(self->text_view), 25);
 	gtk_text_view_set_right_margin(GTK_TEXT_VIEW(self->text_view), 25);
 	gtk_text_view_set_top_margin(GTK_TEXT_VIEW(self->text_view), 25);
 	gtk_text_view_set_bottom_margin(GTK_TEXT_VIEW(self->text_view), 25);
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(self->text_view), FALSE);
 	gtk_text_view_set_monospace(GTK_TEXT_VIEW(self->text_view), TRUE);
-	gtk_widget_set_hexpand(self->text_view, TRUE);
-	gtk_widget_set_vexpand(self->text_view, TRUE);
+	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(self->text_view), GTK_WRAP_WORD);
+
+	gtk_widget_set_hexpand(self->scrolled_window, TRUE);
+	gtk_widget_set_vexpand(self->scrolled_window, TRUE);
 
 	gtk_box_append(GTK_BOX(self->container), self->label);
-	gtk_box_append(GTK_BOX(self->container), self->text_view);
+	gtk_box_append(GTK_BOX(self->container), self->scrolled_window);
 
 	gtk_widget_set_parent(self->container, GTK_WIDGET(self));
 
