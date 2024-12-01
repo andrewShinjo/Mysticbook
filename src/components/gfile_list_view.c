@@ -2,6 +2,8 @@
 
 /* Private declaration */
 
+static void activate(GtkListView *self, guint position, gpointer user_data);
+
 static void bind(GtkSignalListItemFactory *factory, GtkListItem *list_item, gpointer user_data);
 
 static GtkListItemFactory* create_factory();
@@ -22,10 +24,16 @@ GtkWidget* gfile_list_view_new()
 	gtk_list_view_set_show_separators(GTK_LIST_VIEW(list_view), TRUE);
 	gtk_single_selection_set_autoselect(GTK_SINGLE_SELECTION(selection), FALSE);
 	populate_store(store);
+
 	return list_view;
 }
 
 /* Private implementation */
+
+static void activate(GtkListView *self, guint position, gpointer user_data)
+{
+
+}
 
 static void bind(GtkSignalListItemFactory *factory, GtkListItem *list_item, gpointer user_data)
 {
