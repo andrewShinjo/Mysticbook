@@ -1,5 +1,0 @@
-Properties:
-https://gitlab.com/LARathbone/gobject-fun/-/tree/master/youtube-tutorial/2
-
-Signals:
-https://www.youtube.com/watch?v=5sk1Ly0KLTQ&list=PLFnRB0VoVErpBiFZlMg_JAPKdJJobzyV3&index=4
