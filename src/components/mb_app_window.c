@@ -19,6 +19,9 @@ struct _MbAppWindow
 {
   GtkApplicationWindow parent;
   /* WIDGETS */
+
+	GtkWidget *container;
+	GtkWidget *list_box;
 	GtkWidget *text_view;
 };
 G_DEFINE_TYPE(MbAppWindow, mb_app_window, GTK_TYPE_APPLICATION_WINDOW)
@@ -27,20 +30,19 @@ G_DEFINE_TYPE(MbAppWindow, mb_app_window, GTK_TYPE_APPLICATION_WINDOW)
 
 static void mb_app_window_init(MbAppWindow *self)
 {
+	self->container = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+	self->list_box = gtk_list_box_new();
 	self->text_view = gtk_text_view_new();
+	gtk_text_view_set_left_margin(GTK_TEXT_VIEW(self->text_view), 25);
+	gtk_text_view_set_right_margin(GTK_TEXT_VIEW(self->text_view), 25);
+	gtk_text_view_set_top_margin(GTK_TEXT_VIEW(self->text_view), 25);
+	gtk_text_view_set_bottom_margin(GTK_TEXT_VIEW(self->text_view), 25);
 	gtk_text_view_set_monospace(GTK_TEXT_VIEW(self->text_view), TRUE);
 	gtk_window_set_child(GTK_WINDOW(self), self->text_view);
 	
 	GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(self->text_view));
 	GtkTextTagTable *tag_table = gtk_text_buffer_get_tag_table(buffer);
 
-	// Initialize tags
-	GtkTextTag *h1_tag = gtk_text_buffer_create_tag(buffer, "h1", "foreground", "blue", "scale", 1.5, NULL);
-	GtkTextTag *h2_tag = gtk_text_buffer_create_tag(buffer, "h2", "foreground", "green", "scale", 1.5, NULL);
-	GtkTextTag *h3_tag = gtk_text_buffer_create_tag(buffer, "h3", "foreground", "orange", "scale", 1.5, NULL);
-	GtkTextTag *h4_tag = gtk_text_buffer_create_tag(buffer, "h4", "foreground", "purple", "scale", 1.5, NULL);
-	GtkTextTag *h5_tag = gtk_text_buffer_create_tag(buffer, "h5", "foreground", "red", "scale", 1.5, NULL);
-	gtk_text_tag_table_add(tag_table, h1_tag);
 	g_signal_connect(buffer, "changed", G_CALLBACK(changed), NULL);
 }
 
@@ -63,51 +65,24 @@ static void apply_heading_tag(GtkTextBuffer *buffer, gint line_number, gint head
 	gtk_text_iter_set_line(&start, line_number);
 	gtk_text_iter_set_line(&end, line_number);
 	gtk_text_iter_forward_to_line_end(&end);
-	switch(heading_level % 5)
-	{
-		case 0:
-		{
-			gtk_text_buffer_apply_tag_by_name(buffer, "h5", &start, &end);
-			break;
-		}
-		case 1:
-		{
-			gtk_text_buffer_apply_tag_by_name(buffer, "h1", &start, &end);
-			break;
-		}
-		case 2:
-		{
-			gtk_text_buffer_apply_tag_by_name(buffer, "h2", &start, &end);
-			break;
-		}
-		case 3:
-		{
-			gtk_text_buffer_apply_tag_by_name(buffer, "h3", &start, &end);
-			break;
-		}
-		case 4:
-		{
-			gtk_text_buffer_apply_tag_by_name(buffer, "h4", &start, &end);
-			break;
-		}
-	}
-	GtkTextTag *margin_tag = gtk_text_buffer_create_tag(buffer, NULL, "left-margin", (heading_level - 1) * 5, NULL);
-	gtk_text_buffer_apply_tag(buffer, margin_tag, &start, &end);
+	GtkTextTag *heading_tag = gtk_text_buffer_create_tag(buffer, NULL, "font", "Monospace 20", NULL);
+	gtk_text_buffer_apply_tag(buffer, heading_tag, &start, &end);
 }
 
+// Currently not being used.
 static void apply_paragraph_tag(GtkTextBuffer *buffer, gint line_number)
 {
+	if(line_number == 0)
+	{
+		return;
+	}
+
 	GtkTextIter start, end;
 	gtk_text_buffer_get_start_iter(buffer, &start);
 	gtk_text_buffer_get_start_iter(buffer, &end);
 	gtk_text_iter_set_line(&start, line_number);
 	gtk_text_iter_set_line(&end, line_number);
 	gtk_text_iter_forward_to_line_end(&end);
-
-	if(line_number == 0)
-	{
-		return;
-	}
 
 	line_number--;
 	int heading_level = get_heading_level(buffer, line_number);
@@ -116,10 +91,10 @@ static void apply_paragraph_tag(GtkTextBuffer *buffer, gint line_number)
 		line_number--;
 		heading_level = get_heading_level(buffer, line_number);
 	}
-	g_print("Below heading %d\n", heading_level);
 	if(heading_level > 0)
 	{
-		GtkTextTag *margin_tag = gtk_text_buffer_create_tag(buffer, NULL, "left-margin", heading_level * 25, NULL);	
+		GtkTextTag *margin_tag = gtk_text_buffer_create_tag(
+			buffer, NULL, "left-margin", (heading_level + 1) * 19, NULL);	
 		gtk_text_buffer_apply_tag(buffer, margin_tag, &start, &end);
 	}
 }
@@ -129,16 +104,12 @@ static void changed(GtkTextBuffer *buffer, gpointer user_data)
 	gint line_number = get_line_number(buffer);
 	GtkTextIter iter;
 
-	g_print("Line number: %d\n", line_number);
-
 	gtk_text_buffer_get_iter_at_line(buffer, &iter, line_number);
 	gboolean last_key_newline = gtk_text_iter_backward_char(&iter) && gtk_text_iter_get_char(&iter);
 
 	if(last_key_newline)
 	{
 
-		g_print("Last key newline\n");
-		
 		int heading_level;
 		clear_tags(buffer, line_number - 1);
 		heading_level = get_heading_level(buffer, line_number - 1);
@@ -148,14 +119,12 @@ static void changed(GtkTextBuffer *buffer, gpointer user_data)
 		}
 		else if(heading_level == 0)
 		{
-			apply_paragraph_tag(buffer, line_number - 1);
+			//apply_paragraph_tag(buffer, line_number - 1);
 		}
 	}
 
 	clear_tags(buffer, line_number);
 	gint heading_level = get_heading_level(buffer, line_number);
-
-	g_print("Heading %d\n", heading_level);
 
 	if(heading_level > 0)
 	{
@@ -163,7 +132,7 @@ static void changed(GtkTextBuffer *buffer, gpointer user_data)
 	}
 	else if(heading_level == 0)
 	{
-		apply_paragraph_tag(buffer, line_number);
+		//apply_paragraph_tag(buffer, line_number);
 	}
 }
 

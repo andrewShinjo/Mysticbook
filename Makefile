@@ -5,7 +5,7 @@ BUILDDIR := build/
 SRCDIR := src
 COMPONENT_DIR := $(SRCDIR)/components
 COMPONENTS := $(wildcard $(COMPONENT_DIR)/*.c)
-SRCS := $(COMPONENTS) $(SRCDIR)/main.c
+SRCS := $(COMPONENTS) $(wildcard $(SRCDIR)/*.c)
 MAIN := main
 
 all: run
