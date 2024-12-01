@@ -117,6 +117,7 @@ void mb_text_view_set_gfile(MbTextView *self, GFile *file)
 
 static void apply_heading_tag(GtkTextBuffer *buffer, gint line_number, gint heading_level)
 {
+	// Apply heading tag.
 	GtkTextIter start, end;
 	gtk_text_buffer_get_start_iter(buffer, &start);
 	gtk_text_buffer_get_start_iter(buffer, &end);
@@ -125,6 +126,26 @@ static void apply_heading_tag(GtkTextBuffer *buffer, gint line_number, gint head
 	gtk_text_iter_forward_to_line_end(&end);
 	GtkTextTag *heading_tag = gtk_text_buffer_create_tag(buffer, NULL, "font", "Monospace 20", NULL);
 	gtk_text_buffer_apply_tag(buffer, heading_tag, &start, &end);
+
+	// Apply TODO/DONE tag.
+	gtk_text_iter_forward_chars(&start, heading_level + 1);
+	end = start;
+	gtk_text_iter_forward_chars(&end, 5);
+
+	gchar *text = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
+	gboolean is_todo = g_strcmp0(text, "TODO ") == 0;
+	gboolean is_done = g_strcmp0(text, "DONE ") == 0;
+
+	if(is_todo)
+	{
+		GtkTextTag *todo_tag = gtk_text_buffer_create_tag(buffer, NULL, "foreground", "blue", "weight", PANGO_WEIGHT_BOLD, NULL);
+		gtk_text_buffer_apply_tag(buffer, todo_tag, &start, &end);
+	}
+	else if(is_done)
+	{
+		GtkTextTag *done_tag = gtk_text_buffer_create_tag(buffer, NULL, "foreground", "red", "weight", PANGO_WEIGHT_BOLD, NULL);
+		gtk_text_buffer_apply_tag(buffer, done_tag, &start, &end);
+	}
 }
 
 // Currently not being used.
