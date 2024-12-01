@@ -18,6 +18,9 @@ GtkWidget* gfile_list_view_new()
 	GtkSelectionModel *selection = GTK_SELECTION_MODEL(gtk_single_selection_new(G_LIST_MODEL(store)));
 	GtkListItemFactory *factory = create_factory();
 	GtkWidget *list_view = gtk_list_view_new(selection, factory);
+
+	gtk_list_view_set_show_separators(GTK_LIST_VIEW(list_view), TRUE);
+	gtk_single_selection_set_autoselect(GTK_SINGLE_SELECTION(selection), FALSE);
 	populate_store(store);
 	return list_view;
 }
