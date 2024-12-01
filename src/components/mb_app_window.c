@@ -1,5 +1,6 @@
 #include "./gfile_list_view.h"
 #include "./mb_app_window.h"
+#include "./mb_file_browser.h"
 #include "./mb_text_view.h"
 
 /* Private definition */
@@ -13,6 +14,7 @@ struct _MbAppWindow
   GtkApplicationWindow parent;
   /* WIDGETS */
 	GtkWidget *container;
+	GtkWidget *file_browser;
 	GtkWidget *gfile_list_view;
 	GtkWidget *text_view;
 };
@@ -25,10 +27,10 @@ G_DEFINE_TYPE(MbAppWindow, mb_app_window, GTK_TYPE_APPLICATION_WINDOW)
 static void mb_app_window_init(MbAppWindow *self)
 {
 	self->container = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-	self->gfile_list_view = gfile_list_view_new(self);
+	self->file_browser = mb_file_browser_new(self);
 	self->text_view = mb_text_view_new();
 	
-	gtk_box_append(GTK_BOX(self->container), self->gfile_list_view);
+	gtk_box_append(GTK_BOX(self->container), self->file_browser);
 	gtk_box_append(GTK_BOX(self->container), self->text_view);
 
 	gtk_widget_set_hexpand(self->text_view, TRUE);

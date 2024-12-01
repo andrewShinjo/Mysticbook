@@ -4,4 +4,6 @@
 
 /* Public declaration */
 
+void gfile_list_view_insert_gfile(GtkListView *self, GFile *file);
+
 GtkWidget* gfile_list_view_new(MbAppWindow *app_window);

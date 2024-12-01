@@ -14,6 +14,15 @@ static void setup(GtkSignalListItemFactory *factory, GtkListItem *list_item, gpo
 
 /* Public implementation */
 
+void gfile_list_view_insert_gfile(GtkListView *self, GFile *file)
+{
+	GtkSelectionModel *selection_model = gtk_list_view_get_model(self);
+	GtkSingleSelection *single_selection = GTK_SINGLE_SELECTION(selection_model);
+	GListModel *list_model = gtk_single_selection_get_model(single_selection);
+	GListStore *list_store = G_LIST_STORE(list_model);
+	g_list_store_append(list_store, file);
+}
+
 GtkWidget* gfile_list_view_new(MbAppWindow *app_window)
 {
 	GListStore *store = g_list_store_new(G_TYPE_FILE);
