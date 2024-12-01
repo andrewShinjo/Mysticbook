@@ -293,7 +293,7 @@ static void mb_text_view_init(MbTextView *self)
 	gtk_text_view_set_bottom_margin(GTK_TEXT_VIEW(self->text_view), 25);
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(self->text_view), FALSE);
 	gtk_text_view_set_monospace(GTK_TEXT_VIEW(self->text_view), TRUE);
-	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(self->text_view), GTK_WRAP_WORD);
+	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(self->text_view), GTK_WRAP_CHAR);
 
 	gtk_widget_set_hexpand(self->scrolled_window, TRUE);
 	gtk_widget_set_vexpand(self->scrolled_window, TRUE);
