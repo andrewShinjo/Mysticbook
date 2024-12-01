@@ -1,4 +1,6 @@
 #include "./mb_app_window.h"
+#include "./gfile_list_view.h"
+#include "../file_service.h"
 
 /* Private definition */
 
@@ -21,7 +23,7 @@ struct _MbAppWindow
   /* WIDGETS */
 
 	GtkWidget *container;
-	GtkWidget *list_box;
+	GtkWidget *gfile_list_view;
 	GtkWidget *text_view;
 };
 G_DEFINE_TYPE(MbAppWindow, mb_app_window, GTK_TYPE_APPLICATION_WINDOW)
@@ -31,17 +33,23 @@ G_DEFINE_TYPE(MbAppWindow, mb_app_window, GTK_TYPE_APPLICATION_WINDOW)
 static void mb_app_window_init(MbAppWindow *self)
 {
 	self->container = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-	self->list_box = gtk_list_box_new();
+	self->gfile_list_view = gfile_list_view_new();
 	self->text_view = gtk_text_view_new();
 	gtk_text_view_set_left_margin(GTK_TEXT_VIEW(self->text_view), 25);
 	gtk_text_view_set_right_margin(GTK_TEXT_VIEW(self->text_view), 25);
 	gtk_text_view_set_top_margin(GTK_TEXT_VIEW(self->text_view), 25);
 	gtk_text_view_set_bottom_margin(GTK_TEXT_VIEW(self->text_view), 25);
 	gtk_text_view_set_monospace(GTK_TEXT_VIEW(self->text_view), TRUE);
-	gtk_window_set_child(GTK_WINDOW(self), self->text_view);
+	
+	gtk_box_append(GTK_BOX(self->container), self->gfile_list_view);
+	gtk_box_append(GTK_BOX(self->container), self->text_view);
+
+	gtk_widget_set_hexpand(self->text_view, TRUE);
+	gtk_widget_set_vexpand(self->text_view, TRUE);
+
+	gtk_window_set_child(GTK_WINDOW(self), self->container);
 	
 	GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(self->text_view));
-	GtkTextTagTable *tag_table = gtk_text_buffer_get_tag_table(buffer);
 
 	g_signal_connect(buffer, "changed", G_CALLBACK(changed), NULL);
 }

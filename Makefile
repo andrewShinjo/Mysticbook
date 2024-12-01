@@ -4,8 +4,10 @@ LDFLAGS := $(shell pkg-config --libs gtk4)
 BUILDDIR := build/
 SRCDIR := src
 COMPONENT_DIR := $(SRCDIR)/components
+MODEL_DIR := $(SRCDIR)/model
 COMPONENTS := $(wildcard $(COMPONENT_DIR)/*.c)
-SRCS := $(COMPONENTS) $(wildcard $(SRCDIR)/*.c)
+MODELS := $(wildcard $(MODEL_DIR)/*.c)
+SRCS := $(COMPONENTS) $(MODELS) $(wildcard $(SRCDIR)/*.c) 
 MAIN := main
 
 all: run
