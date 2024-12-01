@@ -50,9 +50,43 @@ GtkWidget* mb_text_view_new()
 
 void mb_text_view_set_gfile(MbTextView *self, GFile *file)
 {
+	GFileInputStream *stream;
+	GDataInputStream *data_stream;
+	GError *error = NULL;
+	gchar *contents;
+	gsize length;
+
 	self->file = file;
-	gchar *basename = g_file_get_basename(self->file);
+
+	// Set filename label.
+	gchar *basename = g_file_get_basename(file);
 	gtk_label_set_text(GTK_LABEL(self->label), basename);
+
+	// Read file contents into text buffer.
+	stream = g_file_read(file, NULL, &error);
+
+	if(error != NULL)
+	{
+		g_printerr("Error opening file: %s\n", error->message);
+		g_error_free(error);
+		exit(EXIT_FAILURE);
+	}
+
+	data_stream = g_data_input_stream_new(G_INPUT_STREAM(stream));
+	contents = g_data_input_stream_read_upto(data_stream, "\0", -1, &length, NULL, &error);
+
+	if(error != NULL)
+	{
+		g_printerr("Error reading file: %s\n", error->message);
+		g_error_free(error);
+		exit(EXIT_FAILURE);
+	}
+
+	g_print("File contents:\n%s\n", contents);
+
+	g_free(contents);
+	g_object_unref(data_stream);
+	g_object_unref(stream);
 }
 
 /* Private implementation */
