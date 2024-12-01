@@ -83,6 +83,8 @@ void mb_text_view_set_gfile(MbTextView *self, GFile *file)
 		exit(EXIT_FAILURE);
 	}
 
+	gtk_text_view_set_editable(GTK_TEXT_VIEW(self->text_view), TRUE);
+
 	GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(self->text_view));
 	if(contents == NULL)
 	{
@@ -271,6 +273,7 @@ static void mb_text_view_init(MbTextView *self)
 	gtk_text_view_set_right_margin(GTK_TEXT_VIEW(self->text_view), 25);
 	gtk_text_view_set_top_margin(GTK_TEXT_VIEW(self->text_view), 25);
 	gtk_text_view_set_bottom_margin(GTK_TEXT_VIEW(self->text_view), 25);
+	gtk_text_view_set_editable(GTK_TEXT_VIEW(self->text_view), FALSE);
 	gtk_text_view_set_monospace(GTK_TEXT_VIEW(self->text_view), TRUE);
 	gtk_widget_set_hexpand(self->text_view, TRUE);
 	gtk_widget_set_vexpand(self->text_view, TRUE);
