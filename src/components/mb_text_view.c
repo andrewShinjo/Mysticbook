@@ -96,6 +96,18 @@ void mb_text_view_set_gfile(MbTextView *self, GFile *file)
 		gtk_text_buffer_set_text(buffer, contents, length);
 	}
 
+	// Apply tags to newly added text
+	gint line_count = gtk_text_buffer_get_line_count(buffer);
+
+	for(gint line_number = 0; line_number < line_count; line_number++)
+	{
+		gint heading_level = get_heading_level(buffer, line_number);
+		if(heading_level > 0)
+		{
+			apply_heading_tag(buffer, line_number, heading_level);	
+		}	
+	}
+
 	g_free(contents);
 	g_object_unref(data_stream);
 	g_object_unref(stream);
