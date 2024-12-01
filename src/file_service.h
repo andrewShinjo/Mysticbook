@@ -2,4 +2,6 @@
 #include <gio/gio.h>
 #include <glib.h>
 
-GList* file_service_get_all_org_files();
+/* Public declaration */
+
+void file_service_update_file(GFile *file, gchar *text, gsize length);

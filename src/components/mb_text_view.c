@@ -1,4 +1,5 @@
 #include "./mb_text_view.h"
+#include "../file_service.h"
 
 /* Private definition */
 
@@ -82,7 +83,15 @@ void mb_text_view_set_gfile(MbTextView *self, GFile *file)
 		exit(EXIT_FAILURE);
 	}
 
-	g_print("File contents:\n%s\n", contents);
+	GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(self->text_view));
+	if(contents == NULL)
+	{
+		gtk_text_buffer_set_text(buffer, "", -1);
+	}
+	else if(contents != NULL)
+	{
+		gtk_text_buffer_set_text(buffer, contents, length);
+	}
 
 	g_free(contents);
 	g_object_unref(data_stream);
@@ -135,6 +144,20 @@ static void apply_paragraph_tag(GtkTextBuffer *buffer, gint line_number)
 
 static void changed(GtkTextBuffer *buffer, gpointer user_data)
 {
+	MbTextView *self = MB_TEXT_VIEW(user_data);
+
+	// Save text to disk.
+	
+	GtkTextIter start, end;
+	gtk_text_buffer_get_start_iter(buffer, &start);
+	gtk_text_buffer_get_end_iter(buffer, &end);
+	gchar *text = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
+	gsize length = gtk_text_iter_get_offset(&end) - gtk_text_iter_get_offset(&start);	
+	file_service_update_file(self->file, text, length);
+
+	g_free(text);
+
+	// Apply tags.
 	gint line_number = get_line_number(buffer);
 	GtkTextIter iter;
 
@@ -259,5 +282,5 @@ static void mb_text_view_init(MbTextView *self)
 
 	/* Connect to signals */
 	GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(self->text_view));
-	g_signal_connect(buffer, "changed", G_CALLBACK(changed), NULL);
+	g_signal_connect(buffer, "changed", G_CALLBACK(changed), self);
 }
