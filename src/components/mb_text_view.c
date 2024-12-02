@@ -52,9 +52,6 @@ GtkWidget* mb_text_view_new()
 
 void mb_text_view_set_gfile(MbTextView *self, GFile *file)
 {
-	GFileInputStream *stream;
-	GDataInputStream *data_stream;
-	GError *error = NULL;
 	gchar *contents;
 	gsize length;
 
@@ -65,28 +62,13 @@ void mb_text_view_set_gfile(MbTextView *self, GFile *file)
 	gtk_label_set_text(GTK_LABEL(self->label), basename);
 
 	// Read file contents into text buffer.
-	stream = g_file_read(file, NULL, &error);
 
-	if(error != NULL)
-	{
-		g_printerr("Error opening file: %s\n", error->message);
-		g_error_free(error);
-		exit(EXIT_FAILURE);
-	}
-
-	data_stream = g_data_input_stream_new(G_INPUT_STREAM(stream));
-	contents = g_data_input_stream_read_upto(data_stream, "\0", -1, &length, NULL, &error);
-
-	if(error != NULL)
-	{
-		g_printerr("Error reading file: %s\n", error->message);
-		g_error_free(error);
-		exit(EXIT_FAILURE);
-	}
+	contents = file_service_read_file(file, &length);
 
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(self->text_view), TRUE);
 
 	GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(self->text_view));
+
 	if(contents == NULL)
 	{
 		gtk_text_buffer_set_text(buffer, "", -1);
@@ -109,8 +91,6 @@ void mb_text_view_set_gfile(MbTextView *self, GFile *file)
 	}
 
 	g_free(contents);
-	g_object_unref(data_stream);
-	g_object_unref(stream);
 }
 
 /* Private implementation */
@@ -146,6 +126,30 @@ static void apply_heading_tag(GtkTextBuffer *buffer, gint line_number, gint head
 		GtkTextTag *done_tag = gtk_text_buffer_create_tag(buffer, NULL, "foreground", "red", "weight", PANGO_WEIGHT_BOLD, NULL);
 		gtk_text_buffer_apply_tag(buffer, done_tag, &start, &end);
 	}
+
+	// Look for PROPERTIES below heading.
+	gtk_text_iter_forward_line(&start);
+	end = start;
+	gtk_text_iter_forward_to_line_end(&end);
+	text = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
+	g_print("Text: %s\n", text);
+
+	if(g_strcmp0(text, ":PROPERTIES:") == 0)
+	{
+		GtkTextIter temp = start;
+		gtk_text_iter_forward_line(&temp);
+		gtk_text_iter_forward_line(&end);
+		gtk_text_iter_forward_to_line_end(&end);
+		gchar *text2 = gtk_text_buffer_get_text(buffer, &temp, &end, TRUE);
+		if(g_strcmp0(text2, ":END:") == 0)
+		{
+			GtkTextTag *properties_tag = gtk_text_buffer_create_tag(buffer, NULL, "paragraph-background", "purple", NULL);
+			gtk_text_buffer_apply_tag(buffer, properties_tag, &start, &end);
+		}
+		g_free(text2);
+	}
+
+	g_free(text);
 }
 
 // Currently not being used.
