@@ -5,10 +5,13 @@
 
 static void apply_heading_tag(GtkTextBuffer *buffer, gint line_number, gint heading_level);
 
+static void apply_simple_text_formatting(GtkTextBuffer *buffer, gint line_number);
 
 static void changed(GtkTextBuffer *buffer, gpointer user_data);
 
 static void clear_tags(GtkTextBuffer *buffer, gint line_number);
+
+static gboolean find_bold_range(GtkTextBuffer *buffer, GtkTextIter *start, GtkTextIter *end);
 
 static gint get_heading_level(GtkTextBuffer *buffer, int line_number);
 
@@ -153,6 +156,24 @@ static void apply_heading_tag(GtkTextBuffer *buffer, gint line_number, gint head
 	g_free(text);
 }
 
+static void apply_simple_text_formatting(GtkTextBuffer *buffer, gint line_number)
+{
+	GtkTextIter left, right;
+	gtk_text_iter_set_line(&left, line_number);
+	while(!gtk_text_iter_ends_line(&left))
+	{
+		gunichar c = gtk_text_iter_get_char(&left);
+
+		if(c == '*')
+		{
+
+		}
+
+		gtk_text_iter_forward_char(&left);
+	}
+
+}
+
 static void changed(GtkTextBuffer *buffer, gpointer user_data)
 {
 	MbTextView *self = MB_TEXT_VIEW(user_data);
@@ -183,6 +204,20 @@ static void clear_tags(GtkTextBuffer *buffer, gint line_number)
 		gtk_text_iter_forward_to_line_end(&end);
 	}
 	gtk_text_buffer_remove_all_tags(buffer, &start, &end);
+}
+
+static gboolean find_bold_range(GtkTextBuffer *buffer, GtkTextIter *start, GtkTextIter *end)
+{
+	GtkTextIter pointer = *start;
+	gtk_text_iter_forward_char(&pointer);
+	gunichar c = gtk_text_iter_get_char(&pointer);
+
+	if(c == ' ')
+	{
+		return FALSE;
+	}
+
+	return FALSE;
 }
 
 static gint get_line_number(GtkTextBuffer *buffer)
