@@ -158,42 +158,17 @@ static void changed(GtkTextBuffer *buffer, gpointer user_data)
 	MbTextView *self = MB_TEXT_VIEW(user_data);
 
 	// Save text to disk.
-	
-	GtkTextIter start, end;
-	gtk_text_buffer_get_start_iter(buffer, &start);
-	gtk_text_buffer_get_end_iter(buffer, &end);
-	gchar *text = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
-	gsize length = gtk_text_iter_get_offset(&end) - gtk_text_iter_get_offset(&start);	
-	file_service_update_file(self->file, text, length);
-
-	g_free(text);
-
-	// Apply tags.
-	gint line_number = get_line_number(buffer);
-	GtkTextIter iter;
-
-	gtk_text_buffer_get_iter_at_line(buffer, &iter, line_number);
-	gboolean last_key_newline = gtk_text_iter_backward_char(&iter) && gtk_text_iter_get_char(&iter);
-
-	if(last_key_newline)
-	{
-
-		int heading_level;
-		clear_tags(buffer, line_number - 1);
-		heading_level = get_heading_level(buffer, line_number - 1);
-		if(heading_level > 0)
-		{
-			apply_heading_tag(buffer, line_number - 1, heading_level);
-		}
+	{	
+		GtkTextIter start, end;
+		gtk_text_buffer_get_start_iter(buffer, &start);
+		gtk_text_buffer_get_end_iter(buffer, &end);
+		gchar *text = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
+		gsize length = gtk_text_iter_get_offset(&end) - gtk_text_iter_get_offset(&start);	
+		file_service_update_file(self->file, text, length);
+		g_free(text);
 	}
 
-	clear_tags(buffer, line_number);
-	gint heading_level = get_heading_level(buffer, line_number);
-
-	if(heading_level > 0)
-	{
-		apply_heading_tag(buffer, line_number, heading_level);
-	}
+	update_tags(buffer);
 }
 
 static void clear_tags(GtkTextBuffer *buffer, gint line_number)
@@ -303,5 +278,21 @@ static void update_tags(GtkTextBuffer *buffer)
 		GtkTextIter start, end;
 		gtk_text_buffer_get_start_iter(buffer, &start);
 		gtk_text_buffer_get_end_iter(buffer, &end);
+	}
+
+	// Apply tags
+	{
+		GtkTextIter end;
+		gtk_text_buffer_get_end_iter(buffer, &end);
+		gint line_count = gtk_text_iter_get_line(&end) + 1;
+
+		for(gint line=0; line < line_count; line++)
+		{
+			gint heading_level = get_heading_level(buffer, line);
+			if(heading_level > 0)
+			{
+				apply_heading_tag(buffer, line, heading_level);
+			}
+		}
 	}
 }
