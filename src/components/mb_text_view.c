@@ -5,7 +5,6 @@
 
 static void apply_heading_tag(GtkTextBuffer *buffer, gint line_number, gint heading_level);
 
-static void apply_paragraph_tag(GtkTextBuffer *buffer, gint line_number);
 
 static void changed(GtkTextBuffer *buffer, gpointer user_data);
 
@@ -20,6 +19,8 @@ static void mb_text_view_class_init(MbTextViewClass *klass);
 static void mb_text_view_dispose(GObject *object);
 
 static void mb_text_view_init(MbTextView *self);
+
+static void update_tags(GtkTextBuffer *buffer);
 
 /* Widget definition */
 
@@ -52,10 +53,12 @@ GtkWidget* mb_text_view_new()
 
 void mb_text_view_set_gfile(MbTextView *self, GFile *file)
 {
+
+	gtk_text_view_set_editable(GTK_TEXT_VIEW(self->text_view), TRUE);
+	self->file = file;
+
 	gchar *contents;
 	gsize length;
-
-	self->file = file;
 
 	// Set filename label.
 	gchar *basename = g_file_get_basename(file);
@@ -64,8 +67,6 @@ void mb_text_view_set_gfile(MbTextView *self, GFile *file)
 	// Read file contents into text buffer.
 
 	contents = file_service_read_file(file, &length);
-
-	gtk_text_view_set_editable(GTK_TEXT_VIEW(self->text_view), TRUE);
 
 	GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(self->text_view));
 
@@ -152,36 +153,6 @@ static void apply_heading_tag(GtkTextBuffer *buffer, gint line_number, gint head
 	g_free(text);
 }
 
-// Currently not being used.
-static void apply_paragraph_tag(GtkTextBuffer *buffer, gint line_number)
-{
-	if(line_number == 0)
-	{
-		return;
-	}
-
-	GtkTextIter start, end;
-	gtk_text_buffer_get_start_iter(buffer, &start);
-	gtk_text_buffer_get_start_iter(buffer, &end);
-	gtk_text_iter_set_line(&start, line_number);
-	gtk_text_iter_set_line(&end, line_number);
-	gtk_text_iter_forward_to_line_end(&end);
-
-	line_number--;
-	int heading_level = get_heading_level(buffer, line_number);
-	while(line_number > 0 && heading_level == 0)
-	{
-		line_number--;
-		heading_level = get_heading_level(buffer, line_number);
-	}
-	if(heading_level > 0)
-	{
-		GtkTextTag *margin_tag = gtk_text_buffer_create_tag(
-			buffer, NULL, "left-margin", (heading_level + 1) * 19, NULL);	
-		gtk_text_buffer_apply_tag(buffer, margin_tag, &start, &end);
-	}
-}
-
 static void changed(GtkTextBuffer *buffer, gpointer user_data)
 {
 	MbTextView *self = MB_TEXT_VIEW(user_data);
@@ -214,10 +185,6 @@ static void changed(GtkTextBuffer *buffer, gpointer user_data)
 		{
 			apply_heading_tag(buffer, line_number - 1, heading_level);
 		}
-		else if(heading_level == 0)
-		{
-			//apply_paragraph_tag(buffer, line_number - 1);
-		}
 	}
 
 	clear_tags(buffer, line_number);
@@ -226,10 +193,6 @@ static void changed(GtkTextBuffer *buffer, gpointer user_data)
 	if(heading_level > 0)
 	{
 		apply_heading_tag(buffer, line_number, heading_level);
-	}
-	else if(heading_level == 0)
-	{
-		//apply_paragraph_tag(buffer, line_number);
 	}
 }
 
@@ -331,4 +294,14 @@ static void mb_text_view_init(MbTextView *self)
 	/* Connect to signals */
 	GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(self->text_view));
 	g_signal_connect(buffer, "changed", G_CALLBACK(changed), self);
+}
+
+static void update_tags(GtkTextBuffer *buffer)
+{
+	// Clear all tags in the buffer
+	{
+		GtkTextIter start, end;
+		gtk_text_buffer_get_start_iter(buffer, &start);
+		gtk_text_buffer_get_end_iter(buffer, &end);
+	}
 }
