@@ -1,5 +1,6 @@
 #include "./mb_text_view.h"
 #include "../file_service.h"
+#include "../parser.h"
 
 /* Private definition */
 
@@ -11,7 +12,7 @@ static void changed(GtkTextBuffer *buffer, gpointer user_data);
 
 static void clear_tags(GtkTextBuffer *buffer, gint line_number);
 
-static gboolean find_bold_range(GtkTextBuffer *buffer, GtkTextIter *start, GtkTextIter *end);
+static gboolean find_indent_range(GtkTextBuffer *buffer, GtkTextIter *start, GtkTextIter *end);
 
 static gint get_heading_level(GtkTextBuffer *buffer, int line_number);
 
@@ -122,12 +123,14 @@ static void apply_heading_tag(GtkTextBuffer *buffer, gint line_number, gint head
 
 	if(is_todo)
 	{
-		GtkTextTag *todo_tag = gtk_text_buffer_create_tag(buffer, NULL, "foreground", "blue", "weight", PANGO_WEIGHT_BOLD, NULL);
+		GtkTextTag *todo_tag = 
+			gtk_text_buffer_create_tag(buffer, NULL, "foreground", "blue", "weight", PANGO_WEIGHT_BOLD, NULL);
 		gtk_text_buffer_apply_tag(buffer, todo_tag, &start, &end);
 	}
 	else if(is_done)
 	{
-		GtkTextTag *done_tag = gtk_text_buffer_create_tag(buffer, NULL, "foreground", "red", "weight", PANGO_WEIGHT_BOLD, NULL);
+		GtkTextTag *done_tag = 
+			gtk_text_buffer_create_tag(buffer, NULL, "foreground", "red", "weight", PANGO_WEIGHT_BOLD, NULL);
 		gtk_text_buffer_apply_tag(buffer, done_tag, &start, &end);
 	}
 
@@ -136,7 +139,6 @@ static void apply_heading_tag(GtkTextBuffer *buffer, gint line_number, gint head
 	end = start;
 	gtk_text_iter_forward_to_line_end(&end);
 	text = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
-	g_print("Text: %s\n", text);
 
 	if(g_strcmp0(text, ":PROPERTIES:") == 0)
 	{
@@ -147,7 +149,8 @@ static void apply_heading_tag(GtkTextBuffer *buffer, gint line_number, gint head
 		gchar *text2 = gtk_text_buffer_get_text(buffer, &temp, &end, TRUE);
 		if(g_strcmp0(text2, ":END:") == 0)
 		{
-			GtkTextTag *properties_tag = gtk_text_buffer_create_tag(buffer, NULL, "paragraph-background", "purple", NULL);
+			GtkTextTag *properties_tag = 
+				gtk_text_buffer_create_tag(buffer, NULL, "paragraph-background", "purple", NULL);
 			gtk_text_buffer_apply_tag(buffer, properties_tag, &start, &end);
 		}
 		g_free(text2);
@@ -158,19 +161,6 @@ static void apply_heading_tag(GtkTextBuffer *buffer, gint line_number, gint head
 
 static void apply_simple_text_formatting(GtkTextBuffer *buffer, gint line_number)
 {
-	GtkTextIter left, right;
-	gtk_text_iter_set_line(&left, line_number);
-	while(!gtk_text_iter_ends_line(&left))
-	{
-		gunichar c = gtk_text_iter_get_char(&left);
-
-		if(c == '*')
-		{
-
-		}
-
-		gtk_text_iter_forward_char(&left);
-	}
 
 }
 
@@ -189,6 +179,8 @@ static void changed(GtkTextBuffer *buffer, gpointer user_data)
 		g_free(text);
 	}
 
+	GList *tokens = tokenize(buffer);	
+
 	update_tags(buffer);
 }
 
@@ -206,13 +198,13 @@ static void clear_tags(GtkTextBuffer *buffer, gint line_number)
 	gtk_text_buffer_remove_all_tags(buffer, &start, &end);
 }
 
-static gboolean find_bold_range(GtkTextBuffer *buffer, GtkTextIter *start, GtkTextIter *end)
+static gboolean find_indent_range(GtkTextBuffer *buffer, GtkTextIter *start, GtkTextIter *end)
 {
 	GtkTextIter pointer = *start;
 	gtk_text_iter_forward_char(&pointer);
 	gunichar c = gtk_text_iter_get_char(&pointer);
 
-	if(c == ' ')
+	if(c == ' ' || c == '*')
 	{
 		return FALSE;
 	}
@@ -327,6 +319,11 @@ static void update_tags(GtkTextBuffer *buffer)
 			if(heading_level > 0)
 			{
 				apply_heading_tag(buffer, line, heading_level);
+			}
+
+			// Apply indent tag
+			{
+				
 			}
 		}
 	}
