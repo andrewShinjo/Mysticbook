@@ -295,8 +295,9 @@ static void mb_text_view_init(MbTextView *self)
 
 	/* Connect to signals */
 	GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(self->text_view));
-	gtk_text_buffer_create_tag(buffer, "title", "background", "purple", NULL);
 	gtk_text_buffer_create_tag(buffer, "author", "background", "blue", NULL);
+	gtk_text_buffer_create_tag(buffer, "properties", "background", "green", NULL);
+	gtk_text_buffer_create_tag(buffer, "title", "background", "purple", NULL);
 	g_signal_connect(buffer, "changed", G_CALLBACK(changed), self);
 }
 
@@ -358,13 +359,29 @@ static void update_tags(GtkTextBuffer *buffer)
 			if(is_heading)
 			{
 				apply_heading_tag(buffer, line, heading_level);
-				parent_level = heading_level;
+				state = SEARCH_PROPERTY;
 			}
 			else if(!is_heading)
 			{
 
 			}
-
+			line++;
+		}
+		else if(state == SEARCH_PROPERTY)
+		{
+			if(g_strcmp0(text, ":PROPERTIES:") == 0)
+			{
+				gtk_text_buffer_apply_tag_by_name(buffer, "properties", &start, &end);
+				state = SEARCH_TEXT;
+				line++;
+			}
+			else
+			{
+				state = SEARCH_TEXT;
+			}
+		}
+		else
+		{
 			line++;
 		}
 		
