@@ -1,0 +1,5 @@
+<PREAMBLE> = <TITLE><NEWLINE><AUTHOR><NEWLINE>
+
+<TITLE> = "#+title:", " ", <TEXT>;
+
+<TEXT>: [^\n]+

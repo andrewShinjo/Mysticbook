@@ -1,8 +1,15 @@
 #include "./mb_text_view.h"
 #include "../file_service.h"
-#include "../parser.h"
 
 /* Private definition */
+
+typedef enum
+{
+	SEARCH_AUTHOR,
+	SEARCH_PROPERTY,
+	SEARCH_TEXT,
+	SEARCH_TITLE
+} ParseState;
 
 static void apply_heading_tag(GtkTextBuffer *buffer, gint line_number, gint heading_level);
 
@@ -159,11 +166,6 @@ static void apply_heading_tag(GtkTextBuffer *buffer, gint line_number, gint head
 	g_free(text);
 }
 
-static void apply_simple_text_formatting(GtkTextBuffer *buffer, gint line_number)
-{
-
-}
-
 static void changed(GtkTextBuffer *buffer, gpointer user_data)
 {
 	MbTextView *self = MB_TEXT_VIEW(user_data);
@@ -178,8 +180,6 @@ static void changed(GtkTextBuffer *buffer, gpointer user_data)
 		file_service_update_file(self->file, text, length);
 		g_free(text);
 	}
-
-	GList *tokens = tokenize(buffer);	
 
 	update_tags(buffer);
 }
@@ -295,6 +295,8 @@ static void mb_text_view_init(MbTextView *self)
 
 	/* Connect to signals */
 	GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(self->text_view));
+	gtk_text_buffer_create_tag(buffer, "title", "background", "purple", NULL);
+	gtk_text_buffer_create_tag(buffer, "author", "background", "blue", NULL);
 	g_signal_connect(buffer, "changed", G_CALLBACK(changed), self);
 }
 
@@ -305,26 +307,67 @@ static void update_tags(GtkTextBuffer *buffer)
 		GtkTextIter start, end;
 		gtk_text_buffer_get_start_iter(buffer, &start);
 		gtk_text_buffer_get_end_iter(buffer, &end);
+		gtk_text_buffer_remove_all_tags(buffer, &start, &end);
 	}
 
-	// Apply tags
-	{
-		GtkTextIter end;
-		gtk_text_buffer_get_end_iter(buffer, &end);
-		gint line_count = gtk_text_iter_get_line(&end) + 1;
+	ParseState state = SEARCH_TITLE;
+	GtkTextIter end;
+	gtk_text_buffer_get_end_iter(buffer, &end);
 
-		for(gint line=0; line < line_count; line++)
+	gint line_count = gtk_text_iter_get_line(&end) + 1;
+	gint heading_level = 0;
+	gint parent_level = 0;
+	gint line = 0;
+
+	while(line < line_count)
+	{
+		GtkTextIter start, end;
+		gtk_text_iter_set_line(&start, line);
+		end = start;
+
+		if(!gtk_text_iter_ends_line(&end))
 		{
-			gint heading_level = get_heading_level(buffer, line);
-			if(heading_level > 0)
+			gtk_text_iter_forward_to_line_end(&end);
+		}
+
+		gchar *text = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
+
+		if(state == SEARCH_TITLE)
+		{
+			if(g_str_has_prefix(text, "#+title: "))
+			{
+				gtk_text_buffer_apply_tag_by_name(buffer, "title", &start, &end);
+				line++;
+			}
+			state = SEARCH_AUTHOR;
+		}		
+		else if(state == SEARCH_AUTHOR)
+		{
+			if(g_str_has_prefix(text, "#+author: "))
+			{
+				gtk_text_buffer_apply_tag_by_name(buffer, "author", &start, &end);
+				line++;
+			}
+			state = SEARCH_TEXT;
+		}
+		else if(state == SEARCH_TEXT)
+		{
+			heading_level = get_heading_level(buffer, line);	
+			gboolean is_heading = (heading_level > 0);
+
+			if(is_heading)
 			{
 				apply_heading_tag(buffer, line, heading_level);
+				parent_level = heading_level;
+			}
+			else if(!is_heading)
+			{
+
 			}
 
-			// Apply indent tag
-			{
-				
-			}
+			line++;
 		}
+		
+		g_free(text);
 	}
 }
