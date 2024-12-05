@@ -11,7 +11,6 @@ typedef enum
 	SEARCH_TITLE
 } ParseState;
 
-static void apply_heading_tag(GtkTextBuffer *buffer, gint line_number, gint heading_level);
 
 static void apply_simple_text_formatting(GtkTextBuffer *buffer, gint line_number);
 
@@ -43,8 +42,6 @@ struct _MbTextView
 	GtkWidget *label;
 	GtkWidget *scrolled_window;
 	GtkWidget *text_view;
-	/* Event listeners */
-	/* Properties */
 	/* Other fields */
 	GFile *file;
 };
@@ -90,59 +87,11 @@ void mb_text_view_set_gfile(MbTextView *self, GFile *file)
 		gtk_text_buffer_set_text(buffer, contents, length);
 	}
 
-	// Apply tags to newly added text
-	gint line_count = gtk_text_buffer_get_line_count(buffer);
-
-	for(gint line_number = 0; line_number < line_count; line_number++)
-	{
-		gint heading_level = get_heading_level(buffer, line_number);
-		if(heading_level > 0)
-		{
-			apply_heading_tag(buffer, line_number, heading_level);	
-		}	
-	}
-
+	update_tags(buffer);
 	g_free(contents);
 }
 
 /* Private implementation */
-
-static void apply_heading_tag(GtkTextBuffer *buffer, gint line_number, gint heading_level)
-{
-	// Apply heading tag.
-	GtkTextIter start, end;
-	gtk_text_buffer_get_start_iter(buffer, &start);
-	gtk_text_buffer_get_start_iter(buffer, &end);
-	gtk_text_iter_set_line(&start, line_number);
-	gtk_text_iter_set_line(&end, line_number);
-	gtk_text_iter_forward_to_line_end(&end);
-	GtkTextTag *heading_tag = gtk_text_buffer_create_tag(buffer, NULL, "font", "Monospace 20", NULL);
-	gtk_text_buffer_apply_tag(buffer, heading_tag, &start, &end);
-
-	// Apply TODO/DONE tag.
-	gtk_text_iter_forward_chars(&start, heading_level + 1);
-	end = start;
-	gtk_text_iter_forward_chars(&end, 5);
-
-	gchar *text = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
-	gboolean is_todo = g_strcmp0(text, "TODO ") == 0;
-	gboolean is_done = g_strcmp0(text, "DONE ") == 0;
-
-	if(is_todo)
-	{
-		GtkTextTag *todo_tag = 
-			gtk_text_buffer_create_tag(buffer, NULL, "foreground", "blue", "weight", PANGO_WEIGHT_BOLD, NULL);
-		gtk_text_buffer_apply_tag(buffer, todo_tag, &start, &end);
-	}
-	else if(is_done)
-	{
-		GtkTextTag *done_tag = 
-			gtk_text_buffer_create_tag(buffer, NULL, "foreground", "red", "weight", PANGO_WEIGHT_BOLD, NULL);
-		gtk_text_buffer_apply_tag(buffer, done_tag, &start, &end);
-	}
-
-	g_free(text);
-}
 
 static void changed(GtkTextBuffer *buffer, gpointer user_data)
 {
@@ -276,6 +225,7 @@ static void mb_text_view_init(MbTextView *self)
 	gtk_text_buffer_create_tag(buffer, "author", "background", "blue", NULL);
 	gtk_text_buffer_create_tag(buffer, "properties", "background", "green", NULL);
 	gtk_text_buffer_create_tag(buffer, "title", "background", "purple", NULL);
+	gtk_text_buffer_create_tag(buffer, "heading", "font", "Monospace 18", NULL);
 	g_signal_connect(buffer, "changed", G_CALLBACK(changed), self);
 }
 
@@ -289,6 +239,7 @@ static void update_tags(GtkTextBuffer *buffer)
 		gtk_text_buffer_remove_all_tags(buffer, &start, &end);
 	}
 
+	// Apply tags
 	ParseState state = SEARCH_TITLE;
 	GtkTextIter buffer_end;
 	gtk_text_buffer_get_end_iter(buffer, &buffer_end);
@@ -337,7 +288,7 @@ static void update_tags(GtkTextBuffer *buffer)
 
 			if(is_heading)
 			{
-				apply_heading_tag(buffer, line, heading_level);
+				gtk_text_buffer_apply_tag_by_name(buffer, "heading", &start, &end);
 				state = SEARCH_PROPERTY;
 			}
 			else if(!is_heading)
