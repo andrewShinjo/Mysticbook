@@ -141,28 +141,6 @@ static void apply_heading_tag(GtkTextBuffer *buffer, gint line_number, gint head
 		gtk_text_buffer_apply_tag(buffer, done_tag, &start, &end);
 	}
 
-	// Look for PROPERTIES below heading.
-	gtk_text_iter_forward_line(&start);
-	end = start;
-	gtk_text_iter_forward_to_line_end(&end);
-	text = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
-
-	if(g_strcmp0(text, ":PROPERTIES:") == 0)
-	{
-		GtkTextIter temp = start;
-		gtk_text_iter_forward_line(&temp);
-		gtk_text_iter_forward_line(&end);
-		gtk_text_iter_forward_to_line_end(&end);
-		gchar *text2 = gtk_text_buffer_get_text(buffer, &temp, &end, TRUE);
-		if(g_strcmp0(text2, ":END:") == 0)
-		{
-			GtkTextTag *properties_tag = 
-				gtk_text_buffer_create_tag(buffer, NULL, "paragraph-background", "purple", NULL);
-			gtk_text_buffer_apply_tag(buffer, properties_tag, &start, &end);
-		}
-		g_free(text2);
-	}
-
 	g_free(text);
 }
 
@@ -312,10 +290,10 @@ static void update_tags(GtkTextBuffer *buffer)
 	}
 
 	ParseState state = SEARCH_TITLE;
-	GtkTextIter end;
-	gtk_text_buffer_get_end_iter(buffer, &end);
+	GtkTextIter buffer_end;
+	gtk_text_buffer_get_end_iter(buffer, &buffer_end);
 
-	gint line_count = gtk_text_iter_get_line(&end) + 1;
+	gint line_count = gtk_text_iter_get_line(&buffer_end) + 1;
 	gint heading_level = 0;
 	gint parent_level = 0;
 	gint line = 0;
@@ -323,6 +301,7 @@ static void update_tags(GtkTextBuffer *buffer)
 	while(line < line_count)
 	{
 		GtkTextIter start, end;
+		gtk_text_buffer_get_start_iter(buffer, &start);
 		gtk_text_iter_set_line(&start, line);
 		end = start;
 
@@ -371,9 +350,39 @@ static void update_tags(GtkTextBuffer *buffer)
 		{
 			if(g_strcmp0(text, ":PROPERTIES:") == 0)
 			{
-				gtk_text_buffer_apply_tag_by_name(buffer, "properties", &start, &end);
+				gint next_line = line + 1;
+				GtkTextIter next_start, next_end;
+				gtk_text_iter_set_line(&next_start, next_line);
+				next_end = next_start;
+
+				if(!gtk_text_iter_ends_line(&next_end))
+				{
+					gtk_text_iter_forward_to_line_end(&next_end);
+				}
+
+				gchar *next_text = gtk_text_buffer_get_text(buffer, &next_start, &next_end, TRUE);
+
+				while(g_strcmp0(next_text, ":END:") != 0 && g_str_has_prefix(next_text, ":"))
+				{
+					g_free(next_text);
+					next_line++;
+					gtk_text_iter_set_line(&next_start, next_line);
+					next_end = next_start;
+					if(!gtk_text_iter_ends_line(&next_end))
+					{
+						gtk_text_iter_forward_to_line_end(&next_end);
+					}
+					next_text = gtk_text_buffer_get_text(buffer, &next_start, &next_end, TRUE);
+				}
+				
+				if(g_strcmp0(next_text, ":END:") == 0)
+				{
+					gtk_text_buffer_apply_tag_by_name(buffer, "properties", &start, &next_end);
+					line++;
+				}
+
 				state = SEARCH_TEXT;
-				line++;
+				g_free(next_text);
 			}
 			else
 			{
