@@ -314,7 +314,7 @@ static void update_tags(GtkTextBuffer *buffer)
 							if(previous_char != ' ' && previous_char != '\n' && previous_char != '/'
 								&& !g_queue_is_empty(stack))
 							{
-								gint italic_start_offset = GPOINTER_TO_INT(g_queue_pop_tail(stack));
+								gint italic_start_offset = GPOINTER_TO_INT(g_queue_peek_tail(stack));
 								gint italic_end_offset = gtk_text_iter_get_offset(&pointer) + 1;
 								GtkTextIter italic_start_iter = start;
 								GtkTextIter italic_end_iter = start;
@@ -324,6 +324,7 @@ static void update_tags(GtkTextBuffer *buffer)
 
 								if(italic_start_char == '/')
 								{
+									g_queue_pop_tail(stack);
 									gtk_text_buffer_apply_tag_by_name(buffer, "italic", &italic_start_iter, &italic_end_iter);
 									is_ending = TRUE;
 								}
@@ -334,7 +335,7 @@ static void update_tags(GtkTextBuffer *buffer)
 							GtkTextIter forward_iter = pointer;
 							gtk_text_iter_forward_char(&forward_iter);
 							gunichar forward_char = gtk_text_iter_get_char(&forward_iter);
-							if(forward_char != ' ' && forward_char != '\n' && forward_char != '/')
+							if(forward_char != ' ' && forward_char != '\n' && forward_char != '/' && forward_char != 0)
 							{
 								gint pos = gtk_text_iter_get_offset(&pointer);
 								g_queue_push_tail(stack, GINT_TO_POINTER(pos));
@@ -353,7 +354,7 @@ static void update_tags(GtkTextBuffer *buffer)
 							if(backward_char != ' ' && backward_char != '\n' && backward_char != '*'
 								&& !g_queue_is_empty(stack))
 							{
-								gint bold_start_offset = GPOINTER_TO_INT(g_queue_pop_tail(stack));
+								gint bold_start_offset = GPOINTER_TO_INT(g_queue_peek_tail(stack));
 								gint bold_end_offset = gtk_text_iter_get_offset(&pointer) + 1;
 								GtkTextIter bold_start_iter = start;
 								GtkTextIter bold_end_iter = start;
@@ -363,6 +364,7 @@ static void update_tags(GtkTextBuffer *buffer)
 
 								if(bold_start_char == '*')
 								{
+									g_queue_pop_tail(stack);
 									gtk_text_buffer_apply_tag_by_name(buffer, "bold", &bold_start_iter, &bold_end_iter);
 									is_ending = TRUE;
 								}
@@ -373,7 +375,7 @@ static void update_tags(GtkTextBuffer *buffer)
 							GtkTextIter forward_iter = pointer;
 							gtk_text_iter_forward_char(&forward_iter);
 							gunichar forward_char = gtk_text_iter_get_char(&forward_iter);
-							if(forward_char != ' ' && forward_char != '\n' && forward_char != '*')
+							if(forward_char != ' ' && forward_char != '\n' && forward_char != '*' && forward_char != 0)
 							{
 								gint pos = gtk_text_iter_get_offset(&pointer);
 								g_queue_push_tail(stack, GINT_TO_POINTER(pos));
