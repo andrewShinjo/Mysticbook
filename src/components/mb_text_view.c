@@ -11,7 +11,6 @@ typedef enum
 	SEARCH_TITLE
 } ParseState;
 
-
 static void apply_simple_text_formatting(GtkTextBuffer *buffer, gint line_number);
 
 static void changed(GtkTextBuffer *buffer, gpointer user_data);
@@ -285,7 +284,6 @@ static void update_tags(GtkTextBuffer *buffer)
 		{
 			heading_level = get_heading_level(buffer, line);	
 			gboolean is_heading = (heading_level > 0);
-
 			if(is_heading)
 			{
 				gtk_text_buffer_apply_tag_by_name(buffer, "heading", &start, &end);
@@ -293,6 +291,24 @@ static void update_tags(GtkTextBuffer *buffer)
 			}
 			else if(!is_heading)
 			{
+				GQueue *stack = g_queue_new();
+				int start_pos = gtk_text_iter_get_offset(&start);
+				GtkTextIter pointer = start;
+
+				g_print("Current line:\n");
+				while(!gtk_text_iter_is_end(&pointer))
+				{
+					gunichar c = gtk_text_iter_get_char(&pointer);
+
+					if(c == '/')
+					{
+						g_print("Italic\n");
+					}
+
+
+
+					gtk_text_iter_forward_char(&pointer);
+				}
 
 			}
 			line++;
