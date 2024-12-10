@@ -295,14 +295,24 @@ static void update_tags(GtkTextBuffer *buffer)
 				int start_pos = gtk_text_iter_get_offset(&start);
 				GtkTextIter pointer = start;
 
-				g_print("Current line:\n");
 				while(!gtk_text_iter_is_end(&pointer))
 				{
 					gunichar c = gtk_text_iter_get_char(&pointer);
 
 					if(c == '/')
 					{
-						g_print("Italic\n");
+						// Check if this is a possible ending of italics.
+						if(!gtk_text_iter_starts_line(&pointer))
+						{
+							GtkTextIter temp = pointer;
+							gtk_text_iter_backward_char(&temp);
+							gunichar previous_char = gtk_text_iter_get_char(&temp);
+
+							if(previous_char != ' ' && previous_char != '\n' && previous_char != '/')
+							{
+
+							}
+						}
 					}
 
 
