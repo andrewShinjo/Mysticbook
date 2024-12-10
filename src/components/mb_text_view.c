@@ -301,6 +301,8 @@ static void update_tags(GtkTextBuffer *buffer)
 
 					if(c == '/')
 					{
+						gboolean is_ending = FALSE;
+
 						// Check if this is a possible ending of italics.
 						if(!gtk_text_iter_starts_line(&pointer))
 						{
@@ -310,8 +312,27 @@ static void update_tags(GtkTextBuffer *buffer)
 
 							if(previous_char != ' ' && previous_char != '\n' && previous_char != '/')
 							{
-
+								// Check if this can be ending.
+								if(!g_queue_is_empty(stack))
+								{
+									gpointer peek = g_queue_peek_tail(stack);
+								}
 							}
+						}
+
+						if(!is_ending)
+						{
+							if(!gtk_text_iter_ends_line(&pointer))
+							{
+								GtkTextIter temp = pointer;
+								gtk_text_iter_forward_char(&temp);
+								gunichar forward_char = gtk_text_iter_get_char(&temp);
+								if(forward_char != ' ' && forward_char != '\n' && forward_char != '/')
+								{
+									g_print("Push / to stack.\n");
+									g_queue_push_tail(stack, GINT_TO_POINTER(forward_char));
+								}
+							}	
 						}
 					}
 
