@@ -225,6 +225,7 @@ static void mb_text_view_init(MbTextView *self)
 	gtk_text_buffer_create_tag(buffer, "properties", "background", "green", NULL);
 	gtk_text_buffer_create_tag(buffer, "title", "background", "purple", NULL);
 	gtk_text_buffer_create_tag(buffer, "heading", "font", "Monospace 18", NULL);
+	gtk_text_buffer_create_tag(buffer, "italic", "style", PANGO_STYLE_ITALIC, NULL);
 	g_signal_connect(buffer, "changed", G_CALLBACK(changed), self);
 }
 
@@ -306,16 +307,22 @@ static void update_tags(GtkTextBuffer *buffer)
 						// Check if this is a possible ending of italics.
 						if(!gtk_text_iter_starts_line(&pointer))
 						{
-							GtkTextIter temp = pointer;
-							gtk_text_iter_backward_char(&temp);
-							gunichar previous_char = gtk_text_iter_get_char(&temp);
+							GtkTextIter backward_iter = pointer;
+							gtk_text_iter_backward_char(&backward_iter);
+							gunichar previous_char = gtk_text_iter_get_char(&backward_iter);
 
 							if(previous_char != ' ' && previous_char != '\n' && previous_char != '/')
 							{
 								// Check if this can be ending.
 								if(!g_queue_is_empty(stack))
 								{
-									gpointer peek = g_queue_peek_tail(stack);
+									gint italic_start_offset = GPOINTER_TO_INT(g_queue_peek_tail(stack));
+									gint italic_end_offset = gtk_text_iter_get_offset(&pointer) + 1;
+									GtkTextIter italic_start_iter = start;
+									GtkTextIter italic_end_iter = start;
+									gtk_text_iter_forward_chars(&italic_start_iter, italic_start_offset);
+									gtk_text_iter_forward_chars(&italic_end_iter, italic_end_offset);
+									gtk_text_buffer_apply_tag_by_name(buffer, "italic", &italic_start_iter, &italic_end_iter);
 								}
 							}
 						}
@@ -324,20 +331,17 @@ static void update_tags(GtkTextBuffer *buffer)
 						{
 							if(!gtk_text_iter_ends_line(&pointer))
 							{
-								GtkTextIter temp = pointer;
-								gtk_text_iter_forward_char(&temp);
-								gunichar forward_char = gtk_text_iter_get_char(&temp);
+								GtkTextIter forward_iter = pointer;
+								gtk_text_iter_forward_char(&forward_iter);
+								gunichar forward_char = gtk_text_iter_get_char(&forward_iter);
 								if(forward_char != ' ' && forward_char != '\n' && forward_char != '/')
 								{
-									g_print("Push / to stack.\n");
-									g_queue_push_tail(stack, GINT_TO_POINTER(forward_char));
+									gint pos = gtk_text_iter_get_offset(&pointer);
+									g_queue_push_tail(stack, GINT_TO_POINTER(pos));
 								}
 							}	
 						}
 					}
-
-
-
 					gtk_text_iter_forward_char(&pointer);
 				}
 
