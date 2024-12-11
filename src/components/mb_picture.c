@@ -109,6 +109,6 @@ static void mb_picture_class_init(MbPictureClass *klass)
 static void mb_picture_init(MbPicture *self)
 {
 	self->picture = gtk_picture_new();
-	gtk_picture_set_content_fit(GTK_PICTURE(self->picture), GTK_CONTENT_FIT_FILL);
+	gtk_picture_set_content_fit(GTK_PICTURE(self->picture), GTK_CONTENT_FIT_SCALE_DOWN);
 	gtk_widget_set_parent(self->picture, GTK_WIDGET(self));
 }

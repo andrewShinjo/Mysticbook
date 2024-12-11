@@ -145,7 +145,7 @@ static void insert_picture_at_insert(MbTextView *self, const gchar* picture_path
 	GtkTextBuffer *buffer = gtk_text_view_get_buffer(text_view);
 	GtkTextMark *insert_mark = gtk_text_buffer_get_insert(buffer);
 	GtkTextIter iter;
-	gtk_widget_set_size_request(picture, 200, 200);
+	gtk_widget_set_size_request(picture, 300, 200);
 	gtk_text_buffer_get_iter_at_mark(buffer, &iter, insert_mark);
 	GtkTextChildAnchor *anchor = gtk_text_buffer_create_child_anchor(buffer, &iter);
 	gtk_text_view_add_child_at_anchor(text_view, picture, anchor);
@@ -160,7 +160,6 @@ static gboolean key_pressed(
 
 	if(CONTROL_V_PRESSED && clipboard_service_has_picture())
 	{
-		g_print("Is picture.\n");
 		const gchar *filename = clipboard_service_save_picture();
 		insert_picture_at_insert(self, filename);
 		return TRUE;
@@ -224,11 +223,6 @@ static void mb_text_view_init(MbTextView *self)
 	GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(self->text_view));
 	/* Instantiate event listeners */
 	self->key_event = gtk_event_controller_key_new();
-
-	// GtkTextIter iter;
-	// gtk_text_buffer_get_iter_at_offset(buffer, &iter, 0);
-	// GtkTextChildAnchor *anchor = gtk_text_buffer_create_child_anchor(buffer, &iter);
-	// gtk_text_view_add_child_at_anchor(GTK_TEXT_VIEW(self->text_view), self->picture, anchor);
 
 	/* Configure widgets */
 	GtkScrolledWindow *scrolled_window = GTK_SCROLLED_WINDOW(self->scrolled_window);
@@ -466,7 +460,6 @@ static void update_tags(MbTextView *self, GtkTextBuffer *buffer)
 		{
 			line++;
 		}
-		
 		g_free(text);
 	}
 }
