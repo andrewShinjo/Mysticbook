@@ -59,7 +59,7 @@ static void set_property(GObject *object, guint property_id, const GValue *value
 		{
 			g_free(self->picture_path);
 			self->picture_path = g_value_dup_string(value);
-			self->picture = gtk_picture_new_for_filename(self->picture_path);
+			gtk_picture_set_filename(GTK_PICTURE(self->picture), self->picture_path);
 			break;
 		}
 		default:
@@ -109,7 +109,6 @@ static void mb_picture_class_init(MbPictureClass *klass)
 static void mb_picture_init(MbPicture *self)
 {
 	self->picture = gtk_picture_new();
-	gtk_widget_set_hexpand(self->picture, TRUE);
-	gtk_widget_set_vexpand(self->picture, TRUE);
+	gtk_picture_set_content_fit(GTK_PICTURE(self->picture), GTK_CONTENT_FIT_FILL);
 	gtk_widget_set_parent(self->picture, GTK_WIDGET(self));
 }
