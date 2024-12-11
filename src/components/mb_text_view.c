@@ -22,6 +22,13 @@ static gint get_heading_level(GtkTextBuffer *buffer, int line_number);
 
 static gint get_line_number(GtkTextBuffer *buffer);
 
+static gboolean key_pressed(
+	GtkEventControllerKey* key_event, guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
+{
+	g_print("Key pressed.\n");
+	return FALSE;
+}
+
 static void mb_text_view_class_init(MbTextViewClass *klass);
 
 static void mb_text_view_dispose(GObject *object);
@@ -41,6 +48,8 @@ struct _MbTextView
 	GtkWidget *scrolled_window;
 	GtkWidget *text_view;
 	GtkWidget *image;
+	/* Event listeners */
+	GtkEventController *key_event;
 	/* Other fields */
 	GFile *file;
 };
@@ -182,6 +191,8 @@ static void mb_text_view_init(MbTextView *self)
 	self->text_view = gtk_text_view_new();
 	self->image = mb_image_new("./resources/images/amumu.jpg");
 	GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(self->text_view));
+	/* Instantiate event listeners */
+	self->key_event = gtk_event_controller_key_new();
 
 	// GtkTextIter iter;
 	// gtk_text_buffer_get_iter_at_offset(buffer, &iter, 0);
@@ -208,6 +219,7 @@ static void mb_text_view_init(MbTextView *self)
 
 	gtk_widget_set_parent(self->container, GTK_WIDGET(self));
 	
+	gtk_widget_add_controller(self->text_view, self->key_event);
 
 	/* Connect to signals */
 	gtk_text_buffer_create_tag(buffer, "author", "background", "blue", NULL);
@@ -216,6 +228,7 @@ static void mb_text_view_init(MbTextView *self)
 	gtk_text_buffer_create_tag(buffer, "heading", "font", "Open Sans 18", NULL);
 	gtk_text_buffer_create_tag(buffer, "bold", "weight", PANGO_WEIGHT_BOLD, NULL);
 	gtk_text_buffer_create_tag(buffer, "italic", "style", PANGO_STYLE_ITALIC, NULL);
+	g_signal_connect(self->key_event, "key-pressed", G_CALLBACK(key_pressed), NULL);
 	g_signal_connect(buffer, "changed", G_CALLBACK(changed), self);
 }
 
