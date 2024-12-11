@@ -145,7 +145,6 @@ static void insert_picture_at_insert(MbTextView *self, const gchar* picture_path
 	GtkTextBuffer *buffer = gtk_text_view_get_buffer(text_view);
 	GtkTextMark *insert_mark = gtk_text_buffer_get_insert(buffer);
 	GtkTextIter iter;
-	gtk_widget_set_size_request(picture, 300, 200);
 	gtk_text_buffer_get_iter_at_mark(buffer, &iter, insert_mark);
 	GtkTextChildAnchor *anchor = gtk_text_buffer_create_child_anchor(buffer, &iter);
 	gtk_text_view_add_child_at_anchor(text_view, picture, anchor);

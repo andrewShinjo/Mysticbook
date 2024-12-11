@@ -2,6 +2,8 @@
 
 /* Private definition */
 
+static void pressed(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, gpointer user_data);
+
 static void dispose(GObject *object);
 static void finalize(GObject *object);
 static void get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec);
@@ -14,6 +16,8 @@ struct _MbPicture
 	GtkWidget parent;
 	/* Widgets */
 	GtkWidget *picture;
+	/* Event listeners */
+	GtkGesture *click_listener;
 	/* Properties */
 	gchar *picture_path;
 };
@@ -81,6 +85,11 @@ GtkWidget* mb_picture_new(const gchar *picture_path)
 
 /* Private implementation */
 
+static void pressed(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, gpointer user_data)
+{
+	g_print("Pressed\n");
+}
+
 static void dispose(GObject *object)
 {
 	MbPicture *self = MB_PICTURE(object);
@@ -109,6 +118,10 @@ static void mb_picture_class_init(MbPictureClass *klass)
 static void mb_picture_init(MbPicture *self)
 {
 	self->picture = gtk_picture_new();
+	self->click_listener = gtk_gesture_click_new();
 	gtk_picture_set_content_fit(GTK_PICTURE(self->picture), GTK_CONTENT_FIT_SCALE_DOWN);
+	gtk_widget_add_controller(self->picture, GTK_EVENT_CONTROLLER(self->click_listener));
 	gtk_widget_set_parent(self->picture, GTK_WIDGET(self));
+	gtk_widget_set_size_request(GTK_WIDGET(self), 300, 300);
+	g_signal_connect(self->click_listener, "pressed", G_CALLBACK(pressed), NULL);
 }
