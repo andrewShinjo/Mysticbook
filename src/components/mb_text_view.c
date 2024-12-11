@@ -1,5 +1,6 @@
 #include "./mb_image.h"
 #include "./mb_text_view.h"
+#include "../clipboard_service.h"
 #include "../file_service.h"
 
 /* Private definition */
@@ -25,7 +26,14 @@ static gint get_line_number(GtkTextBuffer *buffer);
 static gboolean key_pressed(
 	GtkEventControllerKey* key_event, guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
 {
-	g_print("Key pressed.\n");
+	const gboolean CONTROL_V_PRESSED = (state & GDK_CONTROL_MASK) && keyval == GDK_KEY_v;
+	if(CONTROL_V_PRESSED && clipboard_service_has_image())
+	{
+		g_print("Is image.\n");
+		clipboard_service_save_image();
+		return TRUE;
+	}
+
 	return FALSE;
 }
 
