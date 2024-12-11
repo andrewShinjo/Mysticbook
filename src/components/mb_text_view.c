@@ -1,3 +1,4 @@
+#include "./mb_image.h"
 #include "./mb_text_view.h"
 #include "../file_service.h"
 
@@ -17,8 +18,6 @@ static void changed(GtkTextBuffer *buffer, gpointer user_data);
 
 static void clear_tags(GtkTextBuffer *buffer, gint line_number);
 
-static gboolean find_indent_range(GtkTextBuffer *buffer, GtkTextIter *start, GtkTextIter *end);
-
 static gint get_heading_level(GtkTextBuffer *buffer, int line_number);
 
 static gint get_line_number(GtkTextBuffer *buffer);
@@ -29,7 +28,7 @@ static void mb_text_view_dispose(GObject *object);
 
 static void mb_text_view_init(MbTextView *self);
 
-static void update_tags(GtkTextBuffer *buffer);
+static void update_tags(MbTextView *self, GtkTextBuffer *buffer);
 
 /* Widget definition */
 
@@ -41,6 +40,7 @@ struct _MbTextView
 	GtkWidget *label;
 	GtkWidget *scrolled_window;
 	GtkWidget *text_view;
+	GtkWidget *image;
 	/* Other fields */
 	GFile *file;
 };
@@ -67,11 +67,8 @@ void mb_text_view_set_gfile(MbTextView *self, GFile *file)
 	gchar *contents;
 	gsize length;
 
-	// Set filename label.
 	gchar *basename = g_file_get_basename(file);
 	gtk_label_set_text(GTK_LABEL(self->label), basename);
-
-	// Read file contents into text buffer.
 
 	contents = file_service_read_file(file, &length);
 
@@ -86,7 +83,7 @@ void mb_text_view_set_gfile(MbTextView *self, GFile *file)
 		gtk_text_buffer_set_text(buffer, contents, length);
 	}
 
-	update_tags(buffer);
+	update_tags(self, buffer);
 	g_free(contents);
 }
 
@@ -107,7 +104,7 @@ static void changed(GtkTextBuffer *buffer, gpointer user_data)
 		g_free(text);
 	}
 
-	update_tags(buffer);
+	update_tags(self, buffer);
 }
 
 static void clear_tags(GtkTextBuffer *buffer, gint line_number)
@@ -122,20 +119,6 @@ static void clear_tags(GtkTextBuffer *buffer, gint line_number)
 		gtk_text_iter_forward_to_line_end(&end);
 	}
 	gtk_text_buffer_remove_all_tags(buffer, &start, &end);
-}
-
-static gboolean find_indent_range(GtkTextBuffer *buffer, GtkTextIter *start, GtkTextIter *end)
-{
-	GtkTextIter pointer = *start;
-	gtk_text_iter_forward_char(&pointer);
-	gunichar c = gtk_text_iter_get_char(&pointer);
-
-	if(c == ' ' || c == '*')
-	{
-		return FALSE;
-	}
-
-	return FALSE;
 }
 
 static gint get_line_number(GtkTextBuffer *buffer)
@@ -197,7 +180,14 @@ static void mb_text_view_init(MbTextView *self)
 	self->label = gtk_label_new("No File Open");
 	self->scrolled_window = gtk_scrolled_window_new();
 	self->text_view = gtk_text_view_new();
-	
+	self->image = mb_image_new("./resources/images/amumu.jpg");
+	GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(self->text_view));
+
+	// GtkTextIter iter;
+	// gtk_text_buffer_get_iter_at_offset(buffer, &iter, 0);
+	// GtkTextChildAnchor *anchor = gtk_text_buffer_create_child_anchor(buffer, &iter);
+	// gtk_text_view_add_child_at_anchor(GTK_TEXT_VIEW(self->text_view), self->image, anchor);
+
 	/* Configure widgets */
 	GtkScrolledWindow *scrolled_window = GTK_SCROLLED_WINDOW(self->scrolled_window);
 	gtk_scrolled_window_set_child(scrolled_window, self->text_view);
@@ -208,7 +198,6 @@ static void mb_text_view_init(MbTextView *self)
 	gtk_text_view_set_top_margin(GTK_TEXT_VIEW(self->text_view), 25);
 	gtk_text_view_set_bottom_margin(GTK_TEXT_VIEW(self->text_view), 25);
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(self->text_view), FALSE);
-	gtk_text_view_set_monospace(GTK_TEXT_VIEW(self->text_view), TRUE);
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(self->text_view), GTK_WRAP_CHAR);
 
 	gtk_widget_set_hexpand(self->scrolled_window, TRUE);
@@ -218,19 +207,19 @@ static void mb_text_view_init(MbTextView *self)
 	gtk_box_append(GTK_BOX(self->container), self->scrolled_window);
 
 	gtk_widget_set_parent(self->container, GTK_WIDGET(self));
+	
 
 	/* Connect to signals */
-	GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(self->text_view));
 	gtk_text_buffer_create_tag(buffer, "author", "background", "blue", NULL);
 	gtk_text_buffer_create_tag(buffer, "properties", "background", "green", NULL);
 	gtk_text_buffer_create_tag(buffer, "title", "background", "purple", NULL);
-	gtk_text_buffer_create_tag(buffer, "heading", "font", "Monospace 18", NULL);
+	gtk_text_buffer_create_tag(buffer, "heading", "font", "Open Sans 18", NULL);
 	gtk_text_buffer_create_tag(buffer, "bold", "weight", PANGO_WEIGHT_BOLD, NULL);
 	gtk_text_buffer_create_tag(buffer, "italic", "style", PANGO_STYLE_ITALIC, NULL);
 	g_signal_connect(buffer, "changed", G_CALLBACK(changed), self);
 }
 
-static void update_tags(GtkTextBuffer *buffer)
+static void update_tags(MbTextView *self, GtkTextBuffer *buffer)
 {
 	// Clear all tags in the buffer
 	{
@@ -290,18 +279,6 @@ static void update_tags(GtkTextBuffer *buffer)
 			{
 				gtk_text_buffer_apply_tag_by_name(buffer, "heading", &start, &end);
 				state = SEARCH_PROPERTY;
-				if(heading_level > 1)
-				{
-					GtkTextTag *tag = 
-						gtk_text_buffer_create_tag(buffer, NULL, "left-margin", heading_level * 20, NULL);
-					gtk_text_buffer_apply_tag(buffer, tag, &start, &end);
-				}
-				parent_level = heading_level;
-			}
-			else if(parent_level > 1)
-			{
-				GtkTextTag *tag = gtk_text_buffer_create_tag(buffer, NULL, "left-margin", parent_level * 20, NULL);
-				gtk_text_buffer_apply_tag(buffer, tag, &start, &end);
 			}
 
 			GQueue *stack = g_queue_new();
