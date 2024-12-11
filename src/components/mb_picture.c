@@ -15,9 +15,8 @@ struct _MbPicture
 {
 	GtkWidget parent;
 	/* Widgets */
+	GtkWidget *frame;
 	GtkWidget *picture;
-	GtkWidget *overlay;
-	GtkWidget *button;
 	/* Event listeners */
 	GtkGesture *click_listener;
 	/* Properties */
@@ -95,7 +94,7 @@ static void pressed(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, g
 static void dispose(GObject *object)
 {
 	MbPicture *self = MB_PICTURE(object);
-	g_clear_pointer(&self->picture, gtk_widget_unparent);
+	g_clear_pointer(&self->frame, gtk_widget_unparent);
 	G_OBJECT_CLASS(mb_picture_parent_class)->dispose(object);
 }
 
@@ -120,12 +119,13 @@ static void mb_picture_class_init(MbPictureClass *klass)
 static void mb_picture_init(MbPicture *self)
 {
 	self->picture = gtk_picture_new();
-	self->overlay = gtk_overlay_new();
-	self->button = gtk_button_new_with_label("Button");
+	self->frame = gtk_frame_new(NULL);
+
 	self->click_listener = gtk_gesture_click_new();
-	gtk_picture_set_content_fit(GTK_PICTURE(self->picture), GTK_CONTENT_FIT_SCALE_DOWN);
+
+	gtk_frame_set_child(GTK_FRAME(self->frame), self->picture);
 	gtk_widget_add_controller(self->picture, GTK_EVENT_CONTROLLER(self->click_listener));
-	gtk_widget_set_parent(self->picture, GTK_WIDGET(self));
+	gtk_widget_set_parent(self->frame, GTK_WIDGET(self));
 	gtk_widget_set_size_request(GTK_WIDGET(self), 300, 300);
 	g_signal_connect(self->click_listener, "pressed", G_CALLBACK(pressed), NULL);
 }
