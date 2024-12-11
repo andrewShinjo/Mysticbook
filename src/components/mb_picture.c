@@ -3,7 +3,7 @@
 /* Private definition */
 
 static void pressed(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, gpointer user_data);
-
+static void notify_path(GObject *object, GParamSpec *pspec, gpointer user_data);
 static void dispose(GObject *object);
 static void finalize(GObject *object);
 static void get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec);
@@ -20,7 +20,7 @@ struct _MbPicture
 	/* Event listeners */
 	GtkGesture *click_listener;
 	/* Properties */
-	gchar *picture_path;
+	gchar *path;
 };
 
 G_DEFINE_TYPE(MbPicture, mb_picture, GTK_TYPE_WIDGET)
@@ -29,7 +29,7 @@ G_DEFINE_TYPE(MbPicture, mb_picture, GTK_TYPE_WIDGET)
 
 enum property_types
 {
-	PROP_PICTURE_PATH = 1,
+	PROP_PATH = 1,
 	N_PROPERTIES
 };
 
@@ -41,9 +41,9 @@ static void get_property(GObject *object, guint property_id, GValue *value, GPar
 
 	switch(property_id)
 	{
-		case PROP_PICTURE_PATH:
+		case PROP_PATH:
 		{
-			g_value_set_string(value, self->picture_path);
+			g_value_set_string(value, self->path);
 			break;
 		}
 		default:
@@ -60,11 +60,12 @@ static void set_property(GObject *object, guint property_id, const GValue *value
 
 	switch(property_id)
 	{
-		case PROP_PICTURE_PATH:
+		case PROP_PATH:
 		{
-			g_free(self->picture_path);
-			self->picture_path = g_value_dup_string(value);
-			gtk_picture_set_filename(GTK_PICTURE(self->picture), self->picture_path);
+			g_print("PROP_path\n");
+			g_free(self->path);
+			self->path = g_value_dup_string(value);
+			gtk_picture_set_filename(GTK_PICTURE(self->picture), self->path);
 			break;
 		}
 		default:
@@ -79,9 +80,9 @@ static void set_property(GObject *object, guint property_id, const GValue *value
 
 /* Public implementation */
 
-GtkWidget* mb_picture_new(const gchar *picture_path)
+GtkWidget* mb_picture_new(const gchar *path)
 {
-	return g_object_new(MB_TYPE_PICTURE, "picture_path", picture_path, NULL);
+	return g_object_new(MB_TYPE_PICTURE, "path", path, NULL);
 }
 
 /* Private implementation */
@@ -89,6 +90,15 @@ GtkWidget* mb_picture_new(const gchar *picture_path)
 static void pressed(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, gpointer user_data)
 {
 	g_print("Pressed\n");
+}
+
+static void notify_path(GObject *object, GParamSpec *pspec, gpointer user_data)
+{
+	MbPicture *self = MB_PICTURE(user_data);
+	GdkPaintable *paintable = gtk_picture_get_paintable(GTK_PICTURE(self->picture));
+	gint height = gdk_paintable_get_intrinsic_height(paintable);
+	gint width = gdk_paintable_get_intrinsic_width(paintable);
+	gtk_widget_set_size_request(self->picture, width, height);
 }
 
 static void dispose(GObject *object)
@@ -111,7 +121,7 @@ static void mb_picture_class_init(MbPictureClass *klass)
 	object_class->get_property = get_property;
 	object_class->set_property = set_property;
 
-	properties[PROP_PICTURE_PATH] = g_param_spec_string("picture_path", NULL, NULL, NULL, G_PARAM_READWRITE);
+	properties[PROP_PATH] = g_param_spec_string("path", NULL, NULL, NULL, G_PARAM_READWRITE);
 	g_object_class_install_properties(object_class, N_PROPERTIES, properties);
 	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(klass), GTK_TYPE_BOX_LAYOUT);
 }
@@ -123,9 +133,9 @@ static void mb_picture_init(MbPicture *self)
 
 	self->click_listener = gtk_gesture_click_new();
 
-	gtk_frame_set_child(GTK_FRAME(self->frame), self->picture);
+	//gtk_frame_set_child(GTK_FRAME(self->frame), self->picture);
 	gtk_widget_add_controller(self->picture, GTK_EVENT_CONTROLLER(self->click_listener));
-	gtk_widget_set_parent(self->frame, GTK_WIDGET(self));
-	gtk_widget_set_size_request(GTK_WIDGET(self), 300, 300);
+	gtk_widget_set_parent(self->picture, GTK_WIDGET(self));
 	g_signal_connect(self->click_listener, "pressed", G_CALLBACK(pressed), NULL);
+	g_signal_connect(self, "notify::path", G_CALLBACK(notify_path), self);
 }
