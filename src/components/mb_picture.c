@@ -16,6 +16,8 @@ struct _MbPicture
 	GtkWidget parent;
 	/* Widgets */
 	GtkWidget *picture;
+	GtkWidget *overlay;
+	GtkWidget *button;
 	/* Event listeners */
 	GtkGesture *click_listener;
 	/* Properties */
@@ -118,6 +120,8 @@ static void mb_picture_class_init(MbPictureClass *klass)
 static void mb_picture_init(MbPicture *self)
 {
 	self->picture = gtk_picture_new();
+	self->overlay = gtk_overlay_new();
+	self->button = gtk_button_new_with_label("Button");
 	self->click_listener = gtk_gesture_click_new();
 	gtk_picture_set_content_fit(GTK_PICTURE(self->picture), GTK_CONTENT_FIT_SCALE_DOWN);
 	gtk_widget_add_controller(self->picture, GTK_EVENT_CONTROLLER(self->click_listener));
