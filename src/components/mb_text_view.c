@@ -1,4 +1,4 @@
-#include "./mb_image.h"
+#include "./mb_picture.h"
 #include "./mb_text_view.h"
 #include "../clipboard_service.h"
 #include "../file_service.h"
@@ -23,19 +23,10 @@ static gint get_heading_level(GtkTextBuffer *buffer, int line_number);
 
 static gint get_line_number(GtkTextBuffer *buffer);
 
-static gboolean key_pressed(
-	GtkEventControllerKey* key_event, guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
-{
-	const gboolean CONTROL_V_PRESSED = (state & GDK_CONTROL_MASK) && keyval == GDK_KEY_v;
-	if(CONTROL_V_PRESSED && clipboard_service_has_image())
-	{
-		g_print("Is image.\n");
-		clipboard_service_save_image();
-		return TRUE;
-	}
+static void insert_picture_at_insert(MbTextView *self, const gchar* picture_path);
 
-	return FALSE;
-}
+static gboolean key_pressed(
+	GtkEventControllerKey* key_event, guint keyval, guint keycode, GdkModifierType state, gpointer user_data);
 
 static void mb_text_view_class_init(MbTextViewClass *klass);
 
@@ -55,7 +46,7 @@ struct _MbTextView
 	GtkWidget *label;
 	GtkWidget *scrolled_window;
 	GtkWidget *text_view;
-	GtkWidget *image;
+	GtkWidget *picture;
 	/* Event listeners */
 	GtkEventController *key_event;
 	/* Other fields */
@@ -146,6 +137,36 @@ static gint get_line_number(GtkTextBuffer *buffer)
 	return gtk_text_iter_get_line(&iter);
 }
 
+static void insert_picture_at_insert(MbTextView *self, const gchar* picture_path)
+{
+	GtkWidget *picture = mb_picture_new(picture_path);
+	GtkTextView *text_view = GTK_TEXT_VIEW(self->text_view);
+	GtkTextBuffer *buffer = gtk_text_view_get_buffer(text_view);
+	GtkTextMark *insert_mark = gtk_text_buffer_get_insert(buffer);
+	GtkTextIter iter;
+	gtk_text_buffer_get_iter_at_mark(buffer, &iter, insert_mark);
+	GtkTextChildAnchor *anchor = gtk_text_buffer_create_child_anchor(buffer, &iter);
+	gtk_text_view_add_child_at_anchor(text_view, picture, anchor);
+
+}
+
+static gboolean key_pressed(
+	GtkEventControllerKey* key_event, guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
+{
+	MbTextView *self = MB_TEXT_VIEW(user_data);
+	const gboolean CONTROL_V_PRESSED = (state & GDK_CONTROL_MASK) && keyval == GDK_KEY_v;
+
+	if(CONTROL_V_PRESSED && clipboard_service_has_picture())
+	{
+		g_print("Is picture.\n");
+		const gchar *filename = clipboard_service_save_picture();
+		insert_picture_at_insert(self, filename);
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 static gint get_heading_level(GtkTextBuffer *buffer, int line_number)
 {
 	GtkTextIter iter;
@@ -197,7 +218,7 @@ static void mb_text_view_init(MbTextView *self)
 	self->label = gtk_label_new("No File Open");
 	self->scrolled_window = gtk_scrolled_window_new();
 	self->text_view = gtk_text_view_new();
-	self->image = mb_image_new("./resources/images/amumu.jpg");
+	self->picture = mb_picture_new("./resources/images/amumu.jpg");
 	GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(self->text_view));
 	/* Instantiate event listeners */
 	self->key_event = gtk_event_controller_key_new();
@@ -205,7 +226,7 @@ static void mb_text_view_init(MbTextView *self)
 	// GtkTextIter iter;
 	// gtk_text_buffer_get_iter_at_offset(buffer, &iter, 0);
 	// GtkTextChildAnchor *anchor = gtk_text_buffer_create_child_anchor(buffer, &iter);
-	// gtk_text_view_add_child_at_anchor(GTK_TEXT_VIEW(self->text_view), self->image, anchor);
+	// gtk_text_view_add_child_at_anchor(GTK_TEXT_VIEW(self->text_view), self->picture, anchor);
 
 	/* Configure widgets */
 	GtkScrolledWindow *scrolled_window = GTK_SCROLLED_WINDOW(self->scrolled_window);
@@ -236,7 +257,7 @@ static void mb_text_view_init(MbTextView *self)
 	gtk_text_buffer_create_tag(buffer, "heading", "font", "Open Sans 18", NULL);
 	gtk_text_buffer_create_tag(buffer, "bold", "weight", PANGO_WEIGHT_BOLD, NULL);
 	gtk_text_buffer_create_tag(buffer, "italic", "style", PANGO_STYLE_ITALIC, NULL);
-	g_signal_connect(self->key_event, "key-pressed", G_CALLBACK(key_pressed), NULL);
+	g_signal_connect(self->key_event, "key-pressed", G_CALLBACK(key_pressed), self);
 	g_signal_connect(buffer, "changed", G_CALLBACK(changed), self);
 }
 

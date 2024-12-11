@@ -3,6 +3,6 @@
 
 /* Public declaration */
 
-gboolean clipboard_service_has_image();
+gboolean clipboard_service_has_picture();
 
-const gchar* clipboard_service_save_image();
+const gchar* clipboard_service_save_picture();
