@@ -290,101 +290,111 @@ static void update_tags(GtkTextBuffer *buffer)
 			{
 				gtk_text_buffer_apply_tag_by_name(buffer, "heading", &start, &end);
 				state = SEARCH_PROPERTY;
-			}
-			else if(!is_heading)
-			{
-				GQueue *stack = g_queue_new();
-				int start_pos = gtk_text_iter_get_offset(&start);
-				GtkTextIter pointer = start;
-
-				while(!gtk_text_iter_is_end(&pointer))
+				if(heading_level > 1)
 				{
-					gunichar c = gtk_text_iter_get_char(&pointer);
-
-					if(c == '/')
-					{
-						gboolean is_ending = FALSE;
-
-						if(!gtk_text_iter_starts_line(&pointer))
-						{
-							GtkTextIter backward_iter = pointer;
-							gtk_text_iter_backward_char(&backward_iter);
-							gunichar previous_char = gtk_text_iter_get_char(&backward_iter);
-
-							if(previous_char != ' ' && previous_char != '\n' && previous_char != '/'
-								&& !g_queue_is_empty(stack))
-							{
-								gint italic_start_offset = GPOINTER_TO_INT(g_queue_peek_tail(stack));
-								gint italic_end_offset = gtk_text_iter_get_offset(&pointer) + 1;
-								GtkTextIter italic_start_iter = start;
-								GtkTextIter italic_end_iter = start;
-								gtk_text_iter_forward_chars(&italic_start_iter, italic_start_offset);
-								gtk_text_iter_forward_chars(&italic_end_iter, italic_end_offset);
-								gunichar italic_start_char = gtk_text_iter_get_char(&italic_start_iter);
-
-								if(italic_start_char == '/')
-								{
-									g_queue_pop_tail(stack);
-									gtk_text_buffer_apply_tag_by_name(buffer, "italic", &italic_start_iter, &italic_end_iter);
-									is_ending = TRUE;
-								}
-							}
-						}
-						if(!is_ending && !gtk_text_iter_ends_line(&pointer))
-						{
-							GtkTextIter forward_iter = pointer;
-							gtk_text_iter_forward_char(&forward_iter);
-							gunichar forward_char = gtk_text_iter_get_char(&forward_iter);
-							if(forward_char != ' ' && forward_char != '\n' && forward_char != '/' && forward_char != 0)
-							{
-								gint pos = gtk_text_iter_get_offset(&pointer);
-								g_queue_push_tail(stack, GINT_TO_POINTER(pos));
-							}
-						}
-					}
-					else if(c == '*')
-					{
-						gboolean is_ending = FALSE;
-
-						if(!gtk_text_iter_starts_line(&pointer))
-						{
-							GtkTextIter backward_iter = pointer;
-							gtk_text_iter_backward_char(&backward_iter);
-							gunichar backward_char = gtk_text_iter_get_char(&backward_iter);
-							if(backward_char != ' ' && backward_char != '\n' && backward_char != '*'
-								&& !g_queue_is_empty(stack))
-							{
-								gint bold_start_offset = GPOINTER_TO_INT(g_queue_peek_tail(stack));
-								gint bold_end_offset = gtk_text_iter_get_offset(&pointer) + 1;
-								GtkTextIter bold_start_iter = start;
-								GtkTextIter bold_end_iter = start;
-								gtk_text_iter_forward_chars(&bold_start_iter, bold_start_offset);
-								gtk_text_iter_forward_chars(&bold_end_iter, bold_end_offset);
-								gunichar bold_start_char = gtk_text_iter_get_char(&bold_start_iter);
-
-								if(bold_start_char == '*')
-								{
-									g_queue_pop_tail(stack);
-									gtk_text_buffer_apply_tag_by_name(buffer, "bold", &bold_start_iter, &bold_end_iter);
-									is_ending = TRUE;
-								}
-							}
-						}	
-						if(!is_ending && !gtk_text_iter_ends_line(&pointer))
-						{
-							GtkTextIter forward_iter = pointer;
-							gtk_text_iter_forward_char(&forward_iter);
-							gunichar forward_char = gtk_text_iter_get_char(&forward_iter);
-							if(forward_char != ' ' && forward_char != '\n' && forward_char != '*' && forward_char != 0)
-							{
-								gint pos = gtk_text_iter_get_offset(&pointer);
-								g_queue_push_tail(stack, GINT_TO_POINTER(pos));
-							}
-						}
-					}
-
-					gtk_text_iter_forward_char(&pointer);
+					GtkTextTag *tag = 
+						gtk_text_buffer_create_tag(buffer, NULL, "left-margin", heading_level * 20, NULL);
+					gtk_text_buffer_apply_tag(buffer, tag, &start, &end);
 				}
+				parent_level = heading_level;
+			}
+			else if(parent_level > 1)
+			{
+				GtkTextTag *tag = gtk_text_buffer_create_tag(buffer, NULL, "left-margin", parent_level * 20, NULL);
+				gtk_text_buffer_apply_tag(buffer, tag, &start, &end);
+			}
+
+			GQueue *stack = g_queue_new();
+			int start_pos = gtk_text_iter_get_offset(&start);
+			GtkTextIter pointer = start;
+
+			while(!gtk_text_iter_is_end(&pointer))
+			{
+				gunichar c = gtk_text_iter_get_char(&pointer);
+
+				if(c == '/')
+				{
+					gboolean is_ending = FALSE;
+
+					if(!gtk_text_iter_starts_line(&pointer))
+					{
+						GtkTextIter backward_iter = pointer;
+						gtk_text_iter_backward_char(&backward_iter);
+						gunichar previous_char = gtk_text_iter_get_char(&backward_iter);
+
+						if(previous_char != ' ' && previous_char != '\n' && previous_char != '/'
+							&& !g_queue_is_empty(stack))
+						{
+							gint italic_start_offset = GPOINTER_TO_INT(g_queue_peek_tail(stack));
+							gint italic_end_offset = gtk_text_iter_get_offset(&pointer) + 1;
+							GtkTextIter italic_start_iter = start;
+							GtkTextIter italic_end_iter = start;
+							gtk_text_iter_forward_chars(&italic_start_iter, italic_start_offset);
+							gtk_text_iter_forward_chars(&italic_end_iter, italic_end_offset);
+							gunichar italic_start_char = gtk_text_iter_get_char(&italic_start_iter);
+
+							if(italic_start_char == '/')
+							{
+								g_queue_pop_tail(stack);
+								gtk_text_buffer_apply_tag_by_name(buffer, "italic", &italic_start_iter, &italic_end_iter);
+								is_ending = TRUE;
+							}
+						}
+					}
+					if(!is_ending && !gtk_text_iter_ends_line(&pointer))
+					{
+						GtkTextIter forward_iter = pointer;
+						gtk_text_iter_forward_char(&forward_iter);
+						gunichar forward_char = gtk_text_iter_get_char(&forward_iter);
+						if(forward_char != ' ' && forward_char != '\n' && forward_char != '/' && forward_char != 0)
+						{
+							gint pos = gtk_text_iter_get_offset(&pointer);
+							g_queue_push_tail(stack, GINT_TO_POINTER(pos));
+						}
+					}
+				}
+				else if(c == '*')
+				{
+					gboolean is_ending = FALSE;
+
+					if(!gtk_text_iter_starts_line(&pointer))
+					{
+						GtkTextIter backward_iter = pointer;
+						gtk_text_iter_backward_char(&backward_iter);
+						gunichar backward_char = gtk_text_iter_get_char(&backward_iter);
+						if(backward_char != ' ' && backward_char != '\n' && backward_char != '*'
+							&& !g_queue_is_empty(stack))
+						{
+							gint bold_start_offset = GPOINTER_TO_INT(g_queue_peek_tail(stack));
+							gint bold_end_offset = gtk_text_iter_get_offset(&pointer) + 1;
+							GtkTextIter bold_start_iter = start;
+							GtkTextIter bold_end_iter = start;
+							gtk_text_iter_forward_chars(&bold_start_iter, bold_start_offset);
+							gtk_text_iter_forward_chars(&bold_end_iter, bold_end_offset);
+							gunichar bold_start_char = gtk_text_iter_get_char(&bold_start_iter);
+
+							if(bold_start_char == '*')
+							{
+								g_queue_pop_tail(stack);
+								gtk_text_buffer_apply_tag_by_name(buffer, "bold", &bold_start_iter, &bold_end_iter);
+								is_ending = TRUE;
+							}
+						}
+					}	
+					if(!is_ending && !gtk_text_iter_ends_line(&pointer))
+					{
+						GtkTextIter forward_iter = pointer;
+						gtk_text_iter_forward_char(&forward_iter);
+						gunichar forward_char = gtk_text_iter_get_char(&forward_iter);
+						if(forward_char != ' ' && forward_char != '\n' && forward_char != '*' && forward_char != 0)
+						{
+							gint pos = gtk_text_iter_get_offset(&pointer);
+							g_queue_push_tail(stack, GINT_TO_POINTER(pos));
+						}
+					}
+				}
+
+				gtk_text_iter_forward_char(&pointer);
 			}
 			line++;
 		}
