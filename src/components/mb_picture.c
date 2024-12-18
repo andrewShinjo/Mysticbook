@@ -18,6 +18,13 @@ struct _MbPicture
 	GtkWidget *overlay;
 	GtkWidget *button;
 	GtkWidget *picture;
+
+	GtkWidget *popover;
+	GtkWidget *box;
+	GtkWidget *small_button;
+	GtkWidget *medium_button;
+	GtkWidget *large_button;
+	GtkWidget *delete_button;
 	/* Event listeners */
 	GtkGesture *click_listener;
 	/* Properties */
@@ -63,7 +70,6 @@ static void set_property(GObject *object, guint property_id, const GValue *value
 	{
 		case PROP_PATH:
 		{
-			g_print("PROP_path\n");
 			g_free(self->path);
 			self->path = g_value_dup_string(value);
 			gtk_picture_set_filename(GTK_PICTURE(self->picture), self->path);
@@ -105,7 +111,7 @@ static void notify_path(GObject *object, GParamSpec *pspec, gpointer user_data)
 static void dispose(GObject *object)
 {
 	MbPicture *self = MB_PICTURE(object);
-	g_clear_pointer(&self->picture, gtk_widget_unparent);
+	g_clear_pointer(&self->overlay, gtk_widget_unparent);
 	G_OBJECT_CLASS(mb_picture_parent_class)->dispose(object);
 }
 
@@ -133,6 +139,13 @@ static void mb_picture_init(MbPicture *self)
 	self->button = gtk_button_new_with_label("Button");
 	self->picture = gtk_picture_new();
 	self->click_listener = gtk_gesture_click_new();
+
+	self->popover = gtk_popover_new();
+	self->box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+	self->small_button = gtk_button_new_with_label("Small Image");
+	self->medium_button = gtk_button_new_with_label("Medium Image");
+	self->large_button = gtk_button_new_with_label("Large Image");
+	self->delete_button = gtk_button_new_with_label("Delete Image");
 
 	gtk_overlay_set_child(GTK_OVERLAY(self->overlay), self->picture);
 	gtk_overlay_add_overlay(GTK_OVERLAY(self->overlay), self->button);

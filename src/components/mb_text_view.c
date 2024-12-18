@@ -102,6 +102,7 @@ static void changed(GtkTextBuffer *buffer, gpointer user_data)
 	MbTextView *self = MB_TEXT_VIEW(user_data);
 
 	// Save text to disk.
+	/*
 	{	
 		GtkTextIter start, end;
 		gtk_text_buffer_get_start_iter(buffer, &start);
@@ -111,6 +112,7 @@ static void changed(GtkTextBuffer *buffer, gpointer user_data)
 		file_service_update_file(self->file, text, length);
 		g_free(text);
 	}
+	*/
 
 	update_tags(self, buffer);
 }
