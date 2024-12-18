@@ -2,6 +2,7 @@
 
 /* Private definition */
 
+static void clicked(GtkButton *button, gpointer user_data);
 static void pressed(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, gpointer user_data);
 static void notify_path(GObject *object, GParamSpec *pspec, gpointer user_data);
 static void dispose(GObject *object);
@@ -94,6 +95,11 @@ GtkWidget* mb_picture_new(const gchar *path)
 
 /* Private implementation */
 
+static void clicked(GtkButton *button, gpointer user_data)
+{
+	g_print("Clicked\n");
+}
+
 static void pressed(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, gpointer user_data)
 {
 	g_print("Pressed\n");
@@ -153,8 +159,15 @@ static void mb_picture_init(MbPicture *self)
 	gtk_widget_set_valign(self->button, GTK_ALIGN_START);
 	gtk_widget_set_size_request(self->button, 50, 50);
 
+	gtk_box_append(GTK_BOX(self->box), self->small_button);
+	gtk_box_append(GTK_BOX(self->box), self->medium_button);
+	gtk_box_append(GTK_BOX(self->box), self->large_button);
+	gtk_box_append(GTK_BOX(self->box), self->delete_button);
+	gtk_popover_set_child(GTK_POPOVER(self->popover), self->box);
+
 	gtk_widget_add_controller(self->picture, GTK_EVENT_CONTROLLER(self->click_listener));
 	gtk_widget_set_parent(self->overlay, GTK_WIDGET(self));
 	g_signal_connect(self->click_listener, "pressed", G_CALLBACK(pressed), NULL);
 	g_signal_connect(self, "notify::path", G_CALLBACK(notify_path), self);
+	g_signal_connect(self->button, "clicked", G_CALLBACK(clicked), self->popover);
 }
