@@ -2,7 +2,7 @@
 
 /* Private definition */
 
-static void clicked(GtkButton *button, gpointer user_data);
+static void drag_begin(GtkGestureDrag* self, gdouble start_x, gdouble start_y, gpointer user_data);
 static void pressed(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, gpointer user_data);
 static void notify_path(GObject *object, GParamSpec *pspec, gpointer user_data);
 static void dispose(GObject *object);
@@ -16,18 +16,11 @@ struct _MbPicture
 {
 	GtkWidget parent;
 	/* Widgets */
-	GtkWidget *overlay;
-	GtkWidget *button;
 	GtkWidget *picture;
 
-	GtkWidget *popover;
-	GtkWidget *box;
-	GtkWidget *small_button;
-	GtkWidget *medium_button;
-	GtkWidget *large_button;
-	GtkWidget *delete_button;
 	/* Event listeners */
 	GtkGesture *click_listener;
+	GtkGesture *drag_listener;
 	/* Properties */
 	gchar *path;
 };
@@ -95,9 +88,12 @@ GtkWidget* mb_picture_new(const gchar *path)
 
 /* Private implementation */
 
-static void clicked(GtkButton *button, gpointer user_data)
+static void drag_begin(GtkGestureDrag* self, gdouble start_x, gdouble start_y, gpointer user_data)
 {
-	g_print("Clicked\n");
+	GtkWidget *picture = GTK_WIDGET(user_data);
+	gint height = gtk_widget_get_width(picture);
+	gint width = gtk_widget_get_height(picture);
+	g_print("drag_begin: height=%d, width=%d\n", height, width);
 }
 
 static void pressed(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, gpointer user_data)
@@ -117,7 +113,7 @@ static void notify_path(GObject *object, GParamSpec *pspec, gpointer user_data)
 static void dispose(GObject *object)
 {
 	MbPicture *self = MB_PICTURE(object);
-	g_clear_pointer(&self->overlay, gtk_widget_unparent);
+	g_clear_pointer(&self->picture, gtk_widget_unparent);
 	G_OBJECT_CLASS(mb_picture_parent_class)->dispose(object);
 }
 
@@ -141,33 +137,16 @@ static void mb_picture_class_init(MbPictureClass *klass)
 
 static void mb_picture_init(MbPicture *self)
 {
-	self->overlay = gtk_overlay_new();
-	self->button = gtk_button_new_with_label("Button");
 	self->picture = gtk_picture_new();
 	self->click_listener = gtk_gesture_click_new();
-
-	self->popover = gtk_popover_new();
-	self->box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-	self->small_button = gtk_button_new_with_label("Small Image");
-	self->medium_button = gtk_button_new_with_label("Medium Image");
-	self->large_button = gtk_button_new_with_label("Large Image");
-	self->delete_button = gtk_button_new_with_label("Delete Image");
-
-	gtk_overlay_set_child(GTK_OVERLAY(self->overlay), self->picture);
-	gtk_overlay_add_overlay(GTK_OVERLAY(self->overlay), self->button);
-	gtk_widget_set_halign(self->button, GTK_ALIGN_END);
-	gtk_widget_set_valign(self->button, GTK_ALIGN_START);
-	gtk_widget_set_size_request(self->button, 50, 50);
-
-	gtk_box_append(GTK_BOX(self->box), self->small_button);
-	gtk_box_append(GTK_BOX(self->box), self->medium_button);
-	gtk_box_append(GTK_BOX(self->box), self->large_button);
-	gtk_box_append(GTK_BOX(self->box), self->delete_button);
-	gtk_popover_set_child(GTK_POPOVER(self->popover), self->box);
+	self->drag_listener = gtk_gesture_drag_new();
 
 	gtk_widget_add_controller(self->picture, GTK_EVENT_CONTROLLER(self->click_listener));
-	gtk_widget_set_parent(self->overlay, GTK_WIDGET(self));
-	g_signal_connect(self->click_listener, "pressed", G_CALLBACK(pressed), NULL);
+	gtk_widget_add_controller(self->picture, GTK_EVENT_CONTROLLER(self->drag_listener));
+
+	gtk_widget_set_parent(self->picture, GTK_WIDGET(self));
+
+	g_signal_connect(self->drag_listener, "drag_begin", G_CALLBACK(drag_begin), self->picture);
+	g_signal_connect(self->click_listener, "pressed", G_CALLBACK(pressed), self->picture);
 	g_signal_connect(self, "notify::path", G_CALLBACK(notify_path), self);
-	g_signal_connect(self->button, "clicked", G_CALLBACK(clicked), self->popover);
 }
