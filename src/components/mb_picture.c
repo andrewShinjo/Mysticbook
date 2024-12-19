@@ -91,9 +91,18 @@ GtkWidget* mb_picture_new(const gchar *path)
 static void drag_begin(GtkGestureDrag* self, gdouble start_x, gdouble start_y, gpointer user_data)
 {
 	GtkWidget *picture = GTK_WIDGET(user_data);
-	gint height = gtk_widget_get_width(picture);
-	gint width = gtk_widget_get_height(picture);
-	g_print("drag_begin: height=%d, width=%d\n", height, width);
+	gint height = gtk_widget_get_height(picture);
+	gint width = gtk_widget_get_width(picture);
+
+	gboolean IS_TOP_LEFT_CORNER = (start_x <= 10 && start_y <= 10);
+	gboolean IS_TOP_RIGHT_CORNER = width - start_x <= 10 && start_y <= 10;
+	gboolean IS_BOTTOM_LEFT_CORNER = start_x <= 10 && height - start_y <= 10;
+	gboolean IS_BOTTOM_RIGHT_CORNER = width - start_x <= 10 && height - start_y <= 10;
+
+	if(IS_TOP_LEFT_CORNER) g_print("Drag TOP LEFT CORNER\n");
+	if(IS_TOP_RIGHT_CORNER) g_print("Drag TOP RIGHT CORNER\n");
+	if(IS_BOTTOM_LEFT_CORNER) g_print("Drag BOTTOM LEFT CORNER\n");
+	if(IS_BOTTOM_RIGHT_CORNER) g_print("Drag BOTTOM RIGHT CORNER\n");
 }
 
 static void pressed(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, gpointer user_data)
