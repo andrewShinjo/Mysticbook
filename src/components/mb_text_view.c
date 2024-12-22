@@ -223,18 +223,19 @@ static void mb_text_view_init(MbTextView *self)
 	GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(self->text_view));
 	/* Instantiate event listeners */
 	self->key_event = gtk_event_controller_key_new();
-
 	/* Configure widgets */
 	GtkScrolledWindow *scrolled_window = GTK_SCROLLED_WINDOW(self->scrolled_window);
-	gtk_scrolled_window_set_child(scrolled_window, self->text_view);
-	gtk_scrolled_window_set_policy(scrolled_window, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	GtkTextView *text_view = GTK_TEXT_VIEW(self->text_view);
 
-	gtk_text_view_set_left_margin(GTK_TEXT_VIEW(self->text_view), 25);
-	gtk_text_view_set_right_margin(GTK_TEXT_VIEW(self->text_view), 25);
-	gtk_text_view_set_top_margin(GTK_TEXT_VIEW(self->text_view), 25);
-	gtk_text_view_set_bottom_margin(GTK_TEXT_VIEW(self->text_view), 25);
-	gtk_text_view_set_editable(GTK_TEXT_VIEW(self->text_view), FALSE);
-	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(self->text_view), GTK_WRAP_CHAR);
+	gtk_scrolled_window_set_child(scrolled_window, self->text_view);
+	gtk_scrolled_window_set_policy(scrolled_window, GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+
+	gtk_text_view_set_left_margin(text_view, 25);
+	gtk_text_view_set_right_margin(text_view, 25);
+	gtk_text_view_set_top_margin(text_view, 25);
+	gtk_text_view_set_bottom_margin(text_view, 25);
+	gtk_text_view_set_editable(text_view, FALSE);
+	gtk_text_view_set_wrap_mode(text_view, GTK_WRAP_CHAR);
 
 	gtk_widget_set_hexpand(self->scrolled_window, TRUE);
 	gtk_widget_set_vexpand(self->scrolled_window, TRUE);

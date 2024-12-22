@@ -17,7 +17,7 @@ struct _MbPicture
 	GtkWidget parent;
 	/* Widgets */
 	GtkWidget *picture;
-
+	GtkTextView *text_view;
 	/* Event listeners */
 	GtkGesture *click_listener;
 	GtkGesture *drag_listener;
@@ -90,32 +90,18 @@ GtkWidget* mb_picture_new(const gchar *path)
 	return g_object_new(MB_TYPE_PICTURE, "path", path, NULL);
 }
 
+void mb_picture_set_text_view(MbPicture *self, GtkTextView *text_view)
+{
+	self->text_view = text_view;
+}
+
 /* Private implementation */
 
 static void drag_begin(GtkGestureDrag* drag, gdouble start_x, gdouble start_y, gpointer user_data)
 {
 	GtkWidget *self = GTK_WIDGET(user_data);
-
 	MB_PICTURE(self)->start_x = start_x;
 	MB_PICTURE(self)->start_y = start_y;
-
-	GtkWidget *picture = MB_PICTURE(self)->picture;
-	gint height = gtk_widget_get_height(picture);
-	gint width = gtk_widget_get_width(picture);
-
-	gboolean IS_TOP_LEFT_CORNER = (start_x <= 10 && start_y <= 10);
-	gboolean IS_TOP_RIGHT_CORNER = width - start_x <= 10 && start_y <= 10;
-	gboolean IS_BOTTOM_LEFT_CORNER = start_x <= 10 && height - start_y <= 10;
-	gboolean IS_BOTTOM_RIGHT_CORNER = width - start_x <= 10 && height - start_y <= 10;
-
-	if(IS_TOP_LEFT_CORNER) g_print("Drag TOP LEFT CORNER\n");
-	else if(IS_TOP_RIGHT_CORNER) g_print("Drag TOP RIGHT CORNER\n");
-	else if(IS_BOTTOM_LEFT_CORNER) g_print("Drag BOTTOM LEFT CORNER\n");
-	else if(IS_BOTTOM_RIGHT_CORNER) 
-	{
-		g_print("Drag bottom right corner: start_x=%f, start_y=%f\n", start_x, start_y);
-		// gtk_widget_set_size_request(picture, width + 10, height + 10);
-	}
 }
 
 static void drag_update(GtkGestureDrag *drag, gdouble offset_x, gdouble offset_y, gpointer user_data)

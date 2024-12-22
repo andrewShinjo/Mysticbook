@@ -7,6 +7,11 @@
 
 static void open_gfile_in_text_view(MbAppWindow *self);
 
+static void notify_default_width(GtkWidget *widget, GParamSpec *pspec, gpointer user_data)
+{
+	g_print("Notify default-width.\n");
+}
+
 /* Widget definition */
 
 struct _MbAppWindow
@@ -37,6 +42,8 @@ static void mb_app_window_init(MbAppWindow *self)
 	gtk_widget_set_vexpand(self->text_view, TRUE);
 
 	gtk_window_set_child(GTK_WINDOW(self), self->container);
+
+	g_signal_connect(self, "notify::default-width", G_CALLBACK(notify_default_width), NULL);
 }
 
 static void mb_app_window_class_init(MbAppWindowClass *klass) {}
