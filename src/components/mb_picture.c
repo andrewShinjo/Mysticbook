@@ -24,6 +24,7 @@ struct _MbPicture
 	/* Properties */
 	gchar *path;
 	/* Other fields */
+	gdouble aspect_ratio;
 	gdouble start_x;
 	gdouble start_y;
 };
@@ -122,7 +123,11 @@ static void drag_update(GtkGestureDrag *drag, gdouble offset_x, gdouble offset_y
 	MbPicture *self = MB_PICTURE(user_data);
 	gdouble start_x = self->start_x;
 	gdouble start_y = self->start_y;
-	g_print("Drag update: offset_x=%f, offset_y=%f\n", offset_x, offset_y);
+
+	gint height = gtk_widget_get_height(self->picture);
+	gint width = gtk_widget_get_width(self->picture);
+
+	gtk_widget_set_size_request(self->picture, start_x + offset_x, (start_x + offset_x) / self->aspect_ratio);
 }
 
 static void pressed(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, gpointer user_data)
@@ -137,6 +142,7 @@ static void notify_path(GObject *object, GParamSpec *pspec, gpointer user_data)
 	gint height = gdk_paintable_get_intrinsic_height(paintable);
 	gint width = gdk_paintable_get_intrinsic_width(paintable);
 	gtk_widget_set_size_request(self->picture, width, height);
+	self->aspect_ratio = (gdouble) width / height;
 }
 
 static void dispose(GObject *object)

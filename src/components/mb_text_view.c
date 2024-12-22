@@ -220,7 +220,6 @@ static void mb_text_view_init(MbTextView *self)
 	self->label = gtk_label_new("No File Open");
 	self->scrolled_window = gtk_scrolled_window_new();
 	self->text_view = gtk_text_view_new();
-	self->picture = mb_picture_new("./resources/images/amumu.jpg");
 	GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(self->text_view));
 	/* Instantiate event listeners */
 	self->key_event = gtk_event_controller_key_new();
@@ -228,7 +227,7 @@ static void mb_text_view_init(MbTextView *self)
 	/* Configure widgets */
 	GtkScrolledWindow *scrolled_window = GTK_SCROLLED_WINDOW(self->scrolled_window);
 	gtk_scrolled_window_set_child(scrolled_window, self->text_view);
-	gtk_scrolled_window_set_policy(scrolled_window, GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+	gtk_scrolled_window_set_policy(scrolled_window, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 
 	gtk_text_view_set_left_margin(GTK_TEXT_VIEW(self->text_view), 25);
 	gtk_text_view_set_right_margin(GTK_TEXT_VIEW(self->text_view), 25);
