@@ -144,6 +144,9 @@ static void insert_picture_at_insert(MbTextView *self, const gchar* picture_path
 	g_print("insert_picture_at_insert\n");
 	GtkWidget *picture = mb_picture_new(picture_path);
 	GtkTextView *text_view = GTK_TEXT_VIEW(self->text_view);
+
+	mb_picture_set_text_view(MB_PICTURE(picture), text_view);
+
 	GtkTextBuffer *buffer = gtk_text_view_get_buffer(text_view);
 	GtkTextMark *insert_mark = gtk_text_buffer_get_insert(buffer);
 	GtkTextIter iter;
@@ -153,8 +156,8 @@ static void insert_picture_at_insert(MbTextView *self, const gchar* picture_path
 
 }
 
-static gboolean key_pressed(
-	GtkEventControllerKey* key_event, guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
+static gboolean 
+key_pressed(GtkEventControllerKey* key, guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
 {
 	MbTextView *self = MB_TEXT_VIEW(user_data);
 	const gboolean CONTROL_V_PRESSED = (state & GDK_CONTROL_MASK) && keyval == GDK_KEY_v;
