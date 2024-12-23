@@ -3,6 +3,7 @@
 /* Private definition */
 
 static void drag_begin(GtkGestureDrag* self, gdouble start_x, gdouble start_y, gpointer user_data);
+static void drag_update(GtkGestureDrag *drag, gdouble offset_x, gdouble offset_y, gpointer user_data);
 static void pressed(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, gpointer user_data);
 static void notify_path(GObject *object, GParamSpec *pspec, gpointer user_data);
 static void dispose(GObject *object);
@@ -125,10 +126,18 @@ static void drag_update(GtkGestureDrag *drag, gdouble offset_x, gdouble offset_y
 	gdouble start_x = self->start_x;
 	gdouble start_y = self->start_y;
 
-	gint height = gtk_widget_get_height(self->picture);
-	gint width = gtk_widget_get_width(self->picture);
+	// Calculate image's requested width.
+	gint requested_width = start_x + offset_x;
 
-	gtk_widget_set_size_request(self->picture, start_x + offset_x, (start_x + offset_x) / self->aspect_ratio);
+	// Calculate image's maximum width.
+	GtkTextView *text_view = self->text_view;
+	gint max_width = gtk_widget_get_width(GTK_WIDGET(text_view)) * 0.50;
+
+	// Calculate image's actual height and width.
+	gint actual_width = (requested_width <= max_width) ? requested_width : max_width;
+	gint actual_height = actual_width / self->aspect_ratio;
+
+	gtk_widget_set_size_request(self->picture, actual_width, actual_height);
 }
 
 static void pressed(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, gpointer user_data)
