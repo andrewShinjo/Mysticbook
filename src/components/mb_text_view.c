@@ -14,26 +14,16 @@ typedef enum
 } ParseState;
 
 static void apply_simple_text_formatting(GtkTextBuffer *buffer, gint line_number);
-
 static void changed(GtkTextBuffer *buffer, gpointer user_data);
-
 static void clear_tags(GtkTextBuffer *buffer, gint line_number);
-
 static gint get_heading_level(GtkTextBuffer *buffer, int line_number);
-
 static gint get_line_number(GtkTextBuffer *buffer);
-
 static void insert_picture_at_insert(MbTextView *self, const gchar* picture_path);
-
-static gboolean key_pressed(
-	GtkEventControllerKey* key_event, guint keyval, guint keycode, GdkModifierType state, gpointer user_data);
-
+static gboolean 
+key_pressed(GtkEventControllerKey* key, guint keyval, guint keycode, GdkModifierType state, gpointer user_data);
 static void mb_text_view_class_init(MbTextViewClass *klass);
-
 static void mb_text_view_dispose(GObject *object);
-
 static void mb_text_view_init(MbTextView *self);
-
 static void update_tags(MbTextView *self, GtkTextBuffer *buffer);
 
 /* Widget definition */
@@ -250,13 +240,15 @@ static void mb_text_view_init(MbTextView *self)
 	
 	gtk_widget_add_controller(self->text_view, self->key_event);
 
-	/* Connect to signals */
+	/* Create tags */
 	gtk_text_buffer_create_tag(buffer, "author", "background", "blue", NULL);
 	gtk_text_buffer_create_tag(buffer, "properties", "background", "green", NULL);
 	gtk_text_buffer_create_tag(buffer, "title", "background", "purple", NULL);
 	gtk_text_buffer_create_tag(buffer, "heading", "font", "Open Sans 18", NULL);
 	gtk_text_buffer_create_tag(buffer, "bold", "weight", PANGO_WEIGHT_BOLD, NULL);
 	gtk_text_buffer_create_tag(buffer, "italic", "style", PANGO_STYLE_ITALIC, NULL);
+
+	/* Connect to signals */
 	g_signal_connect(self->key_event, "key-pressed", G_CALLBACK(key_pressed), self);
 	g_signal_connect(buffer, "changed", G_CALLBACK(changed), self);
 }

@@ -138,6 +138,18 @@ static void drag_update(GtkGestureDrag *drag, gdouble offset_x, gdouble offset_y
 	gint actual_height = actual_width / self->aspect_ratio;
 
 	gtk_widget_set_size_request(self->picture, actual_width, actual_height);
+
+	GtkWidget *parent_window = gtk_widget_get_ancestor(GTK_WIDGET(self), GTK_TYPE_WINDOW);
+	GtkWidget *parent_text_view = gtk_widget_get_ancestor(GTK_WIDGET(self), GTK_TYPE_TEXT_VIEW);
+
+	if(parent_window != NULL)
+	{
+		g_print("Picture has parent window.\n");
+	}
+	if(parent_text_view != NULL)
+	{
+		g_print("Picture has parent text view.\n");
+	}
 }
 
 static void pressed(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, gpointer user_data)
