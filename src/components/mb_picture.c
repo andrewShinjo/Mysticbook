@@ -106,7 +106,7 @@ void mb_picture_set_text_view(MbPicture *self, GtkTextView *text_view)
 	self->text_view_reference = text_view;
 	GtkWidget *widget = GTK_WIDGET(self->text_view_reference);
 	gint text_view_width = gtk_widget_get_width(widget);
-	gint text_view_max_width = text_view_width * 50 / 100;
+	gint text_view_max_width = text_view_width * 0.90;
 
 	// Calculate image's height and width.
 	gint image_width = (native_width <= text_view_max_width) ? native_width : text_view_max_width;
@@ -119,7 +119,7 @@ void mb_picture_set_text_view(MbPicture *self, GtkTextView *text_view)
 void mb_picture_set_window(MbPicture *self, GtkWindow *window_reference)
 {
 	self->window_reference = window_reference;
-	g_signal_connect(self->window_reference, "notify::default-width", G_CALLBACK(notify_default_width), NULL);
+	g_signal_connect(self->window_reference, "notify::default-width", G_CALLBACK(notify_default_width), self);
 }
 
 /* Private implementation */
@@ -142,7 +142,7 @@ static void drag_update(GtkGestureDrag *drag, gdouble offset_x, gdouble offset_y
 
 	// Calculate image's maximum width.
 	GtkTextView *text_view = self->text_view_reference;
-	gint max_width = gtk_widget_get_width(GTK_WIDGET(text_view)) * 0.50;
+	gint max_width = gtk_widget_get_width(GTK_WIDGET(text_view)) * 0.90;
 
 	// Calculate image's actual height and width.
 	gint actual_width = (self->desired_width <= max_width) ? self->desired_width : max_width;
@@ -158,7 +158,14 @@ static void pressed(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, g
 
 static void notify_default_width(GObject *object, GParamSpec *pspec, gpointer user_data)
 {
-	g_print("MbPicture: notify_default_width\n");
+	MbPicture *self = MB_PICTURE(user_data);
+
+	// Calculate image's maximum width.
+	GtkTextView *text_view = self->text_view_reference;
+	gint max_width = gtk_widget_get_width(GTK_WIDGET(text_view)) * 0.90;
+	gint actual_width = (self->desired_width <= max_width) ? self->desired_width : max_width;
+	gint actual_height = actual_width / self->aspect_ratio;
+	gtk_widget_set_size_request(self->picture, actual_width, actual_height);
 }
 
 static void notify_path(GObject *object, GParamSpec *pspec, gpointer user_data)
@@ -167,6 +174,8 @@ static void notify_path(GObject *object, GParamSpec *pspec, gpointer user_data)
 	GdkPaintable *paintable = gtk_picture_get_paintable(GTK_PICTURE(self->picture));
 	gint height = gdk_paintable_get_intrinsic_height(paintable);
 	gint width = gdk_paintable_get_intrinsic_width(paintable);
+
+	self->desired_width = width;
 	self->aspect_ratio = (gdouble) width / height;
 }
 
