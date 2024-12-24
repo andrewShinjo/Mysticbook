@@ -5,6 +5,7 @@
 static void drag_begin(GtkGestureDrag* self, gdouble start_x, gdouble start_y, gpointer user_data);
 static void drag_update(GtkGestureDrag *drag, gdouble offset_x, gdouble offset_y, gpointer user_data);
 static void pressed(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, gpointer user_data);
+static void notify_default_width(GObject *object, GParamSpec *pspec, gpointer user_data);
 static void notify_path(GObject *object, GParamSpec *pspec, gpointer user_data);
 static void dispose(GObject *object);
 static void finalize(GObject *object);
@@ -18,7 +19,8 @@ struct _MbPicture
 	GtkWidget parent;
 	/* Widgets */
 	GtkWidget *picture;
-	GtkTextView *text_view;
+	GtkTextView *text_view_reference;
+	GtkWindow *window_reference;
 	/* Event listeners */
 	GtkGesture *click_listener;
 	GtkGesture *drag_listener;
@@ -28,6 +30,7 @@ struct _MbPicture
 	gdouble aspect_ratio;
 	gdouble start_x;
 	gdouble start_y;
+	gdouble desired_width;
 };
 
 G_DEFINE_TYPE(MbPicture, mb_picture, GTK_TYPE_WIDGET)
@@ -88,7 +91,9 @@ static void set_property(GObject *object, guint property_id, const GValue *value
 
 GtkWidget* mb_picture_new(const gchar *path)
 {
-	return g_object_new(MB_TYPE_PICTURE, "path", path, NULL);
+	g_print("mb_picture_new\n");
+	GtkWidget *widget = g_object_new(MB_TYPE_PICTURE, "path", path, NULL);
+	return widget;
 }
 
 void mb_picture_set_text_view(MbPicture *self, GtkTextView *text_view)
@@ -98,8 +103,8 @@ void mb_picture_set_text_view(MbPicture *self, GtkTextView *text_view)
 	gint native_width = gdk_paintable_get_intrinsic_width(paintable);
 
 	// Get text view's width.
-	self->text_view = text_view;
-	GtkWidget *widget = GTK_WIDGET(self->text_view);
+	self->text_view_reference = text_view;
+	GtkWidget *widget = GTK_WIDGET(self->text_view_reference);
 	gint text_view_width = gtk_widget_get_width(widget);
 	gint text_view_max_width = text_view_width * 50 / 100;
 
@@ -109,6 +114,12 @@ void mb_picture_set_text_view(MbPicture *self, GtkTextView *text_view)
 
 	// Set image's height and width.
 	gtk_widget_set_size_request(self->picture, image_width, image_height);
+}
+
+void mb_picture_set_window(MbPicture *self, GtkWindow *window_reference)
+{
+	self->window_reference = window_reference;
+	g_signal_connect(self->window_reference, "notify::default-width", G_CALLBACK(notify_default_width), NULL);
 }
 
 /* Private implementation */
@@ -127,29 +138,17 @@ static void drag_update(GtkGestureDrag *drag, gdouble offset_x, gdouble offset_y
 	gdouble start_y = self->start_y;
 
 	// Calculate image's requested width.
-	gint requested_width = start_x + offset_x;
+	self->desired_width = start_x + offset_x;
 
 	// Calculate image's maximum width.
-	GtkTextView *text_view = self->text_view;
+	GtkTextView *text_view = self->text_view_reference;
 	gint max_width = gtk_widget_get_width(GTK_WIDGET(text_view)) * 0.50;
 
 	// Calculate image's actual height and width.
-	gint actual_width = (requested_width <= max_width) ? requested_width : max_width;
+	gint actual_width = (self->desired_width <= max_width) ? self->desired_width : max_width;
 	gint actual_height = actual_width / self->aspect_ratio;
 
 	gtk_widget_set_size_request(self->picture, actual_width, actual_height);
-
-	GtkWidget *parent_window = gtk_widget_get_ancestor(GTK_WIDGET(self), GTK_TYPE_WINDOW);
-	GtkWidget *parent_text_view = gtk_widget_get_ancestor(GTK_WIDGET(self), GTK_TYPE_TEXT_VIEW);
-
-	if(parent_window != NULL)
-	{
-		g_print("Picture has parent window.\n");
-	}
-	if(parent_text_view != NULL)
-	{
-		g_print("Picture has parent text view.\n");
-	}
 }
 
 static void pressed(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, gpointer user_data)
@@ -157,10 +156,14 @@ static void pressed(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, g
 	// Do nothing.
 }
 
+static void notify_default_width(GObject *object, GParamSpec *pspec, gpointer user_data)
+{
+	g_print("MbPicture: notify_default_width\n");
+}
+
 static void notify_path(GObject *object, GParamSpec *pspec, gpointer user_data)
 {
 	MbPicture *self = MB_PICTURE(user_data);
-
 	GdkPaintable *paintable = gtk_picture_get_paintable(GTK_PICTURE(self->picture));
 	gint height = gdk_paintable_get_intrinsic_height(paintable);
 	gint width = gdk_paintable_get_intrinsic_width(paintable);
@@ -182,6 +185,7 @@ static void finalize(GObject *object)
 static void mb_picture_class_init(MbPictureClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS(klass);
+
 	object_class->dispose = dispose;
 	object_class->finalize = finalize;
 	object_class->get_property = get_property;
@@ -194,14 +198,16 @@ static void mb_picture_class_init(MbPictureClass *klass)
 
 static void mb_picture_init(MbPicture *self)
 {
+	g_print("mb_picture_init\n");
+
 	self->picture = gtk_picture_new();
 	self->click_listener = gtk_gesture_click_new();
 	self->drag_listener = gtk_gesture_drag_new();
 
+	gtk_widget_set_parent(self->picture, GTK_WIDGET(self));
+
 	gtk_widget_add_controller(self->picture, GTK_EVENT_CONTROLLER(self->click_listener));
 	gtk_widget_add_controller(self->picture, GTK_EVENT_CONTROLLER(self->drag_listener));
-
-	gtk_widget_set_parent(self->picture, GTK_WIDGET(self));
 
 	g_signal_connect(self->drag_listener, "drag_begin", G_CALLBACK(drag_begin), self);
 	g_signal_connect(self->drag_listener, "drag_update", G_CALLBACK(drag_update), self);

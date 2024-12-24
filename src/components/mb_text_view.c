@@ -31,6 +31,7 @@ static void update_tags(MbTextView *self, GtkTextBuffer *buffer);
 struct _MbTextView
 {
 	GtkWidget parent;
+	GtkWindow *window_reference;
 	/* Child widgets */
 	GtkWidget *container;
 	GtkWidget *label;
@@ -51,9 +52,11 @@ G_DEFINE_TYPE(MbTextView, mb_text_view, GTK_TYPE_WIDGET)
 
 /* Public implementation */
 
-GtkWidget* mb_text_view_new()
+GtkWidget* mb_text_view_new(GtkWindow *window_reference)
 {
-	return GTK_WIDGET(g_object_new(MB_TYPE_TEXT_VIEW, NULL));
+	GtkWidget *widget = GTK_WIDGET(g_object_new(MB_TYPE_TEXT_VIEW, NULL));
+	MB_TEXT_VIEW(widget)->window_reference = window_reference;
+	return widget;
 }
 
 void mb_text_view_set_gfile(MbTextView *self, GFile *file)
@@ -136,6 +139,7 @@ static void insert_picture_at_insert(MbTextView *self, const gchar* picture_path
 	GtkTextView *text_view = GTK_TEXT_VIEW(self->text_view);
 
 	mb_picture_set_text_view(MB_PICTURE(picture), text_view);
+	mb_picture_set_window(MB_PICTURE(picture), self->window_reference);
 
 	GtkTextBuffer *buffer = gtk_text_view_get_buffer(text_view);
 	GtkTextMark *insert_mark = gtk_text_buffer_get_insert(buffer);

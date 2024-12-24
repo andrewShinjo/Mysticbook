@@ -7,7 +7,7 @@ G_BEGIN_DECLS
 
 G_DECLARE_FINAL_TYPE(MbTextView, mb_text_view, MB, TEXT_VIEW, GtkWidget)
 
-GtkWidget* mb_text_view_new();
+GtkWidget* mb_text_view_new(GtkWindow *window_reference);
 
 void mb_text_view_set_gfile(MbTextView *self, GFile *file);
 
