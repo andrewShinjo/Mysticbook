@@ -33,6 +33,7 @@ struct _MbPicture
 	gdouble start_y;
 
 	gdouble desired_width;
+	gint current_text_view_width;
 	gint max_text_view_width;
 };
 
@@ -99,35 +100,15 @@ GtkWidget* mb_picture_new(const gchar *path)
 
 void mb_picture_set_text_view(MbPicture *self, GtkTextView *text_view)
 {
-	/*
-	// Get image's default width.
-	GdkPaintable *paintable = gtk_picture_get_paintable(GTK_PICTURE(self->picture));
-	gint native_width = gdk_paintable_get_intrinsic_width(paintable);
-
-	// Get text view's width.
+	g_print("mb_picture_set_text_view\n");
 	self->text_view_reference = text_view;
-	GtkWidget *widget = GTK_WIDGET(self->text_view_reference);
-	gint text_view_width = gtk_widget_get_width(GTK_WIDGET(self->window_reference));
-	gint text_view_max_width = text_view_width * 0.40;
-
-	// Calculate image's height and width.
-	gint image_width = (native_width <= text_view_max_width) ? native_width : text_view_max_width;
-	gint image_height = image_width / self->aspect_ratio;
-
-	// Set image's height and width.
-	gtk_widget_set_size_request(self->picture, image_width, image_height);
-	*/
+	self->current_text_view_width = gtk_widget_get_width(GTK_WIDGET(self->text_view_reference));
+	recalculate_size(self);
 }
 
 void mb_picture_set_window(MbPicture *self, GtkWindow *window_reference)
 {
 	self->window_reference = window_reference;
-	GdkPaintable *paintable = gtk_picture_get_paintable(GTK_PICTURE(self->picture));
-	gint intrinsic_width = gdk_paintable_get_intrinsic_width(paintable);
-	gint max_width = gtk_widget_get_width(GTK_WIDGET(window_reference)) / 2;
-	gint image_width = (intrinsic_width < max_width) ? intrinsic_width : max_width;
-	gint image_height = image_width / self->aspect_ratio;
-	gtk_widget_set_size_request(self->picture, image_width, image_height);
 	g_signal_connect(self->window_reference, "notify::default-width", G_CALLBACK(notify_default_width), self);
 }
 
@@ -146,19 +127,10 @@ static void drag_update(GtkGestureDrag *drag, gdouble offset_x, gdouble offset_y
 	gdouble start_x = self->start_x;
 	gdouble start_y = self->start_y;
 
-	// Calculate image's requested width.
+	// Re-calculate image's desired width.
 	self->desired_width = start_x + offset_x;
 
-	// Calculate image's maximum width.
-	GtkTextView *text_view = self->text_view_reference;
-	//gint max_width = gtk_widget_get_width(GTK_WIDGET(self->window_reference)) * 0.40;
-	gint max_width = 768;
-
-	// Calculate image's actual height and width.
-	gint actual_width = (self->desired_width <= max_width) ? self->desired_width : max_width;
-	gint actual_height = actual_width / self->aspect_ratio;
-
-	gtk_widget_set_size_request(self->picture, actual_width, actual_height);
+	recalculate_size(self);
 }
 
 static void pressed(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, gpointer user_data)
@@ -168,21 +140,24 @@ static void pressed(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, g
 
 static void notify_default_width(GObject *object, GParamSpec *pspec, gpointer user_data)
 {
+	g_print("notify_default_width\n");
 	MbPicture *self = MB_PICTURE(user_data);
 
 	// Calculate image's maximum width.
 	GtkTextView *text_view = self->text_view_reference;
-	//gint max_width = gtk_widget_get_width(GTK_WIDGET(self->window_reference)) * 0.40;
-	gint max_width = 768;
-	gint actual_width = (self->desired_width <= max_width) ? self->desired_width : max_width;
-	gint actual_height = actual_width / self->aspect_ratio;
-	gtk_widget_set_size_request(self->picture, actual_width, actual_height);
+	self->current_text_view_width = gtk_widget_get_width(GTK_WIDGET(text_view));
+
+	if(self->current_text_view_width > self->max_text_view_width)
+	{
+		self->max_text_view_width = self->current_text_view_width;
+	}
+
+	recalculate_size(self);
 }
 
 static void notify_path(GObject *object, GParamSpec *pspec, gpointer user_data)
 {
-	// Initialize desired_width to the default width of the image.
-	// Initialize aspect_ratio of image.
+	g_print("notify_path\n");
 	MbPicture *self = MB_PICTURE(user_data);
 	GdkPaintable *paintable = gtk_picture_get_paintable(GTK_PICTURE(self->picture));
 	gint height = gdk_paintable_get_intrinsic_height(paintable);
@@ -238,5 +213,20 @@ static void mb_picture_init(MbPicture *self)
 
 static void recalculate_size(MbPicture *self)
 {
-	GtkTextView *text_view = self->text_view_reference;
+	g_print("recalculate_size\n");
+	gint width = self->desired_width;
+
+	if(0.40 * self->max_text_view_width < width)
+	{
+		width = 0.40 * self->max_text_view_width;
+	}
+	if(self->current_text_view_width < width)
+	{
+		width = self->current_text_view_width;
+	}
+
+	g_print("Desired: %d, current: %d, max: %d\n", self->desired_width, self->current_text_view_width, self->max_text_view_width);
+
+	gint height = width / self->aspect_ratio;
+	gtk_widget_set_size_request(self->picture, width, height);
 }
