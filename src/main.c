@@ -1,7 +1,9 @@
 #define SDL_MAIN_USE_CALLBACKS
 #include <SDL3/SDL_log.h>
 #include <SDL3/SDL_main.h>
+#include <SDL3/SDL_render.h>
 #include <SDL3/SDL_video.h>
+#include "./DrawLayer.h"
 
 #define DEFAULT_WINDOW_WIDTH 800
 #define DEFAULT_WINDOW_HEIGHT 600
@@ -39,7 +41,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
     DEFAULT_WINDOW_HEIGHT,
     DEFAULT_WINDOW_FLAGS
   );
-
   bool window_creation_failed = !window;
 
   if(window_creation_failed)
@@ -49,6 +50,20 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
   }
 
   SDL_RaiseWindow(window);
+
+  // Initialize renderer.
+
+  SDL_Renderer *renderer = SDL_CreateRenderer(window, NULL);
+  bool renderer_creation_failed = !renderer;
+
+  if(renderer_creation_failed)
+  {
+    SDL_Log("SDL_CreateRenderer failed: %s\n", SDL_GetError());
+    return SDL_APP_FAILURE;
+  }
+
+  // Create DrawLayer
+  DrawLayer *draw = draw_create(window, renderer);
 
   return SDL_APP_CONTINUE;
 }

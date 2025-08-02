@@ -16,7 +16,11 @@ include_directories(thirdparty/Unity/src)
 add_library(UnityLib STATIC thirdparty/Unity/src/unity.c)
 target_include_directories(UnityLib PUBLIC thirdparty/Unity/src)
 
-add_executable(Mysticbook src/main.c)
+add_executable(
+  Mysticbook 
+  src/main.c
+  src/DrawLayer.c
+)
 target_link_libraries(Mysticbook PRIVATE UnityLib SDL3::SDL3)
 
 # Add tests
