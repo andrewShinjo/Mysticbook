@@ -4,6 +4,7 @@
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_video.h>
 #include "./DrawLayer.h"
+#include "./window/WindowWrapper.h"
 
 #define DEFAULT_WINDOW_WIDTH 800
 #define DEFAULT_WINDOW_HEIGHT 600
@@ -35,25 +36,11 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
 
   // Create window.
 
-  SDL_Window *window = SDL_CreateWindow(
-    "Mysticbook",
-    DEFAULT_WINDOW_WIDTH,
-    DEFAULT_WINDOW_HEIGHT,
-    DEFAULT_WINDOW_FLAGS
-  );
-  bool window_creation_failed = !window;
-
-  if(window_creation_failed)
-  {
-    SDL_Log("SDL_CreateWindow failed: %s\n", SDL_GetError());
-    return SDL_APP_FAILURE;
-  }
-
-  SDL_RaiseWindow(window);
+  WindowWrapper *window = ww_create_window("Mysticbook", 800, 600);
 
   // Initialize renderer.
 
-  SDL_Renderer *renderer = SDL_CreateRenderer(window, NULL);
+  SDL_Renderer *renderer = SDL_CreateRenderer(window->window, NULL);
   bool renderer_creation_failed = !renderer;
 
   if(renderer_creation_failed)
@@ -63,7 +50,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
   }
 
   // Create DrawLayer
-  DrawLayer *draw = draw_create(window, renderer);
+  DrawLayer *draw = draw_create(window->window, renderer);
   SDL_Color color = {100, 100, 100, 100};
   fill_rectangle(draw, 0, 0, 100, 100, color);
 
