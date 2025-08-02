@@ -1,9 +1,8 @@
 # Not started
 
-- [ ] Initialize SDL3 app, and window.
-
-# In progress
-
-- [x] Download SDL3.
+- [ ] Implement a draw layer.
 
 # Done
+
+- [x] Download SDL3.
+- [x] Initialize SDL3 app, and window.
