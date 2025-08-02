@@ -64,6 +64,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
 
   // Create DrawLayer
   DrawLayer *draw = draw_create(window, renderer);
+  SDL_Color color = {100, 100, 100, 100};
+  fill_rectangle(draw, 0, 0, 100, 100, color);
+
+  SDL_RenderPresent(renderer);
 
   return SDL_APP_CONTINUE;
 }
