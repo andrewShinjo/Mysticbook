@@ -19,7 +19,7 @@ target_include_directories(UnityLib PUBLIC thirdparty/Unity/src)
 add_executable(
   Mysticbook 
   src/main.c
-  src/DrawLayer.c
+  src/draw/DrawWrapper.c
   src/window/WindowWrapper.c
 )
 target_link_libraries(Mysticbook PRIVATE UnityLib SDL3::SDL3)

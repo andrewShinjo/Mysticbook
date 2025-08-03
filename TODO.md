@@ -1,7 +1,6 @@
 # Not started
 
-- [ ] Rename DrawLayer to DrawWrapper
-- [ ] Create AppWrapper maybe
+- [ ] Redo draw rectangle.
 
 # Done
 
@@ -10,3 +9,4 @@
 - [x] Implement a draw layer.
 - [x] Implement draw rectangle.
 - [x] WindowWrapper
+- [x] Combine window and renderer into a single wrapper.
