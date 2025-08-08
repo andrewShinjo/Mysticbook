@@ -1,0 +1,1 @@
+/usr/bin/cc  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/mysticbook.dir/src/main.c.o CMakeFiles/mysticbook.dir/src/gapbuffer/gapbuffer.c.o -o mysticbook  -Wl,-rpath,/Users/ashinjo/Documents/AndyCodebase/app/Mysticbook/build libSDL2_ttf-2.0.0.2500.0.dylib libSDL2-2.0.0.dylib

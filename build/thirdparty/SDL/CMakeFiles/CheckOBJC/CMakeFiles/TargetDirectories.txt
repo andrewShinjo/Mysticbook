@@ -1,0 +1,2 @@
+/Users/ashinjo/Documents/AndyCodebase/app/Mysticbook/build/thirdparty/SDL/CMakeFiles/CheckOBJC/CMakeFiles/edit_cache.dir
+/Users/ashinjo/Documents/AndyCodebase/app/Mysticbook/build/thirdparty/SDL/CMakeFiles/CheckOBJC/CMakeFiles/rebuild_cache.dir

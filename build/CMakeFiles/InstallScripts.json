@@ -1,0 +1,9 @@
+{
+	"InstallScripts" : 
+	[
+		"/Users/ashinjo/Documents/AndyCodebase/app/Mysticbook/build/cmake_install.cmake",
+		"/Users/ashinjo/Documents/AndyCodebase/app/Mysticbook/build/thirdparty/SDL/cmake_install.cmake",
+		"/Users/ashinjo/Documents/AndyCodebase/app/Mysticbook/build/thirdparty/SDL_ttf/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

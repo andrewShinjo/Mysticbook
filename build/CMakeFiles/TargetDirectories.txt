@@ -1,0 +1,14 @@
+/Users/ashinjo/Documents/AndyCodebase/app/Mysticbook/build/CMakeFiles/mysticbook.dir
+/Users/ashinjo/Documents/AndyCodebase/app/Mysticbook/build/CMakeFiles/edit_cache.dir
+/Users/ashinjo/Documents/AndyCodebase/app/Mysticbook/build/CMakeFiles/rebuild_cache.dir
+/Users/ashinjo/Documents/AndyCodebase/app/Mysticbook/build/thirdparty/SDL/CMakeFiles/sdl_headers_copy.dir
+/Users/ashinjo/Documents/AndyCodebase/app/Mysticbook/build/thirdparty/SDL/CMakeFiles/SDL2main.dir
+/Users/ashinjo/Documents/AndyCodebase/app/Mysticbook/build/thirdparty/SDL/CMakeFiles/SDL2.dir
+/Users/ashinjo/Documents/AndyCodebase/app/Mysticbook/build/thirdparty/SDL/CMakeFiles/SDL2-static.dir
+/Users/ashinjo/Documents/AndyCodebase/app/Mysticbook/build/thirdparty/SDL/CMakeFiles/SDL2_test.dir
+/Users/ashinjo/Documents/AndyCodebase/app/Mysticbook/build/thirdparty/SDL/CMakeFiles/uninstall.dir
+/Users/ashinjo/Documents/AndyCodebase/app/Mysticbook/build/thirdparty/SDL/CMakeFiles/edit_cache.dir
+/Users/ashinjo/Documents/AndyCodebase/app/Mysticbook/build/thirdparty/SDL/CMakeFiles/rebuild_cache.dir
+/Users/ashinjo/Documents/AndyCodebase/app/Mysticbook/build/thirdparty/SDL_ttf/CMakeFiles/SDL2_ttf.dir
+/Users/ashinjo/Documents/AndyCodebase/app/Mysticbook/build/thirdparty/SDL_ttf/CMakeFiles/edit_cache.dir
+/Users/ashinjo/Documents/AndyCodebase/app/Mysticbook/build/thirdparty/SDL_ttf/CMakeFiles/rebuild_cache.dir

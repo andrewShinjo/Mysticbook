@@ -1,28 +1,23 @@
-cmake_minimum_required(VERSION 3.10)
-
-project(Mysticbook)
+cmake_minimum_required(VERSION 3.16)
+project(mysticbook)
 
 set(CMAKE_C_STANDARD 90)
-set(CMAKE_C_STANDARD_REQUIRED True)
+set(CMAKE_C_STANDARD_REQUIRED ON)
 
-# Add SDL
+# set the output directory for built objects.
+# This makes sure that the dynamic library goes into the build directory automatically.
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
+
+# This assumes the SDL source is available in vendored/SDL
 add_subdirectory(thirdparty/SDL EXCLUDE_FROM_ALL)
+add_subdirectory(thirdparty/SDL_ttf EXCLUDE_FROM_ALL)
 
-# Add Unity testing framework
-add_subdirectory(thirdparty/Unity)
-include_directories(thirdparty/Unity/src)
-
-# Create Unity library target
-add_library(UnityLib STATIC thirdparty/Unity/src/unity.c)
-target_include_directories(UnityLib PUBLIC thirdparty/Unity/src)
-
+# Create your game executable target as usual
 add_executable(
-  Mysticbook 
+  mysticbook 
   src/main.c
-  src/draw/DrawWrapper.c
-  src/window/WindowWrapper.c
-)
-target_link_libraries(Mysticbook PRIVATE UnityLib SDL3::SDL3)
+  src/gapbuffer/gapbuffer.c)
 
-# Add tests
-add_subdirectory(test)
+# Link to the actual SDL2 library.
+target_link_libraries(mysticbook PRIVATE SDL2::SDL2 SDL2_ttf)
