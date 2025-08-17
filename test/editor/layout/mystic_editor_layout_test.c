@@ -179,9 +179,6 @@ void MysticEditorLineReserveTest(void)
 
   TEST_ASSERT_EQUAL_INT(line3.capacity, 25);
   TEST_ASSERT_FALSE(result3);
-
-  // Case 4: The new capacity is less than the current length.
-  // Do nothing, and return false.
 }
 
 // not needed when using generate_test_runner.rb
