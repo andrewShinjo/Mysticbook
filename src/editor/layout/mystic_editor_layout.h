@@ -1,7 +1,7 @@
 #ifndef MYSTIC_EDITOR_LAYOUT_H
 #define MYSTIC_EDITOR_LAYOUT_H
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 // TODO(andy): change int -> int16_t if possible to save space.
 typedef struct
