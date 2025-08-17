@@ -56,8 +56,9 @@ int main()
   }
 
   // Load a font.
+  const char *font_path = RESOURCE_PATH "/OpenSans-Regular.ttf";
   TTF_Font *font = TTF_OpenFont(
-    "../resources/OpenSans-Regular.ttf",
+    font_path,
     32);
 
   if (!font)
