@@ -31,10 +31,22 @@ void MysticEditorLineInitTest(void)
   TEST_ASSERT_EQUAL_INT(result, 0);
 }
 
+void MysticEditorLineInitNegativeTest(void)
+{
+  MysticEditorLine line;
+  const int result = MysticEditorLineInit(&line, 0);
+  TEST_ASSERT_EQUAL_INT(result, 1);
+
+  MysticEditorLine line2;
+  const int result2 = MysticEditorLineInit(&line2, -1);
+  TEST_ASSERT_EQUAL_INT(result2, 1);
+}
+
 // not needed when using generate_test_runner.rb
 int main(void)
 {
   UNITY_BEGIN();
   RUN_TEST(MysticEditorLineInitTest);
+  RUN_TEST(MysticEditorLineInitNegativeTest);
   return UNITY_END();
 }
