@@ -39,4 +39,9 @@ bool MysticEditorLineInsertAt(
   const char *s,
   uint16_t n);
 
+/**
+ * Allocates a new capacity for the MysticEditorLine.
+ */
+bool MysticEditorLineReserve(MysticEditorLine *self, int new_capacity);
+
 #endif //MYSTIC_EDITOR_LAYOUT_H

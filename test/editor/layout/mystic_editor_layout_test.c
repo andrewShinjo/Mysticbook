@@ -141,6 +141,46 @@ void MysticEditorLineInsertAtNegativeTest(void)
       9));
 }
 
+void MysticEditorLineReserveTest(void)
+{
+  // Case 1: The new capacity is greater than the original capacity.
+  // The capacity should be updated to the new one, and Reserve() should
+  // return true.
+  MysticEditorLine line;
+  MysticEditorLineInit(&line, 10);
+
+  TEST_ASSERT_EQUAL_INT(line.capacity, 10);
+
+  bool result = MysticEditorLineReserve(&line, 20);
+
+  TEST_ASSERT_EQUAL_INT(line.capacity, 20);
+  TEST_ASSERT_TRUE(result);
+
+  // Case 2: The new capacity is less than the original capacity.
+  // The capacity should stay the same, and Reserve() should return false.
+  MysticEditorLine line2;
+  MysticEditorLineInit(&line2, 100);
+
+  TEST_ASSERT_EQUAL_INT(line2.capacity, 100);
+
+  bool result2 = MysticEditorLineReserve(&line2, 50);
+
+  TEST_ASSERT_EQUAL_INT(line2.capacity, 100);
+  TEST_ASSERT_FALSE(result2);
+
+  // Case 3: The new capacity is equal to the original capacity.
+  // The capacity should stay the same, and Reserve() should return false.
+  MysticEditorLine line3;
+  MysticEditorLineInit(&line3, 25);
+
+  TEST_ASSERT_EQUAL_INT(line3.capacity, 25);
+
+  bool result3 = MysticEditorLineReserve(&line3, 25);
+
+  TEST_ASSERT_EQUAL_INT(line3.capacity, 25);
+  TEST_ASSERT_FALSE(result3);
+}
+
 // not needed when using generate_test_runner.rb
 int main(void)
 {
@@ -149,5 +189,6 @@ int main(void)
   RUN_TEST(MysticEditorLineInitNegativeTest);
   RUN_TEST(MysticEditorLineInsertAtTest);
   RUN_TEST(MysticEditorLineInsertAtNegativeTest);
+  RUN_TEST(MysticEditorLineReserveTest);
   return UNITY_END();
 }
