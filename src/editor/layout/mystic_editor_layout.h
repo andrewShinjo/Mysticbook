@@ -1,6 +1,7 @@
 #ifndef MYSTIC_EDITOR_LAYOUT_H
 #define MYSTIC_EDITOR_LAYOUT_H
 #include <stdint.h>
+#include <stdbool.h>
 
 // TODO(andy): change int -> int16_t if possible to save space.
 typedef struct
@@ -28,5 +29,14 @@ typedef struct
  * Returns 0 on success, nonzero on failure.
  */
 int MysticEditorLineInit(MysticEditorLine *self, int capacity);
+
+/**
+ * Insert `n` characters from `s` at position `index`
+ */
+bool MysticEditorLineInsertAt(
+  MysticEditorLine *self,
+  uint16_t index,
+  const char *s,
+  uint16_t n);
 
 #endif //MYSTIC_EDITOR_LAYOUT_H
