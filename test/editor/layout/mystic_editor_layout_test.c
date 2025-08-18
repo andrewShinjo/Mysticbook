@@ -144,7 +144,7 @@ void MysticEditorLineInsertAtNegativeTest(void)
 void MysticEditorLineReserveTest(void)
 {
   // Case 1: The new capacity is greater than the original capacity.
-  // The capacity should be updated to the new one, and Return() should
+  // The capacity should be updated to the new one, and Reserve() should
   // return true.
   MysticEditorLine line;
   MysticEditorLineInit(&line, 10);
